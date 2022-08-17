@@ -10,7 +10,11 @@ permissions:
 jobs: 
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
+    - name: Checkout to the branch
+      uses: actions/checkout@v2
+
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
@@ -22,4 +26,4 @@ jobs:
       run: |
           pwd
           ls
-          az deployment sub create --location westeurope --template-file ../infrastructure/platform.bicep --parameters location=westeurope platformResourcePrefix=lab-msa
+          az deployment sub create --location westeurope --template-file infrastructure/platform.bicep --parameters location=westeurope platformResourcePrefix=lab-msa
