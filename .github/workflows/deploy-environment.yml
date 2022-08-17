@@ -1,4 +1,4 @@
-name: Deploy platform resources
+name: Deploy environment resources
 
 on:
   workflow_dispatch:
@@ -8,8 +8,9 @@ permissions:
   contents: read
 
 jobs: 
-  deploy-platform:
+  deploy-dev:
     runs-on: ubuntu-latest
+    environment: dev
 
     steps:
     - name: Git checkout
@@ -24,4 +25,4 @@ jobs:
   
     - name: 'Deploy Azure resources'
       run: |
-          az deployment sub create --location westeurope --template-file infrastructure/platform.bicep --parameters location=westeurope platformResourcePrefix=lab-msa
+          az deployment sub create --location westeurope --template-file infrastructure/environment.bicep --parameters location=westeurope platformResourcePrefix=lab-msa environmentResourcePrefix=lab-msa-dev
