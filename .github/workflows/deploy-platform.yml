@@ -21,4 +21,5 @@ jobs:
     - name: 'Run Azure CLI commands'
       run: |
           pwd
-          az deployment sub create --location westeurope --template-file infrastructure/platform.bicep --parameters location=westeurope platformResourcePrefix=lab-msa
+          ls
+          az deployment sub create --location westeurope --template-file ../infrastructure/platform.bicep --parameters location=westeurope platformResourcePrefix=lab-msa
