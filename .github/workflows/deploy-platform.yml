@@ -1,4 +1,5 @@
 name: Deploy platform resources
+
 on:
   workflow_dispatch:
 
@@ -19,6 +20,4 @@ jobs:
   
     - name: 'Run Azure CLI commands'
       run: |
-          az account show
-          az group list
-          pwd 
+          az deployment sub create --location westeurope --template-file ./infrastructure/platform.bicep --parameters location=westeurope platformResourcePrefix=lab-msa
