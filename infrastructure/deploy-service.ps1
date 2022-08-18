@@ -6,7 +6,10 @@ Param (
     [string]$Environment,
 
     [Parameter(Mandatory=$True)]
-    [string]$ServiceName
+    [string]$ServiceName,
+
+    [Parameter(Mandatory=$True)]
+    [string]$ImageTag
 )
 
 #$Environment = "development"
@@ -32,5 +35,5 @@ Exec {
     az deployment sub create `
         --location $location `
         --template-file .\service.bicep `
-        --parameters location=$location platformResourcePrefix=$platformResourcePrefix environmentResourcePrefix=$environmentResourcePrefix serviceName=$ServiceName
+        --parameters location=$location platformResourcePrefix=$platformResourcePrefix environmentResourcePrefix=$environmentResourcePrefix serviceName=$ServiceName imageTag=$ImageTag
 }
