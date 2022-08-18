@@ -5,7 +5,9 @@ $location = "westeurope"
 
 "Deploying platform"
 
-New-AzSubscriptionDeployment -Location $location -TemplateFile .\platform.bicep -TemplateParameterObject @{
-    location = $location;
-    platformResourcePrefix = $platformResourcePrefix;
+Exec {
+    az deployment sub create `
+        --location $location `
+        --template-file .\platform.bicep `
+        --parameters location=$location platformResourcePrefix=$platformResourcePrefix
 }

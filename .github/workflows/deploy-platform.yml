@@ -15,13 +15,12 @@ jobs:
     - name: Git checkout
       uses: actions/checkout@v2
 
-    - name: 'Azure login'
+    - name: 'Azure CLI login'
       uses: azure/login@v1
       with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
   
     - name: 'Deploy Azure resources'
       shell: pwsh
