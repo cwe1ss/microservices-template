@@ -36,7 +36,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: ${{ secrets.REGISTRY_SERVER }}/lab-msa-svc-demo:${{ env.GITHUB_RUN_NUMBER }}
+        tags: ${{ secrets.REGISTRY_SERVER }}/lab-msa-svc-demo:${{ github.run_number }}
         file: services/demo/Demo.Api/Dockerfile
         context: .
 
