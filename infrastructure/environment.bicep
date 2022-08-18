@@ -7,6 +7,10 @@ param environmentResourcePrefix string
 resource envGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${environmentResourcePrefix}-env'
   location: location
+  tags: {
+    product: platformResourcePrefix
+    environment: environmentResourcePrefix
+  }
 }
 
 module envResources 'environment-resources.bicep' = {

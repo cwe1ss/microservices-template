@@ -10,18 +10,21 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   properties: {
     adminUserEnabled: false
   }
+  tags: {
+    product: platformResourcePrefix
+  }
 }
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: '${platformResourcePrefix}-logs'
   location: location
-  properties: any({
+  properties: {
     retentionInDays: 30
-    features: {
-      searchVersion: 1
-    }
     sku: {
       name: 'PerGB2018'
     }
-  })
+  }
+  tags: {
+    product: platformResourcePrefix
+  }
 }

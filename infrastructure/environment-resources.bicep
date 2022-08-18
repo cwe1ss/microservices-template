@@ -15,6 +15,10 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
     Application_Type: 'web'
     WorkspaceResourceId: logs.id
   }
+  tags: {
+    product: platformResourcePrefix
+    environment: environmentResourcePrefix
+  }
 }
 
 resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
@@ -28,5 +32,9 @@ resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
         sharedKey: logs.listKeys().primarySharedKey
       }
     }
+  }
+  tags: {
+    product: platformResourcePrefix
+    environment: environmentResourcePrefix
   }
 }

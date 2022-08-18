@@ -1,4 +1,5 @@
 param location string = resourceGroup().location
+param platformResourcePrefix string
 param environmentResourcePrefix string
 param serviceName string
 
@@ -30,5 +31,9 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
         }
       ]
     }
+  }
+  tags: {
+    product: platformResourcePrefix
+    environment: environmentResourcePrefix
   }
 }

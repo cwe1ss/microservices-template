@@ -12,6 +12,7 @@ Param (
 #$Environment = "development"
 #$ServiceName = "demo"
 
+$platformResourcePrefix = "lab-msa"
 $location = "westeurope"
 
 if ($Environment -eq "development") {
@@ -31,5 +32,5 @@ Exec {
     az deployment sub create `
         --location $location `
         --template-file .\service.bicep `
-        --parameters location=$location environmentResourcePrefix=$environmentResourcePrefix serviceName=$ServiceName
+        --parameters location=$location platformResourcePrefix=$platformResourcePrefix environmentResourcePrefix=$environmentResourcePrefix serviceName=$ServiceName
 }
