@@ -1,0 +1,16 @@
+name: 'Service: customers'
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/_service-build.yml
+    with:
+      dockerfile: ./services/customers/Customers.Api/Dockerfile
+      imageName: lab-msa-svc-customers
+    secrets: inherit
