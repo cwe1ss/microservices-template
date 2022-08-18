@@ -17,8 +17,7 @@ jobs:
 
   deploy-development:
     needs: build
-    environment: development
-    uses: ./.github/workflows/_service-deploy.yml    
+    uses: ./.github/workflows/_service-deploy.yml
     with:
       service: customers
       environment: development
@@ -26,7 +25,6 @@ jobs:
 
   deploy-production:
     needs: build
-    environment: production
     uses: ./.github/workflows/_service-deploy.yml
     with:
       service: customers
