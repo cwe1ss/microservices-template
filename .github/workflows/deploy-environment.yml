@@ -1,4 +1,4 @@
-name: Deploy environment resources
+name: Deploy 02 environments
 
 on:
   workflow_dispatch:
@@ -24,8 +24,10 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   
     - name: 'Deploy Azure resources'
-      run: |
-          az deployment sub create --location westeurope --template-file infrastructure/environment.bicep --parameters location=westeurope platformResourcePrefix=lab-msa environmentResourcePrefix=lab-msa-dev
+      shell: pwsh
+      working-directory: infrastructure
+      run: ./deploy-environment.ps1 -Environment development
+
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -43,5 +45,6 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: 'Deploy Azure resources'
-      run: |
-          az deployment sub create --location westeurope --template-file infrastructure/environment.bicep --parameters location=westeurope platformResourcePrefix=lab-msa environmentResourcePrefix=lab-msa-prod
+      shell: pwsh
+      working-directory: infrastructure
+      run: ./deploy-environment.ps1 -Environment production

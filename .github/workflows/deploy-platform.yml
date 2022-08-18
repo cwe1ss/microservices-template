@@ -1,4 +1,4 @@
-name: Deploy 01 platform resources
+name: Deploy 01 platform
 
 on:
   workflow_dispatch:
