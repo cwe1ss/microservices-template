@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package shared.types;
+
+// Decimal
+// https://docs.microsoft.com/en-us/dotnet/architecture/grpc-for-wcf-developers/protobuf-data-types#creating-a-custom-decimal-type-for-protobuf
+// Example: 12345.6789 -> { units = 12345, nanos = 678900000 }
+message DecimalValue {
+
+	// Whole units part of the amount
+	int64 units = 1;
+
+	// Nano units of the amount (10^-9)
+	// Must be same sign as units
+	sfixed32 nanos = 2;
+}
