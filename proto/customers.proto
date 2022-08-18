@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option csharp_namespace = "Customers.Api";
+
+import "google/api/annotations.proto";
+
+service Customers {
+	rpc ListCustomers (ListCustomersRequest) returns (ListCustomersResponse) {
+		option (google.api.http) = {
+			get: "/v1/customers"
+		};
+	};
+	rpc GetCustomer (GetCustomerRequest) returns (CustomerDto) {
+		option (google.api.http) = {
+			get: "/v1/customers/{customer_id=*}"
+		};
+	};
+	rpc CreateCustomer (CreateCustomerRequest) returns (CustomerDto) {
+		option (google.api.http) = {
+			post: "/v1/customers"
+			body: "customer"
+		};
+	}
+}
+
+message CreateCustomerRequest {
+	CustomerDto customer = 1;
+}
+
+message GetCustomerRequest {
+	string customer_id = 1;
+}
+
+message ListCustomersRequest {
+}
+
+message ListCustomersResponse {
+	repeated CustomerDto customers = 1;
+}
+
+message CustomerDto {
+	string customer_id = 1;
+	string full_name = 2;
+}

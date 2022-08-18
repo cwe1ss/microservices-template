@@ -364,14 +364,14 @@ indent_size = 4
 end_of_line = crlf
 dotnet_style_namespace_match_folder = true:suggestion
 
-# Xml files
+[*.bicep]
+indent_size = 2
+
 [*.xml]
 indent_size = 2
 
-# Xml project files
 [*.{csproj,vcxproj,vcxproj.filters,proj,nativeproj,locproj,fsproj,sfproj}]
 indent_size = 2
 
-# Xml config files
 [*.{props,targets,config,nuspec}]
 indent_size = 2
