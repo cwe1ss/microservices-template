@@ -1,4 +1,4 @@
-name: 'Service: customers'
+name: 'Service: Customers'
 
 on:
   workflow_dispatch:
@@ -9,8 +9,24 @@ permissions:
 
 jobs:
   build:
-    uses: ./.github/workflows/_service-build.yml
+    uses: ./.github/workflows/templates/_service-build.yml
     with:
       dockerfile: ./services/customers/Customers.Api/Dockerfile
       imageName: lab-msa-svc-customers
+    secrets: inherit
+
+  deploy-development:
+    needs: build
+    uses: ./.github/workflows/templates/_service-deploy.yml
+    with:
+      service: customers
+      environment: development
+    secrets: inherit
+
+  deploy-production:
+    needs: build
+    uses: ./.github/workflows/templates/_service-deploy.yml
+    with:
+      service: customers
+      environment: production
     secrets: inherit
