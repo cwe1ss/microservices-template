@@ -38,7 +38,7 @@ jobs:
         push: true
         tags: ${{ secrets.REGISTRY_SERVER }}/lab-msa-svc-demo:${{ github.sha }}
         file: services/demo/Demo.Api/Dockerfile
-        context: services/demo
+        context: .
 
 
   deploy-development:
