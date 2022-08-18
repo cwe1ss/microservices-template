@@ -36,7 +36,7 @@ jobs:
     - name: 'Deploy Azure resources'
       shell: pwsh
       working-directory: infrastructure
-      run: ./deploy-service.ps1 -Service demo
+      run: ./deploy-service.ps1 -Environment development -Service demo
 
 
   deploy-production:
@@ -58,4 +58,4 @@ jobs:
     - name: 'Deploy Azure resources'
       shell: pwsh
       working-directory: infrastructure
-      run: ./deploy-service.ps1 -Service demo
+      run: ./deploy-service.ps1 -Environment production -Service demo
