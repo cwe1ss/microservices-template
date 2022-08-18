@@ -370,6 +370,9 @@ indent_size = 2
 [*.xml]
 indent_size = 2
 
+[*.{yml,yaml}]
+indent_size = 2
+
 [*.{csproj,vcxproj,vcxproj.filters,proj,nativeproj,locproj,fsproj,sfproj}]
 indent_size = 2
 
