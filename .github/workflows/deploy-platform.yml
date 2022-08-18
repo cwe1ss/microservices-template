@@ -1,4 +1,4 @@
-name: Deploy platform resources
+name: Deploy 01 platform resources
 
 on:
   workflow_dispatch:
@@ -23,5 +23,6 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   
     - name: 'Deploy Azure resources'
-      run: |
-          az deployment sub create --location westeurope --template-file infrastructure/platform.bicep --parameters location=westeurope platformResourcePrefix=lab-msa
+      shell: pwsh
+      working-directory: infrastructure
+      run: ./deploy-platform.ps1
