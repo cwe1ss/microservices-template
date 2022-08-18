@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    uses: ./.github/workflows/templates/_service-build.yml
+    uses: ./.github/workflows/_service-build.yml
     with:
       dockerfile: ./services/customers/Customers.Api/Dockerfile
       imageName: lab-msa-svc-customers
@@ -17,7 +17,7 @@ jobs:
 
   deploy-development:
     needs: build
-    uses: ./.github/workflows/templates/_service-deploy.yml
+    uses: ./.github/workflows/_service-deploy.yml
     with:
       service: customers
       environment: development
@@ -25,7 +25,7 @@ jobs:
 
   deploy-production:
     needs: build
-    uses: ./.github/workflows/templates/_service-deploy.yml
+    uses: ./.github/workflows/_service-deploy.yml
     with:
       service: customers
       environment: production
