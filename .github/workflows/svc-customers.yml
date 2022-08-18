@@ -14,6 +14,9 @@ jobs:
       dockerfile: ./services/customers/Customers.Api/Dockerfile
       imageName: lab-msa-svc-customers
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
 
   deploy-development:
     needs: build
@@ -22,6 +25,9 @@ jobs:
       service: customers
       environment: development
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
 
   deploy-production:
     needs: build
@@ -30,3 +36,6 @@ jobs:
       service: customers
       environment: production
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
