@@ -27,6 +27,6 @@ if ($Environment -eq "development") {
 Exec {
     az deployment sub create `
         --location $location `
-        --template-file .\infrastructure\environment.bicep `
+        --template-file .\environment.bicep `
         --parameters location=$location platformResourcePrefix=$platformResourcePrefix environmentResourcePrefix=$environmentResourcePrefix
 }
