@@ -36,6 +36,12 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
   properties: {
     managedEnvironmentId: env.id
     configuration: {
+      dapr: {
+        appId: serviceName
+        appPort: 80
+        appProtocol: 'grpc'
+        enabled: true
+      }
       ingress: {
         external: true
         targetPort: 80
