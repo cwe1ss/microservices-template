@@ -27,6 +27,9 @@ var fullImageName = '${acr.properties.loginServer}/${platformResourcePrefix}-svc
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: '${environmentResourcePrefix}-svc-${serviceName}'
   location: location
+  dependsOn: [
+    svcUser
+  ]
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -39,6 +42,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
       ingress: {
         external: true
         targetPort: 80
+        transport: 'http2'
       }
       registries: [
         {
@@ -58,6 +62,9 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
           }
         }
       ]
+      scale: {
+        minReplicas: 0
+      }
     }
   }
   tags: {
