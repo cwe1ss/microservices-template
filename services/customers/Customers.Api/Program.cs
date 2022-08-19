@@ -1,10 +1,6 @@
-using Customers.Api;
 using Customers.Api.Domain;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +18,10 @@ builder.Services.AddDbContext<CustomersDbContext>(options =>
     options.UseInMemoryDatabase("customers");
 });
 
-builder.Services.AddGrpc();
+builder.Services.AddGrpc(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 builder.Services.AddGrpcReflection();
 builder.Services.AddGrpcHttpApi();
 builder.Services.AddGrpcSwagger();
