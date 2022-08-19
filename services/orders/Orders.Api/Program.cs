@@ -19,13 +19,25 @@ builder.Services.AddDbContext<OrdersDbContext>(options =>
     options.UseInMemoryDatabase("orders");
 });
 
-builder.Services.AddGrpcClient<Customers.Api.Customers.CustomersClient>(options =>
+//builder.Services.AddGrpcClient<Customers.Api.Customers.CustomersClient>(options =>
+//{
+//    //options.Address = new Uri("https://localhost:7088");
+//    options.Creator = _ => DaprClient.CreateInvocationInvoker("customers");
+//});
+
+builder.Services.AddDaprClient();
+builder.Services.AddTransient<Customers.Api.Customers.CustomersClient>(sp =>
 {
-    //options.Address = new Uri("https://localhost:7088");
-    options.Creator = _ => DaprClient.CreateInvocationInvoker("customers");
+    var invoker = DaprClient.CreateInvocationInvoker("customers");
+    var client = new Customers.Api.Customers.CustomersClient(invoker);
+    return client;
 });
 
-builder.Services.AddGrpc();
+
+builder.Services.AddGrpc(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 builder.Services.AddGrpcReflection();
 builder.Services.AddGrpcHttpApi();
 builder.Services.AddGrpcSwagger();
@@ -40,7 +52,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 //app.UseAuthentication();
 //app.UseAuthorization();
