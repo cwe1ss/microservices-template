@@ -29,22 +29,22 @@ jobs:
       run: ./deploy-environment.ps1 -Environment development
 
 
-  deploy-production:
-    runs-on: ubuntu-latest
-    environment: production
+  # deploy-production:
+  #   runs-on: ubuntu-latest
+  #   environment: production
 
-    steps:
-    - name: Git checkout
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Git checkout
+  #     uses: actions/checkout@v2
 
-    - name: 'Azure CLI login'
-      uses: azure/login@v1
-      with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   - name: 'Azure CLI login'
+  #     uses: azure/login@v1
+  #     with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: 'Deploy Azure resources'
-      shell: pwsh
-      working-directory: infrastructure
-      run: ./deploy-environment.ps1 -Environment production
+  #   - name: 'Deploy Azure resources'
+  #     shell: pwsh
+  #     working-directory: infrastructure
+  #     run: ./deploy-environment.ps1 -Environment production

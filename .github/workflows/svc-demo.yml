@@ -63,23 +63,23 @@ jobs:
       run: ./deploy-service.ps1 -Environment development -Service demo -ImageTag ${{ github.run_number }}
 
 
-  deploy-production:
-    needs: build
-    runs-on: ubuntu-latest
-    environment: production
+  # deploy-production:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   environment: production
 
-    steps:
-    - name: Git checkout
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Git checkout
+  #     uses: actions/checkout@v2
 
-    - name: 'Azure CLI login'
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   - name: 'Azure CLI login'
+  #     uses: azure/login@v1
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: 'Deploy Azure resources'
-      shell: pwsh
-      working-directory: infrastructure
-      run: ./deploy-service.ps1 -Environment production -Service demo -ImageTag ${{ github.run_number }}
+  #   - name: 'Deploy Azure resources'
+  #     shell: pwsh
+  #     working-directory: infrastructure
+  #     run: ./deploy-service.ps1 -Environment production -Service demo -ImageTag ${{ github.run_number }}

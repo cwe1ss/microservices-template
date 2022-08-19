@@ -33,13 +33,13 @@ jobs:
       id-token: write
       contents: read
 
-  deploy-production:
-    needs: build
-    uses: ./.github/workflows/_service-deploy.yml
-    with:
-      service: customers
-      environment: production
-    secrets: inherit
-    permissions:
-      id-token: write
-      contents: read
+  # deploy-production:
+  #   needs: build
+  #   uses: ./.github/workflows/_service-deploy.yml
+  #   with:
+  #     service: customers
+  #     environment: production
+  #   secrets: inherit
+  #   permissions:
+  #     id-token: write
+  #     contents: read
