@@ -32,6 +32,7 @@ resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
         sharedKey: logs.listKeys().primarySharedKey
       }
     }
+    daprAIConnectionString: appInsights.properties.ConnectionString
   }
   tags: {
     product: platformResourcePrefix
