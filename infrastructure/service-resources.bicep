@@ -16,6 +16,11 @@ resource env 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
   scope: resourceGroup('${environmentResourcePrefix}-env')
 }
 
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: '${environmentResourcePrefix}-appinsights'
+  scope: resourceGroup('${environmentResourcePrefix}-env')
+}
+
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
   name: '${environmentResourcePrefix}-svc-${serviceName}'
 }
@@ -63,6 +68,12 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
             cpu: '0.5'
             memory: '1.0Gi'
           }
+          env: [
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              value: appInsights.properties.ConnectionString
+            }
+          ]
         }
       ]
       scale: {

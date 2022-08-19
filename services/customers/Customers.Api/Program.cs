@@ -13,6 +13,8 @@ builder.WebHost.UseKestrel(x =>
     x.ConfigureEndpointDefaults(o => o.Protocols = HttpProtocols.Http2);
 });
 
+builder.Services.AddApplicationInsightsTelemetry();
+
 builder.Services.AddDbContext<CustomersDbContext>(options =>
 {
     options.UseInMemoryDatabase("customers");
