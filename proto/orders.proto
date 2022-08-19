@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option csharp_namespace = "Orders.Api";
+
+import "google/api/annotations.proto";
+import "types.proto";
+
+service Orders {
+	rpc ListOrders (ListOrdersRequest) returns (ListOrdersResponse) {
+		option (google.api.http) = {
+			get: "/v1/orders"
+		};
+	};
+	rpc CreateOrder (CreateOrderRequest) returns (OrderDto) {
+		option (google.api.http) = {
+			post: "/v1/orders"
+			body: "order"
+		};
+	}
+}
+
+message CreateOrderRequest {
+	OrderDto order = 1;
+}
+
+message ListOrdersRequest {
+}
+
+message ListOrdersResponse {
+	repeated OrderDto Orders = 1;
+}
+
+message OrderDto {
+	string order_id = 1;
+	Customer customer = 2;
+	shared.types.DecimalValue total_amount = 3;
+
+	message Customer {
+		string customer_id = 1;
+		string full_name = 2;
+	}
+}
