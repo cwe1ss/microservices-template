@@ -23,27 +23,43 @@ resource svcGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   }
 }
 
-module svcResources 'service-resources.bicep' = {
-  name: 'svcResources'
+// Create the user assigned identity first, so that we can assign permissions to it before the rest of the service resources is created
+module svcIdentity 'service-identity.bicep' = {
+  name: 'svcIdentity'
   scope: svcGroup
   params: {
     location: location
     platformResourcePrefix: platformResourcePrefix
     environmentResourcePrefix: environmentResourcePrefix
     serviceName: serviceName
-    imageTag: imageTag
   }
 }
 
+// Allow the identity to access the platform container registry
 module svcIdentityAssignment 'service-platform-assignments.bicep' = {
   name: 'svcIdentityAssignment'
   scope: platformGroup
   dependsOn: [
-    svcResources
+    svcIdentity
   ]
   params: {
     platformResourcePrefix: platformResourcePrefix
     environmentResourcePrefix: environmentResourcePrefix
     serviceName: serviceName
+  }
+}
+
+module svcResources 'service-resources.bicep' = {
+  name: 'svcResources'
+  scope: svcGroup
+  dependsOn: [
+    svcIdentityAssignment
+  ]
+  params: {
+    location: location
+    platformResourcePrefix: platformResourcePrefix
+    environmentResourcePrefix: environmentResourcePrefix
+    serviceName: serviceName
+    imageTag: imageTag
   }
 }
