@@ -7,8 +7,9 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Directory.Build.props", "Directory.Build.props"] # Manually added
-COPY ["services/orders/Orders.sln", "services/orders/"] # Manually added
+COPY ["Directory.Build.props", "Directory.Build.props"]
+COPY ["services/orders/Orders.sln", "services/orders/"]
+COPY ["shared/Shared/Shared.csproj", "shared/Shared/"]
 COPY ["services/orders/Orders.Api/Orders.Api.csproj", "services/orders/Orders.Api/"]
 RUN dotnet restore "services/orders"
 COPY . .
