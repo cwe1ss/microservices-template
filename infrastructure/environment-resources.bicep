@@ -33,6 +33,7 @@ resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
       }
     }
     daprAIConnectionString: appInsights.properties.ConnectionString
+    daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
   }
   tags: {
     product: platformResourcePrefix
