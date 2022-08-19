@@ -1,11 +1,11 @@
-name: 'Service: Customers'
+name: 'Service: Orders'
 
 on:
   workflow_dispatch:
   push:
     paths:
-    - proto/customers.proto
-    - services/customers/**
+    - proto/orders.proto
+    - services/orders/**
 
 permissions:
   id-token: write
@@ -15,8 +15,8 @@ jobs:
   build:
     uses: ./.github/workflows/_service-build.yml
     with:
-      dockerfile: ./services/customers/Customers.Api/Dockerfile
-      imageName: lab-msa-svc-customers
+      dockerfile: ./services/orders/Orders.Api/Dockerfile
+      imageName: lab-msa-svc-orders
     secrets: inherit
     permissions:
       id-token: write
@@ -26,7 +26,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
     with:
-      service: customers
+      service: orders
       environment: development
     secrets: inherit
     permissions:
@@ -37,7 +37,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
     with:
-      service: customers
+      service: orders
       environment: production
     secrets: inherit
     permissions:
