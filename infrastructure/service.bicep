@@ -39,6 +39,9 @@ module svcIdentity 'service-identity.bicep' = {
 module svcIdentityAssignment 'service-platform-assignments.bicep' = {
   name: 'svcIdentityAssignment'
   scope: platformGroup
+  dependsOn: [
+    svcIdentity
+  ]
   params: {
     platformResourcePrefix: platformResourcePrefix
     environmentResourcePrefix: environmentResourcePrefix

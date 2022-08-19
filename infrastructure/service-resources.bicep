@@ -27,9 +27,6 @@ var fullImageName = '${acr.properties.loginServer}/${platformResourcePrefix}-svc
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: '${environmentResourcePrefix}-svc-${serviceName}'
   location: location
-  dependsOn: [
-    svcUser
-  ]
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
