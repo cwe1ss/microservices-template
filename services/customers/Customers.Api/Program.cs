@@ -17,6 +17,7 @@ builder.Services.AddDbContext<CustomersDbContext>(options =>
 });
 
 builder.Services.AddGrpc();
+builder.Services.AddGrpcReflection();
 builder.Services.AddGrpcHttpApi();
 builder.Services.AddGrpcSwagger();
 
@@ -37,7 +38,9 @@ app.UseHttpsRedirection();
 //app.UseAuthorization();
 
 app.MapGrpcService<CustomersService>();
+app.MapGrpcReflectionService();
 
 app.MapGet("/health", () => "OK");
+app.MapGet("/", () => "Hello World");
 
 app.Run();
