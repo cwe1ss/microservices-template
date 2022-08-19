@@ -21,13 +21,18 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   scope: resourceGroup('${environmentResourcePrefix}-env')
 }
 
-resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
-  name: '${environmentResourcePrefix}-svc-${serviceName}'
-}
-
 // New resources
 
 var fullImageName = '${acr.properties.loginServer}/${platformResourcePrefix}-svc-${serviceName}:${imageTag}'
+
+resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+  name: '${environmentResourcePrefix}-svc-${serviceName}'
+  location: location
+  tags: {
+    product: platformResourcePrefix
+    environment: environmentResourcePrefix
+  }
+}
 
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: '${environmentResourcePrefix}-svc-${serviceName}'
