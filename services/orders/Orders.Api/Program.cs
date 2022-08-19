@@ -1,3 +1,4 @@
+using Dapr.Client;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Orders.Api.Domain;
@@ -20,7 +21,8 @@ builder.Services.AddDbContext<OrdersDbContext>(options =>
 
 builder.Services.AddGrpcClient<Customers.Api.Customers.CustomersClient>(options =>
 {
-    options.Address = new Uri("https://localhost:7088");
+    //options.Address = new Uri("https://localhost:7088");
+    options.Creator = _ => DaprClient.CreateInvocationInvoker("customers");
 });
 
 builder.Services.AddGrpc();
