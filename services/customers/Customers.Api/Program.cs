@@ -2,6 +2,7 @@ using Customers.Api;
 using Customers.Api.Domain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 
@@ -10,6 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+builder.WebHost.UseKestrel(x =>
+{
+    x.ConfigureEndpointDefaults(o => o.Protocols = HttpProtocols.Http2);
+});
 
 builder.Services.AddDbContext<CustomersDbContext>(options =>
 {
@@ -25,6 +31,7 @@ builder.Services.AddGrpcSwagger();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,7 +39,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 //app.UseAuthentication();
 //app.UseAuthorization();
