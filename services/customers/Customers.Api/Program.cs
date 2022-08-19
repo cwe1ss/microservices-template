@@ -1,6 +1,8 @@
 using Customers.Api.Domain;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Shared.AppInsights;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,7 @@ builder.WebHost.UseKestrel(x =>
 });
 
 builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddSingleton<ITelemetryInitializer, ApplicationNameTelemetryInitializer>();
 
 builder.Services.AddDbContext<CustomersDbContext>(options =>
 {
@@ -31,7 +34,6 @@ builder.Services.AddGrpcSwagger();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 var app = builder.Build();
 
