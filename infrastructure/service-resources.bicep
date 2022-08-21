@@ -70,6 +70,12 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
           }
           env: [
             {
+              // https://docs.dapr.io/reference/environment/
+              // We use this to set the service name in Application Insights
+              name: 'APP_ID'
+              value: serviceName
+            }
+            {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: appInsights.properties.ConnectionString
             }
