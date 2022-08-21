@@ -1,3 +1,4 @@
+using System.Collections;
 using Customers.Api.Domain;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -36,6 +37,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+foreach (DictionaryEntry kvp in Environment.GetEnvironmentVariables())
+{
+    Console.WriteLine($"ENV: {kvp.Key}: {kvp.Value}");
+}
 
 // Configure the HTTP request pipeline.
 
