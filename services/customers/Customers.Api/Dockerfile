@@ -26,3 +26,9 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 #COPY --from=test /tests /tests
 ENTRYPOINT ["dotnet", "Customers.Api.dll"]
+
+# ENV ASPNETCORE_Kestrel__Endpoints__GRPC__Protocols=Http2
+# ENV ASPNETCORE_Kestrel__Endpoints__GRPC__URL=http://*:80
+# ENV ASPNETCORE_Kestrel__Endpoints__WEB__Protocols=Http1
+# ENV ASPNETCORE_Kestrel__Endpoints__WEB__URL=http://*:8080
+EXPOSE 8080
