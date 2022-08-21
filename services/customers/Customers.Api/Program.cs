@@ -1,7 +1,6 @@
 using Customers.Api.Domain;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Shared.AppInsights;
 
@@ -10,11 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-
-builder.WebHost.UseKestrel(x =>
-{
-    x.ConfigureEndpointDefaults(o => o.Protocols = HttpProtocols.Http2);
-});
 
 builder.Services.AddApplicationInsightsTelemetry(x =>
 {

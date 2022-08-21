@@ -28,7 +28,8 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 // New resources
 
 var fullImageName = '${acr.properties.loginServer}/${platformResourcePrefix}-svc-${serviceName}:${imageTag}'
-var appPort = 80
+var grpcPort = 80
+var http1Port = 8080
 
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: '${environmentResourcePrefix}-svc-${serviceName}'
@@ -44,13 +45,13 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
     configuration: {
       dapr: {
         appId: serviceName
-        appPort: appPort
+        appPort: grpcPort
         appProtocol: 'grpc'
         enabled: true
       }
       ingress: {
         external: true
-        targetPort: appPort
+        targetPort: grpcPort
         transport: 'http2'
       }
       registries: [
@@ -74,7 +75,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
               type: 'Startup'
               httpGet: {
                 path: '/healthz/startup'
-                port: appPort
+                port: http1Port
                 scheme: 'HTTP'
               }
               initialDelaySeconds: 2
@@ -85,7 +86,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
               type: 'Liveness'
               httpGet: {
                 path: '/healthz/liveness'
-                port: appPort
+                port: http1Port
                 scheme: 'HTTP'
               }
               periodSeconds: 10
@@ -102,6 +103,22 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: appInsights.properties.ConnectionString
+            }
+            {
+              name: 'ASPNETCORE_Kestrel__Endpoints__GRPC__Protocols'
+              value: 'Http2'
+            }
+            {
+              name: 'ASPNETCORE_Kestrel__Endpoints__GRPC__URL'
+              value: 'http://*:${grpcPort}'
+            }
+            {
+              name: 'ASPNETCORE_Kestrel__Endpoints__WEB__Protocols'
+              value: 'Http1'
+            }
+            {
+              name: 'ASPNETCORE_Kestrel__Endpoints__WEB__URL'
+              value: 'http://*:${http1Port}'
             }
           ]
         }
