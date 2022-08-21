@@ -75,6 +75,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
               httpGet: {
                 path: '/healthz/startup'
                 port: appPort
+                scheme: 'HTTP'
               }
               initialDelaySeconds: 2
               periodSeconds: 2
@@ -85,6 +86,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
               httpGet: {
                 path: '/healthz'
                 port: appPort
+                scheme: 'HTTP'
               }
               periodSeconds: 10
               failureThreshold: 3
