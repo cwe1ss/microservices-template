@@ -3,22 +3,22 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 namespace Shared.AppInsights;
 
+/// <summary>
+/// Sets the "RoleName" for each telemetry.
+/// </summary>
 public class ApplicationNameTelemetryInitializer : ITelemetryInitializer
 {
-    private readonly string? _appId;
+    private readonly string _appId;
 
     public ApplicationNameTelemetryInitializer()
     {
-        // Dapr App Id
+        // Dapr APP_ID
         // https://docs.dapr.io/reference/environment/
-        _appId = Environment.GetEnvironmentVariable("APP_ID");
+        _appId = Environment.GetEnvironmentVariable("APP_ID") ?? string.Empty;
     }
 
     public void Initialize(ITelemetry telemetry)
     {
-        if (!string.IsNullOrEmpty(_appId))
-        {
-            telemetry.Context.Cloud.RoleName = _appId;
-        }
+        telemetry.Context.Cloud.RoleName = _appId;
     }
 }

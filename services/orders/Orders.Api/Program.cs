@@ -16,7 +16,11 @@ builder.WebHost.UseKestrel(x =>
     x.ConfigureEndpointDefaults(o => o.Protocols = HttpProtocols.Http2);
 });
 
-builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddApplicationInsightsTelemetry(x =>
+{
+    // No need to track performance counters separately as they are tracked in Container Apps anyway.
+    x.EnablePerformanceCounterCollectionModule = false;
+});
 builder.Services.AddSingleton<ITelemetryInitializer, ApplicationNameTelemetryInitializer>();
 
 builder.Services.AddDbContext<OrdersDbContext>(options =>

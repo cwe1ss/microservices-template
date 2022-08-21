@@ -1,4 +1,3 @@
-using System.Collections;
 using Customers.Api.Domain;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -16,7 +15,11 @@ builder.WebHost.UseKestrel(x =>
     x.ConfigureEndpointDefaults(o => o.Protocols = HttpProtocols.Http2);
 });
 
-builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddApplicationInsightsTelemetry(x =>
+{
+    // No need to track performance counters separately as they are tracked in Container Apps anyway.
+    x.EnablePerformanceCounterCollectionModule = false;
+});
 builder.Services.AddSingleton<ITelemetryInitializer, ApplicationNameTelemetryInitializer>();
 
 builder.Services.AddDbContext<CustomersDbContext>(options =>
@@ -37,11 +40,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-foreach (DictionaryEntry kvp in Environment.GetEnvironmentVariables())
-{
-    Console.WriteLine($"ENV: {kvp.Key}: {kvp.Value}");
-}
 
 // Configure the HTTP request pipeline.
 
