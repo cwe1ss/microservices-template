@@ -84,7 +84,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
             {
               type: 'Liveness'
               httpGet: {
-                path: '/healthz'
+                path: '/healthz/liveness'
                 port: appPort
                 scheme: 'HTTP'
               }
