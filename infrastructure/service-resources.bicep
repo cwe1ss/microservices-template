@@ -28,6 +28,7 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 // New resources
 
 var fullImageName = '${acr.properties.loginServer}/${platformResourcePrefix}-svc-${serviceName}:${imageTag}'
+var appPort = 80
 
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: '${environmentResourcePrefix}-svc-${serviceName}'
@@ -43,13 +44,13 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
     configuration: {
       dapr: {
         appId: serviceName
-        appPort: 80
+        appPort: appPort
         appProtocol: 'grpc'
         enabled: true
       }
       ingress: {
         external: true
-        targetPort: 80
+        targetPort: appPort
         transport: 'http2'
       }
       registries: [
@@ -68,6 +69,27 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
             cpu: '0.5'
             memory: '1.0Gi'
           }
+          probes: [
+            {
+              type: 'Startup'
+              httpGet: {
+                path: '/healthz/startup'
+                port: appPort
+              }
+              initialDelaySeconds: 2
+              periodSeconds: 2
+              failureThreshold: 10
+            }
+            {
+              type: 'Liveness'
+              httpGet: {
+                path: '/healthz'
+                port: appPort
+              }
+              periodSeconds: 10
+              failureThreshold: 3
+            }
+          ]
           env: [
             {
               // https://docs.dapr.io/reference/environment/
