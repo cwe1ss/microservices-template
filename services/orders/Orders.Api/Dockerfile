@@ -26,3 +26,5 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 #COPY --from=test /tests /tests
 ENTRYPOINT ["dotnet", "Orders.Api.dll"]
+
+EXPOSE 8080
