@@ -15,12 +15,12 @@ public class CustomersService : Customers.CustomersBase
     public override async Task<ListCustomersResponse> ListCustomers(ListCustomersRequest request, ServerCallContext context)
     {
         var customers = await _dbContext.Customers
-            .Select(x => ToDto(x))
+            .AsNoTracking()
             .ToListAsync();
 
         return new ListCustomersResponse
         {
-            Customers = {customers},
+            Customers = { customers.Select(ToDto) },
         };
     }
 
