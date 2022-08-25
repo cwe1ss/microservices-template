@@ -68,19 +68,3 @@ resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-prev
     virtualNetworkSubnetId: acaRuntimeSubnet.id
   }
 }
-
-
-resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
-  name: 'customers'
-  parent: sqlServer
-  location: location
-  sku: {
-    name: 'Basic'
-    tier: 'Basic'
-    capacity: 5
-  }
-  properties: {
-
-  }
-  tags: tags
-}

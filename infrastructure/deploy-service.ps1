@@ -13,10 +13,16 @@ Param (
 )
 
 #$Environment = "development"
-#$ServiceName = "demo"
+#$ServiceName = "customers"
+#$ImageTag = "27"
 
 $platformResourcePrefix = "lab-msa"
 $location = "westeurope"
+$tags = @{
+    "product" = $platformResourcePrefix
+    "environment" = $environmentResourcePrefix
+    "service" = $ServiceName
+}
 
 if ($Environment -eq "development") {
     $environmentResourcePrefix = "lab-msa-dev"
@@ -29,11 +35,17 @@ if ($Environment -eq "development") {
 . .\deploy-helpers.ps1
 
 
-"Deploying service"
-
-Exec {
-    az deployment sub create `
-        --location $location `
-        --template-file .\service.bicep `
-        --parameters location=$location platformResourcePrefix=$platformResourcePrefix environmentResourcePrefix=$environmentResourcePrefix serviceName=$ServiceName imageTag=$ImageTag
-}
+"Service resources"
+New-AzSubscriptionDeployment `
+    -Location $location `
+    -Name ("svc-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
+    -TemplateFile .\service.bicep `
+    -TemplateParameterObject @{
+        location = $location
+        platformResourcePrefix = $platformResourcePrefix
+        environmentResourcePrefix = $environmentResourcePrefix
+        serviceName = $ServiceName
+        imageTag = $ImageTag
+        tags = $tags
+    } `
+    -Verbose | Out-Null

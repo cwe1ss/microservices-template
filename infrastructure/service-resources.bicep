@@ -3,6 +3,7 @@ param platformResourcePrefix string
 param environmentResourcePrefix string
 param serviceName string
 param imageTag string
+param tags object
 
 // Existing resources
 
@@ -144,8 +145,5 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
       }
     }
   }
-  tags: {
-    product: platformResourcePrefix
-    environment: environmentResourcePrefix
-  }
+  tags: tags
 }
