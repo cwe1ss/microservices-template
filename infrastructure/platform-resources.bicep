@@ -1,9 +1,17 @@
 param location string = resourceGroup().location
-param platformResourcePrefix string
 param tags object
 
+var config = loadJsonContent('./_config.json')
+
+// Resource names
+
+var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
+var logsName = '${config.platformResourcePrefix}-logs'
+
+// New resources
+
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
-  name: replace('${platformResourcePrefix}-registry', '-', '')
+  name: acrName
   location: location
   sku: {
     name: 'Basic'
@@ -15,7 +23,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
 }
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
-  name: '${platformResourcePrefix}-logs'
+  name: logsName
   location: location
   properties: {
     retentionInDays: 30

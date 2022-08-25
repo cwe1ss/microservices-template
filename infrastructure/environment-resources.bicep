@@ -1,42 +1,60 @@
-param location string = resourceGroup().location
-param platformResourcePrefix string
-param environmentResourcePrefix string
+param environment string
 param tags object
 
+var config = loadJsonContent('./_config.json')
+var env = config.environments[environment]
+
+// Resource names
+
+var vnetName = '${env.environmentResourcePrefix}-vnet'
+var logsName = '${config.platformResourcePrefix}-logs'
+var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
+var appEnvName = '${env.environmentResourcePrefix}-env'
+
+// Existing resources
+
+var platformGroup = resourceGroup('${config.platformResourcePrefix}-platform')
+
+resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: logsName
+  scope: platformGroup
+}
+
+// New resources
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
-  name: '${environmentResourcePrefix}-vnet'
-  location: location
+  name: vnetName
+  location: config.location
   properties: {
     addressSpace: {
       addressPrefixes: [
-        '10.130.0.0/16'
+        env.vnetAddressPrefix
       ]
     }
     subnets: [
       {
-        name: '${environmentResourcePrefix}-infrastructure'
+        name: 'aca-infrastructure'
         properties: {
-          addressPrefix: '10.130.0.0/23'
+          addressPrefix: env.acaInfrastructureAddressPrefix
           serviceEndpoints: [ // TODO: Can this be removed once apps actually use the other subnet?
             {
               service: 'Microsoft.Sql'
               locations: [
-                '${location}'
+                '${config.location}'
               ]
             }
           ]
         }
       }
       {
-        name: '${environmentResourcePrefix}-apps'
+        name: 'aca-apps'
         properties: {
-          addressPrefix: '10.130.8.0/21'
+          addressPrefix: env.acaAppsAddressPrefix
           serviceEndpoints: [
             {
               service: 'Microsoft.Sql'
               locations: [
-                '${location}'
+                '${config.location}'
               ]
             }
           ]
@@ -47,14 +65,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   tags: tags
 }
 
-resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
-  name: '${platformResourcePrefix}-logs'
-  scope: resourceGroup('${platformResourcePrefix}-platform')
-}
-
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: '${environmentResourcePrefix}-appinsights'
-  location: location
+  name: appInsightsName
+  location: config.location
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -63,9 +76,9 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   tags: tags
 }
 
-resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
-  name: '${environmentResourcePrefix}-env'
-  location: location
+resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
+  name: appEnvName
+  location: config.location
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -78,7 +91,7 @@ resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
     daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
     vnetConfiguration: {
       internal: false
-      infrastructureSubnetId: vnet.properties.subnets[0].id
+      infrastructureSubnetId: vnet.properties.subnets[0].id // TODO reference by name somehow?
       runtimeSubnetId: vnet.properties.subnets[1].id
     }
   }

@@ -1,50 +1,70 @@
-param location string = resourceGroup().location
-param platformResourcePrefix string
-param environmentResourcePrefix string
+param environment string
 param serviceName string
 param imageTag string
 param tags object
 
+var config = loadJsonContent('./_config.json')
+var env = config.environments[environment]
+var svcConfig = env.services[serviceName]
+
+// Resource names
+
+var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
+var appEnvName = '${env.environmentResourcePrefix}-env'
+var sqlServerName = '${env.environmentResourcePrefix}-sql'
+var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
+var sqlDatabaseName = serviceName
+
+var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
+var appName = '${env.environmentResourcePrefix}-svc-${serviceName}'
+
+// Configuration values
+
+var fullImageName = '${acr.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${imageTag}'
+var sqlConnectionString = 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabase.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60'
+var grpcPort = 80
+var http1Port = 8080
+
 // Existing resources
 
+var platformGroup = resourceGroup('${config.platformResourcePrefix}-platform')
+var appEnvGroup = resourceGroup('${env.environmentResourcePrefix}-env')
+var sqlGroup = resourceGroup('${env.environmentResourcePrefix}-sql')
+
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
-  name: replace('${platformResourcePrefix}-registry', '-', '')
-  scope: resourceGroup('${platformResourcePrefix}-platform')
+  name: acrName
+  scope: platformGroup
 }
 
-resource env 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
-  name: '${environmentResourcePrefix}-env'
-  scope: resourceGroup('${environmentResourcePrefix}-env')
+resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
+  name: appEnvName
+  scope: appEnvGroup
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: '${environmentResourcePrefix}-appinsights'
-  scope: resourceGroup('${environmentResourcePrefix}-env')
+  name: appInsightsName
+  scope: appEnvGroup
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
-  name: '${environmentResourcePrefix}-sql'
-  scope: resourceGroup('${environmentResourcePrefix}-sql')
+  name: sqlServerName
+  scope: sqlGroup
 }
 
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' existing = {
-  name: serviceName
+  name: sqlDatabaseName
   parent: sqlServer
 }
 
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
-  name: '${environmentResourcePrefix}-svc-${serviceName}'
+  name: svcUserName
 }
 
 // New resources
 
-var fullImageName = '${acr.properties.loginServer}/${platformResourcePrefix}-svc-${serviceName}:${imageTag}'
-var grpcPort = 80
-var http1Port = 8080
-
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
-  name: '${environmentResourcePrefix}-svc-${serviceName}'
-  location: location
+  name: appName
+  location: config.location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -52,7 +72,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
     }
   }
   properties: {
-    managedEnvironmentId: env.id
+    managedEnvironmentId: appEnv.id
     configuration: {
       dapr: {
         appId: serviceName
@@ -80,8 +100,8 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
           image: fullImageName
           name: 'app'
           resources: {
-            cpu: '0.5'
-            memory: '1.0Gi'
+            cpu: svcConfig.appCpu
+            memory: svcConfig.appMemory
           }
           probes: [
             {
@@ -109,7 +129,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
           env: [
             {
               // https://docs.dapr.io/reference/environment/
-              // We use this to set the service name in Application Insights
+              // This is used to set the service name in Application Insights
               name: 'APP_ID'
               value: serviceName
             }
@@ -135,13 +155,14 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
             }
             {
               name: 'ASPNETCORE_CONNECTIONSTRINGS__SQL'
-              value: 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabase.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60'
+              value: sqlConnectionString
             }
           ]
         }
       ]
       scale: {
-        minReplicas: 0
+        minReplicas: svcConfig.appMinReplicas
+        maxReplicas: svcConfig.appMaxReplicas
       }
     }
   }

@@ -1,79 +1,80 @@
 targetScope = 'subscription'
 
-param location string
-param platformResourcePrefix string
-param environmentResourcePrefix string
+param now string = utcNow()
+param environment string
 param serviceName string
 param imageTag string
-param tags object
+
+var config = loadJsonContent('./_config.json')
+var env = config.environments[environment]
+
+// Resource names
+
+var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
+
+var tags = {
+  product: config.platformResourcePrefix
+  environment: env.environmentResourcePrefix
+  service: serviceName
+}
 
 // Existing resources
 
-resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-  name: '${platformResourcePrefix}-platform'
-}
-
-resource sqlGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-  name: '${environmentResourcePrefix}-sql'
-}
+var platformGroup = resourceGroup('${config.platformResourcePrefix}-platform')
+var sqlGroup = resourceGroup('${env.environmentResourcePrefix}-sql')
 
 // New resources
 
 resource svcGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: '${environmentResourcePrefix}-svc-${serviceName}'
-  location: location
+  name: svcGroupName
+  location: config.location
   tags: tags
 }
 
 // Create the user assigned identity first, so that we can assign permissions to it before the rest of the service resources is created
 module svcIdentity 'service-identity.bicep' = {
-  name: 'svcIdentity'
+  name: 'svcIdentity-${now}'
   scope: svcGroup
   params: {
-    location: location
-    environmentResourcePrefix: environmentResourcePrefix
+    environment: environment
     serviceName: serviceName
     tags: tags
   }
 }
 
-// Allow the identity to access the platform container registry
+// Allow the identity to access the platform container registry.
+// This must be done before we can create the actual container app, as the deployment would fail otherwise.
 module svcIdentityAssignment 'service-platform-assignments.bicep' = {
-  name: 'svcIdentityAssignment'
+  name: 'svcIdentityAssignment-${now}'
   scope: platformGroup
   dependsOn: [
     svcIdentity
   ]
   params: {
-    platformResourcePrefix: platformResourcePrefix
-    environmentResourcePrefix: environmentResourcePrefix
+    environment: environment
     serviceName: serviceName
   }
 }
 
 module svcSql 'service-sql.bicep' = {
-  name: 'svcSql'
+  name: 'svcSql-${now}'
   scope: sqlGroup
   params: {
-    location: location
-    platformResourcePrefix: platformResourcePrefix
-    environmentResourcePrefix: environmentResourcePrefix
+    environment: environment
     serviceName: serviceName
     tags: tags
   }
 }
 
 module svcResources 'service-resources.bicep' = {
-  name: 'svcResources'
+  name: 'svcResources-${now}'
   scope: svcGroup
   dependsOn: [
     svcIdentityAssignment
     svcSql
   ]
   params: {
-    location: location
-    platformResourcePrefix: platformResourcePrefix
-    environmentResourcePrefix: environmentResourcePrefix
+    environment: environment
     serviceName: serviceName
     imageTag: imageTag
     tags: tags

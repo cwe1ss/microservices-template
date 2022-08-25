@@ -1,24 +1,19 @@
-$platformResourcePrefix = "lab-msa"
-$location = "westeurope"
+$ErrorActionPreference = "Stop"
 
-. .\deploy-helpers.ps1
 
-# Naming conventions
-$platformGroupName = "$platformResourcePrefix-platform"
-$tags = @{
-    "product" = $platformResourcePrefix
-}
+############################
+"Loading config"
 
-"Platform resource group"
-New-AzResourceGroup -Name $platformGroupName -Location $location -Tag $tags -Force | Out-Null
+$config = Get-Content .\_config.json | ConvertFrom-Json
 
-"Platform resources"
-New-AzResourceGroupDeployment `
-    -ResourceGroupName $platformGroupName `
+
+############################
+"Deploying Azure resources"
+
+New-AzSubscriptionDeployment `
+    -Location $config.location `
     -Name ("platform-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\platform-resources.bicep `
+    -TemplateFile .\platform.bicep `
     -TemplateParameterObject @{
-        platformResourcePrefix = $platformResourcePrefix
-        tags = $tags
     } `
     -Verbose | Out-Null

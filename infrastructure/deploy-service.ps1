@@ -2,7 +2,6 @@
 Param (
 
     [Parameter(Mandatory=$True)]
-    [ValidateSet("development", "production")]
     [string]$Environment,
 
     [Parameter(Mandatory=$True)]
@@ -12,40 +11,31 @@ Param (
     [string]$ImageTag
 )
 
+$ErrorActionPreference = "Stop"
+
 #$Environment = "development"
 #$ServiceName = "customers"
 #$ImageTag = "27"
 
-$platformResourcePrefix = "lab-msa"
-$location = "westeurope"
-$tags = @{
-    "product" = $platformResourcePrefix
-    "environment" = $environmentResourcePrefix
-    "service" = $ServiceName
-}
 
-if ($Environment -eq "development") {
-    $environmentResourcePrefix = "lab-msa-dev"
-} elseif ($Environment -eq "production") {
-    $environmentResourcePrefix = "lab-msa-prod"
-} else {
-    throw "Invalid environment: $Environment"
-}
+############################
+"Loading config"
 
-. .\deploy-helpers.ps1
+$config = Get-Content .\_config.json | ConvertFrom-Json
+$env = $config.environments | Select-Object -ExpandProperty $Environment
 
 
-"Service resources"
+############################
+"Deploying Azure resources"
+
 New-AzSubscriptionDeployment `
     -Location $location `
     -Name ("svc-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
     -TemplateFile .\service.bicep `
     -TemplateParameterObject @{
-        location = $location
-        platformResourcePrefix = $platformResourcePrefix
-        environmentResourcePrefix = $environmentResourcePrefix
+        environment = $Environment
         serviceName = $ServiceName
         imageTag = $ImageTag
-        tags = $tags
     } `
     -Verbose | Out-Null
+

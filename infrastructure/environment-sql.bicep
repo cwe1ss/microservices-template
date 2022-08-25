@@ -1,38 +1,51 @@
-param location string = resourceGroup().location
-param platformResourcePrefix string
-param environmentResourcePrefix string
-param sqlAdminAdGroup string
-param sqlAdminAdGroupId string
+param environment string
 param tags object
+param sqlAdminAdGroupName string
+param sqlAdminAdGroupId string
+
+var config = loadJsonContent('./_config.json')
+var env = config.environments[environment]
+
+// Resource names
+
+var vnetName = '${env.environmentResourcePrefix}-vnet'
+var sqlServerUserId = '${env.environmentResourcePrefix}-sql'
+var sqlServerName = '${env.environmentResourcePrefix}-sql'
+
+// Existing resources
+
+var envGroup = resourceGroup('${env.environmentResourcePrefix}-env')
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
-  name: '${environmentResourcePrefix}-vnet'
-  scope: resourceGroup('${environmentResourcePrefix}-env')
+  name: vnetName
+  scope: envGroup
 }
 
 resource acaInfrastructureSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: '${environmentResourcePrefix}-infrastructure'
+  name: 'aca-infrastructure'
   parent: vnet
 }
 
-resource acaRuntimeSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: '${environmentResourcePrefix}-apps'
+resource acaAppsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+  name: 'aca-apps'
   parent: vnet
 }
 
-resource sqlUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
-  name: '${environmentResourcePrefix}-sql'
-  location: location
+// New resources
+
+resource sqlServerUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+  name: sqlServerUserId
+  location: config.location
   tags: tags
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
-  name: '${environmentResourcePrefix}-sql'
-  location: location
+  name: sqlServerName
+  location: config.location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${sqlUser.id}': {}
+      '${sqlServerUser.id}': {}
     }
   }
   properties: {
@@ -40,12 +53,12 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
       administratorType: 'ActiveDirectory'
       azureADOnlyAuthentication: true
       principalType: 'Group'
-      login: sqlAdminAdGroup
+      login: sqlAdminAdGroupName
       sid: sqlAdminAdGroupId
       tenantId: subscription().tenantId
     }
     minimalTlsVersion: '1.2'
-    primaryUserAssignedIdentityId: sqlUser.id
+    primaryUserAssignedIdentityId: sqlServerUser.id
     publicNetworkAccess: 'Enabled'
   }
   tags: tags
@@ -65,6 +78,6 @@ resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-prev
   parent: sqlServer
   properties: {
     ignoreMissingVnetServiceEndpoint: false
-    virtualNetworkSubnetId: acaRuntimeSubnet.id
+    virtualNetworkSubnetId: acaAppsSubnet.id
   }
 }
