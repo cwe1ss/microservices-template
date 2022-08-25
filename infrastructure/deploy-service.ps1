@@ -29,7 +29,7 @@ $env = $config.environments | Select-Object -ExpandProperty $Environment
 "Deploying Azure resources"
 
 New-AzSubscriptionDeployment `
-    -Location $location `
+    -Location $config.location `
     -Name ("svc-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
     -TemplateFile .\service.bicep `
     -TemplateParameterObject @{
