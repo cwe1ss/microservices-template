@@ -135,7 +135,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
             }
             {
               name: 'ASPNETCORE_CONNECTIONSTRINGS__SQL'
-              value: 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabase.name};User Id=${svcUser.properties.principalId};Authentication=Active Directory Managed Identity;Connect Timeout=60'
+              value: 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabase.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60'
             }
           ]
         }
