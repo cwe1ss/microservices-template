@@ -19,7 +19,8 @@ builder.Services.AddSingleton<ITelemetryInitializer, ApplicationNameTelemetryIni
 
 builder.Services.AddDbContext<CustomersDbContext>(options =>
 {
-    options.UseInMemoryDatabase("customers");
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQL"));
+    //options.UseInMemoryDatabase("customers");
 });
 
 builder.Services.AddGrpc(options =>
@@ -35,6 +36,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHealthChecks();
+    //.AddDbContextCheck<CustomersDbContext>();
 
 var app = builder.Build();
 
