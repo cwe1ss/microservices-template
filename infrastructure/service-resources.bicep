@@ -21,6 +21,16 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   scope: resourceGroup('${environmentResourcePrefix}-env')
 }
 
+resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
+  name: '${environmentResourcePrefix}-sql'
+  scope: resourceGroup('${environmentResourcePrefix}-sql')
+}
+
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' existing = {
+  name: serviceName
+  parent: sqlServer
+}
+
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
   name: '${environmentResourcePrefix}-svc-${serviceName}'
 }
@@ -59,6 +69,8 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
           server: acr.properties.loginServer
           identity: svcUser.id
         }
+      ]
+      secrets: [
       ]
     }
     template: {
@@ -119,6 +131,10 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
             {
               name: 'ASPNETCORE_Kestrel__Endpoints__WEB__URL'
               value: 'http://*:${http1Port}'
+            }
+            {
+              name: 'ASPNETCORE_CONNECTIONSTRINGS__SQL'
+              value: 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabase.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60'
             }
           ]
         }
