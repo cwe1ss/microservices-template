@@ -27,5 +27,6 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          Get-AzContext
+          Set-Location .\infrastructure
+          .\deploy-platform.ps1
         azPSVersion: "latest"
