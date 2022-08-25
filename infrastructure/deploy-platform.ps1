@@ -5,7 +5,9 @@ $location = "westeurope"
 
 # Naming conventions
 $platformGroupName = "$platformResourcePrefix-platform"
-$tags = @{"product" = "$platformResourcePrefix"}
+$tags = @{
+    "product" = $platformResourcePrefix
+}
 
 "Platform resource group"
 New-AzResourceGroup -Name $platformGroupName -Location $location -Tag $tags -Force | Out-Null
@@ -17,5 +19,6 @@ New-AzResourceGroupDeployment `
     -TemplateFile .\platform-resources.bicep `
     -TemplateParameterObject @{
         platformResourcePrefix = $platformResourcePrefix
+        tags = $tags
     } `
     -Verbose | Out-Null

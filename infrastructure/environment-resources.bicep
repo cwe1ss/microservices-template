@@ -1,6 +1,7 @@
 param location string = resourceGroup().location
 param platformResourcePrefix string
 param environmentResourcePrefix string
+param tags object
 
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
@@ -43,10 +44,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
       }
     ]
   }
-  tags: {
-    product: platformResourcePrefix
-    environment: environmentResourcePrefix
-  }
+  tags: tags
 }
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
@@ -62,10 +60,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
     Application_Type: 'web'
     WorkspaceResourceId: logs.id
   }
-  tags: {
-    product: platformResourcePrefix
-    environment: environmentResourcePrefix
-  }
+  tags: tags
 }
 
 resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
@@ -87,8 +82,5 @@ resource env 'Microsoft.App/managedEnvironments@2022-03-01' = {
       runtimeSubnetId: vnet.properties.subnets[1].id
     }
   }
-  tags: {
-    product: platformResourcePrefix
-    environment: environmentResourcePrefix
-  }
+  tags: tags
 }

@@ -1,5 +1,6 @@
 param location string = resourceGroup().location
 param platformResourcePrefix string
+param tags object
 
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   name: replace('${platformResourcePrefix}-registry', '-', '')
@@ -10,9 +11,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   properties: {
     adminUserEnabled: false
   }
-  tags: {
-    product: platformResourcePrefix
-  }
+  tags: tags
 }
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
@@ -24,7 +23,5 @@ resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
       name: 'PerGB2018'
     }
   }
-  tags: {
-    product: platformResourcePrefix
-  }
+  tags: tags
 }

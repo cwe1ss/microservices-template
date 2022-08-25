@@ -3,6 +3,7 @@ param platformResourcePrefix string
 param environmentResourcePrefix string
 param sqlAdminAdGroup string
 param sqlAdminAdGroupId string
+param tags object
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   name: '${environmentResourcePrefix}-vnet'
@@ -22,10 +23,7 @@ resource acaRuntimeSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01'
 resource sqlUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: '${environmentResourcePrefix}-sql'
   location: location
-  tags: {
-    product: platformResourcePrefix
-    environment: environmentResourcePrefix
-  }
+  tags: tags
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
@@ -50,10 +48,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
     primaryUserAssignedIdentityId: sqlUser.id
     publicNetworkAccess: 'Enabled'
   }
-  tags: {
-    product: platformResourcePrefix
-    environment: environmentResourcePrefix
-  }
+  tags: tags
 }
 
 resource infrastructureVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {
@@ -87,8 +82,5 @@ resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   properties: {
 
   }
-  tags: {
-    product: platformResourcePrefix
-    environment: environmentResourcePrefix
-  }
+  tags: tags
 }

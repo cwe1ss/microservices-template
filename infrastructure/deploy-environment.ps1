@@ -26,48 +26,51 @@ if ($Environment -eq "development") {
 $envGroupName = "$environmentResourcePrefix-env"
 $sqlAdminAdGroupName = "$environmentResourcePrefix-sql-admins"
 $sqlGroupName = "$environmentResourcePrefix-sql"
-$tags = @("product=$platformResourcePrefix", "environment=$environmentResourcePrefix")
+$tags = @{
+    "product" = $platformResourcePrefix
+    "environment" = $environmentResourcePrefix
+}
 
 
 "Environment resource group"
-Exec {
-    az group create --name $envGroupName --location $location --tags $tags -o none
-}
+New-AzResourceGroup -Name $envGroupName -Location $location -Tag $tags -Force | Out-Null
 
 "Environment resources"
-Exec {
-    az deployment group create `
-        --resource-group $envGroupName `
-        --name ("env-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-        --output none `
-        --template-file .\environment-resources.bicep `
-        --parameters location=$location platformResourcePrefix=$platformResourcePrefix environmentResourcePrefix=$environmentResourcePrefix
-}
+New-AzResourceGroupDeployment `
+    -ResourceGroupName $envGroupName `
+    -Name ("env-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
+    -TemplateFile .\environment-resources.bicep `
+    -TemplateParameterObject @{
+        location = $location
+        platformResourcePrefix = $platformResourcePrefix
+        environmentResourcePrefix = $environmentResourcePrefix
+        tags = $tags
+    } `
+    -Verbose | Out-Null
 
 "SQL Administrators AAD group"
-$sqlAdAdminGroup = Exec {
-    (az ad group create --display-name $sqlAdminAdGroupName --mail-nickname $sqlAdminAdGroupName) | ConvertFrom-Json
+$sqlAdAdminGroup = Get-AzAdGroup -DisplayName $sqlAdminAdGroupName
+if (-not $sqlAdAdminGroup) {
+    ".. Creating group"
+    $sqlAdAdminGroup = New-AzAdGroup -DisplayName $sqlAdminAdGroupName -MailNickname $sqlAdminAdGroupName
 }
 
-"SQL Administrators group assignments"
-# TODO!!
+# TODO: "SQL Administrators AAD group members"
 
 "SQL resource group"
-Exec {
-    az group create --name $sqlGroupName --location $location --tags $tags -o none
-}
+New-AzResourceGroup -Name $sqlGroupName -Location $location -Tag $tags -Force | Out-Null
 
 "SQL resources"
-Exec {
-    az deployment group create `
-        --resource-group $sqlGroupName `
-        --name ("sql-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-        --output none `
-        --template-file .\environment-sql.bicep `
-        --parameters `
-            location=$location `
-            platformResourcePrefix=$platformResourcePrefix `
-            environmentResourcePrefix=$environmentResourcePrefix `
-            sqlAdminAdGroup=$sqlAdminAdGroupName `
-            sqlAdminAdGroupId=$($sqlAdAdminGroup.id)
-}
+New-AzResourceGroupDeployment `
+    -ResourceGroupName $sqlGroupName `
+    -Name ("sql-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
+    -TemplateFile .\environment-sql.bicep `
+    -TemplateParameterObject @{
+        location = $location
+        platformResourcePrefix = $platformResourcePrefix
+        environmentResourcePrefix = $environmentResourcePrefix
+        sqlAdminAdGroup = $sqlAdminAdGroupName 
+        sqlAdminAdGroupId = $sqlAdAdminGroup.id
+        tags = $tags
+    } `
+    -Verbose | Out-Null
