@@ -1,12 +1,15 @@
 param environment string
 param serviceName string
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 
-// Resource names
+// Naming conventions
 
 var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
+
 var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 

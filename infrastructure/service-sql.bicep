@@ -2,11 +2,13 @@ param environment string
 param serviceName string
 param tags object
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 var svcConfig = env.services[serviceName]
 
-// Resource names
+// Naming conventions
 
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
 var sqlDatabaseName = serviceName

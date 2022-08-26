@@ -1,19 +1,23 @@
 param environment string
 param tags object
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 
-// Resource names
+// Naming conventions
+
+var platformGroupName = '${config.platformResourcePrefix}-platform'
+var logsName = '${config.platformResourcePrefix}-logs'
 
 var vnetName = '${env.environmentResourcePrefix}-vnet'
-var logsName = '${config.platformResourcePrefix}-logs'
 var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
 var appEnvName = '${env.environmentResourcePrefix}-env'
 
 // Existing resources
 
-var platformGroup = resourceGroup('${config.platformResourcePrefix}-platform')
+var platformGroup = resourceGroup(platformGroupName)
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logsName

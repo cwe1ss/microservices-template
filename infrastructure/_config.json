@@ -17,7 +17,7 @@
           "appMaxReplicas": 3,
 
           "sqlDatabase": {
-            "enabled": false,
+            "enabled": true,
             "skuName": "Basic",
             "skuTier": "Basic",
             "skuCapacity": 5

@@ -2,10 +2,12 @@ param environment string
 param serviceName string
 param tags object
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 
-// Resource names
+// Naming conventions
 
 var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 

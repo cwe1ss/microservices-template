@@ -3,18 +3,21 @@ param tags object
 param sqlAdminAdGroupName string
 param sqlAdminAdGroupId string
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 
-// Resource names
+// Naming conventions
 
+var envGroupName = '${env.environmentResourcePrefix}-env'
 var vnetName = '${env.environmentResourcePrefix}-vnet'
 var sqlServerUserId = '${env.environmentResourcePrefix}-sql'
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
 
 // Existing resources
 
-var envGroup = resourceGroup('${env.environmentResourcePrefix}-env')
+var envGroup = resourceGroup(envGroupName)
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   name: vnetName

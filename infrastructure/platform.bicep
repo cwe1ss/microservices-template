@@ -2,9 +2,11 @@ targetScope = 'subscription'
 
 param now string = utcNow()
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 
-// Resource names
+// Naming conventions
 
 var platformGroupName = '${config.platformResourcePrefix}-platform'
 

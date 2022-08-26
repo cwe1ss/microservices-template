@@ -5,10 +5,12 @@ param environment string
 param sqlAdminAdGroupName string
 param sqlAdminAdGroupId string
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 
-// Resource names
+// Naming conventions
 
 var envGroupName = '${env.environmentResourcePrefix}-env'
 var sqlGroupName = '${env.environmentResourcePrefix}-sql'

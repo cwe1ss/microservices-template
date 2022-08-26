@@ -1,9 +1,11 @@
 param location string = resourceGroup().location
 param tags object
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 
-// Resource names
+// Naming conventions
 
 var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
 var logsName = '${config.platformResourcePrefix}-logs'

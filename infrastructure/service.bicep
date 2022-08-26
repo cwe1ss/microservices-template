@@ -5,12 +5,16 @@ param environment string
 param serviceName string
 param imageTag string
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 var svcConfig = env.services[serviceName]
 
-// Resource names
+// Naming conventions
 
+var platformGroupName = '${config.platformResourcePrefix}-platform'
+var sqlGroupName = '${env.environmentResourcePrefix}-sql'
 var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 
 var tags = {
@@ -21,8 +25,8 @@ var tags = {
 
 // Existing resources
 
-var platformGroup = resourceGroup('${config.platformResourcePrefix}-platform')
-var sqlGroup = resourceGroup('${env.environmentResourcePrefix}-sql')
+var platformGroup = resourceGroup(platformGroupName)
+var sqlGroup = resourceGroup(sqlGroupName)
 
 // New resources
 

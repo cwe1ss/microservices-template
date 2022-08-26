@@ -3,32 +3,32 @@ param serviceName string
 param imageTag string
 param tags object
 
+// Configuration
+
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 var svcConfig = env.services[serviceName]
 
-// Resource names
+// Naming conventions
 
+var platformGroupName = '${config.platformResourcePrefix}-platform'
 var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
+
+var appEnvGroupName = '${env.environmentResourcePrefix}-env'
 var appEnvName = '${env.environmentResourcePrefix}-env'
+var sqlGroupName = '${env.environmentResourcePrefix}-sql'
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
 var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
-var sqlDatabaseName = serviceName
 
 var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 var appName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-
-// Configuration values
-
-var fullImageName = '${acr.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${imageTag}'
-var grpcPort = 80
-var http1Port = 8080
+var sqlDatabaseName = serviceName
 
 // Existing resources
 
-var platformGroup = resourceGroup('${config.platformResourcePrefix}-platform')
-var appEnvGroup = resourceGroup('${env.environmentResourcePrefix}-env')
-var sqlGroup = resourceGroup('${env.environmentResourcePrefix}-sql')
+var platformGroup = resourceGroup(platformGroupName)
+var appEnvGroup = resourceGroup(appEnvGroupName)
+var sqlGroup = resourceGroup(sqlGroupName)
 
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   name: acrName
@@ -54,9 +54,14 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
   name: svcUserName
 }
 
-// New resources
+// Configuration values
 
+var fullImageName = '${acr.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${imageTag}'
 var sqlConnectionString = svcConfig.sqlDatabase.enabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabaseName};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
+var grpcPort = 80
+var http1Port = 8080
+
+// New resources
 
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: appName
