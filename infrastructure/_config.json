@@ -7,16 +7,23 @@
       "environmentResourcePrefix": "lab-msa-dev",
 
       "vnetAddressPrefix": "10.130.0.0/16",
-      "acaInfrastructureAddressPrefix": "10.130.0.0/23",
-      "acaAppsAddressPrefix": "10.130.8.0/21",
+      "acaInfrastructureAddressPrefix": "10.130.0.0/21",
 
       "services": {
         "customers": {
           "appCpu": "0.5",
           "appMemory": "1.0Gi",
           "appMinReplicas": 0,
-          "appMaxReplicas": 3
+          "appMaxReplicas": 3,
+
+          "sqlDatabase": {
+            "enabled": false,
+            "skuName": "Basic",
+            "skuTier": "Basic",
+            "skuCapacity": 5
+          }
         },
+
         "orders": {
     
         }

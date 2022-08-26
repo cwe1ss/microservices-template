@@ -36,21 +36,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
         name: 'aca-infrastructure'
         properties: {
           addressPrefix: env.acaInfrastructureAddressPrefix
-          serviceEndpoints: [ // TODO: Can this be removed once apps actually use the other subnet?
-            {
-              service: 'Microsoft.Sql'
-              locations: [
-                '${config.location}'
-              ]
-            }
-          ]
-        }
-      }
-      {
-        name: 'aca-apps'
-        properties: {
-          addressPrefix: env.acaAppsAddressPrefix
           serviceEndpoints: [
+            // TODO: Add any other service endpoints you require
             {
               service: 'Microsoft.Sql'
               locations: [
@@ -91,8 +78,7 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
     daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
     vnetConfiguration: {
       internal: false
-      infrastructureSubnetId: vnet.properties.subnets[0].id // TODO reference by name somehow?
-      runtimeSubnetId: vnet.properties.subnets[1].id
+      infrastructureSubnetId: vnet.properties.subnets[0].id
     }
   }
   tags: tags

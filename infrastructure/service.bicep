@@ -7,6 +7,7 @@ param imageTag string
 
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
+var svcConfig = env.services[serviceName]
 
 // Resource names
 
@@ -56,7 +57,7 @@ module svcIdentityAssignment 'service-platform-assignments.bicep' = {
   }
 }
 
-module svcSql 'service-sql.bicep' = {
+module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
   name: 'svcSql-${now}'
   scope: sqlGroup
   params: {

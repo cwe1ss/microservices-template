@@ -26,11 +26,6 @@ resource acaInfrastructureSubnet 'Microsoft.Network/virtualNetworks/subnets@2022
   parent: vnet
 }
 
-resource acaAppsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: 'aca-apps'
-  parent: vnet
-}
-
 // New resources
 
 resource sqlServerUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
@@ -70,14 +65,5 @@ resource infrastructureVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-
   properties: {
     ignoreMissingVnetServiceEndpoint: false
     virtualNetworkSubnetId: acaInfrastructureSubnet.id
-  }
-}
-
-resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {
-  name: 'aca-apps'
-  parent: sqlServer
-  properties: {
-    ignoreMissingVnetServiceEndpoint: false
-    virtualNetworkSubnetId: acaAppsSubnet.id
   }
 }

@@ -21,7 +21,6 @@ var appName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 // Configuration values
 
 var fullImageName = '${acr.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${imageTag}'
-var sqlConnectionString = 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabase.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60'
 var grpcPort = 80
 var http1Port = 8080
 
@@ -51,16 +50,13 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
   scope: sqlGroup
 }
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' existing = {
-  name: sqlDatabaseName
-  parent: sqlServer
-}
-
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
   name: svcUserName
 }
 
 // New resources
+
+var sqlConnectionString = svcConfig.sqlDatabase.enabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabaseName};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
 
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: appName
