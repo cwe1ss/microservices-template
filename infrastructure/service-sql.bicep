@@ -25,6 +25,7 @@ resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = if (svc
   name: sqlDatabaseName
   parent: sqlServer
   location: config.location
+  tags: tags
   sku: {
     name: svcConfig.sqlDatabase.skuName
     tier: svcConfig.sqlDatabase.skuTier
@@ -32,5 +33,4 @@ resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = if (svc
   }
   properties: {
   }
-  tags: tags
 }

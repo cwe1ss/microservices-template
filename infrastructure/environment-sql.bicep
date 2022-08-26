@@ -40,6 +40,7 @@ resource sqlServerUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: sqlServerName
   location: config.location
+  tags: tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -59,7 +60,6 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
     primaryUserAssignedIdentityId: sqlServerUser.id
     publicNetworkAccess: 'Enabled'
   }
-  tags: tags
 }
 
 resource infrastructureVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {

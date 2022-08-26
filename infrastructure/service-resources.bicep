@@ -14,7 +14,7 @@ var svcConfig = env.services[serviceName]
 var platformGroupName = '${config.platformResourcePrefix}-platform'
 var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
 
-var appEnvGroupName = '${env.environmentResourcePrefix}-env'
+var envGroupName = '${env.environmentResourcePrefix}-env'
 var appEnvName = '${env.environmentResourcePrefix}-env'
 var sqlGroupName = '${env.environmentResourcePrefix}-sql'
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
@@ -27,7 +27,7 @@ var sqlDatabaseName = serviceName
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
-var appEnvGroup = resourceGroup(appEnvGroupName)
+var envGroup = resourceGroup(envGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
@@ -37,12 +37,12 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
 
 resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
   name: appEnvName
-  scope: appEnvGroup
+  scope: envGroup
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: appInsightsName
-  scope: appEnvGroup
+  scope: envGroup
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
@@ -66,6 +66,7 @@ var http1Port = 8080
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: appName
   location: config.location
+  tags: tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -167,5 +168,4 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
       }
     }
   }
-  tags: tags
 }

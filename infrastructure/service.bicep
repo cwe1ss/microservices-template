@@ -14,6 +14,7 @@ var svcConfig = env.services[serviceName]
 // Naming conventions
 
 var platformGroupName = '${config.platformResourcePrefix}-platform'
+var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
 var sqlGroupName = '${env.environmentResourcePrefix}-sql'
 var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 
@@ -26,6 +27,7 @@ var tags = {
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
+var serviceBusGroup = resourceGroup(serviceBusGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
 // New resources
@@ -61,6 +63,18 @@ module svcIdentityAssignment 'service-platform-assignments.bicep' = {
   }
 }
 
+module svcServiceBus 'service-servicebus.bicep' = if (svcConfig.serviceBus.enabled) {
+  name: 'svc-sb-${now}'
+  scope: serviceBusGroup
+  dependsOn: [
+    svcIdentity
+  ]
+  params: {
+    environment: environment
+    serviceName: serviceName
+  }
+}
+
 module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
   name: 'svcSql-${now}'
   scope: sqlGroup
@@ -76,6 +90,7 @@ module svcResources 'service-resources.bicep' = {
   scope: svcGroup
   dependsOn: [
     svcIdentityAssignment
+    svcServiceBus
     svcSql
   ]
   params: {

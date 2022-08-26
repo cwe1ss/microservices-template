@@ -15,23 +15,23 @@ var logsName = '${config.platformResourcePrefix}-logs'
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   name: acrName
   location: location
+  tags: tags
   sku: {
     name: 'Basic'
   }
   properties: {
     adminUserEnabled: false
   }
-  tags: tags
 }
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: logsName
   location: location
+  tags: tags
   properties: {
     retentionInDays: 30
     sku: {
       name: 'PerGB2018'
     }
   }
-  tags: tags
 }

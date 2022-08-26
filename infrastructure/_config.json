@@ -16,6 +16,10 @@
           "appMinReplicas": 0,
           "appMaxReplicas": 3,
 
+          "serviceBus": {
+            "enabled": true
+          },
+
           "sqlDatabase": {
             "enabled": true,
             "skuName": "Basic",

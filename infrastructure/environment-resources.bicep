@@ -29,6 +29,7 @@ resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: vnetName
   location: config.location
+  tags: tags
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -53,23 +54,23 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
       }
     ]
   }
-  tags: tags
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
   location: config.location
+  tags: tags
   kind: 'web'
   properties: {
     Application_Type: 'web'
     WorkspaceResourceId: logs.id
   }
-  tags: tags
 }
 
 resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
   name: appEnvName
   location: config.location
+  tags: tags
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -85,5 +86,4 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
       infrastructureSubnetId: vnet.properties.subnets[0].id
     }
   }
-  tags: tags
 }

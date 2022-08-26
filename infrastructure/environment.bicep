@@ -13,6 +13,7 @@ var env = config.environments[environment]
 // Naming conventions
 
 var envGroupName = '${env.environmentResourcePrefix}-env'
+var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
 var sqlGroupName = '${env.environmentResourcePrefix}-sql'
 
 var tags = {
@@ -29,8 +30,26 @@ resource envGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 }
 
 module envResources 'environment-resources.bicep' = {
-  name: 'envResources-${now}'
+  name: 'env-${now}'
   scope: envGroup
+  params: {
+    environment: environment
+    tags: tags
+  }
+}
+
+resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: serviceBusGroupName
+  location: config.location
+  tags: tags
+}
+
+module serviceBusResources 'environment-servicebus.bicep' = {
+  name: 'bus-${now}'
+  scope: serviceBusGroup
+  dependsOn: [
+    envResources
+  ]
   params: {
     environment: environment
     tags: tags
