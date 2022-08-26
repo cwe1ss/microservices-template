@@ -1,4 +1,6 @@
+using System.Globalization;
 using Customers.Api.Domain;
+using Dapr.Client;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +9,6 @@ using Shared.AppInsights;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
 builder.Services.AddApplicationInsightsTelemetry(x =>
 {
@@ -20,7 +20,6 @@ builder.Services.AddSingleton<ITelemetryInitializer, ApplicationNameTelemetryIni
 builder.Services.AddDbContext<CustomersDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SQL"));
-    //options.UseInMemoryDatabase("customers");
 });
 
 builder.Services.AddGrpc(options =>
@@ -37,6 +36,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddHealthChecks();
     //.AddDbContextCheck<CustomersDbContext>();
+
+builder.Services.AddDaprClient();
 
 var app = builder.Build();
 
@@ -56,6 +57,13 @@ app.MapGrpcReflectionService();
 // https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-6-adding-health-checks-with-liveness-readiness-and-startup-probes/
 app.MapHealthChecks("/healthz/startup"); // Execute all checks on startup
 app.MapHealthChecks("/healthz/liveness", new HealthCheckOptions {Predicate = _ => false}); // Liveness only tests if the app can serve requests
+
+app.MapPost("/send", async () =>
+{
+    var daprClient = new DaprClientBuilder().Build();
+    await daprClient.InvokeBindingAsync("customers-test", "create", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));
+    return Results.Ok();
+});
 
 app.MapGet("/", () => "Hello World");
 
