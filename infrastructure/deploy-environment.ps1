@@ -35,17 +35,21 @@ if (-not $sqlAdAdminAdGroup) {
 
 # TODO: "SQL Administrators AAD group members"
 
+Write-Error "error"
+"foo"
+
+exit
 
 ############################
-"Deploying Azure resources"
+# "Deploying Azure resources"
 
-New-AzSubscriptionDeployment `
-    -Location $config.location `
-    -Name ("env" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\environment.bicep `
-    -TemplateParameterObject @{
-        environment = $Environment
-        sqlAdminAdGroupId = $sqlAdAdminAdGroup.Id
-        sqlAdminAdGroupName = $sqlAdAdminAdGroup.DisplayName
-    } `
-    -Verbose | Out-Null
+# New-AzSubscriptionDeployment `
+#     -Location $config.location `
+#     -Name ("env" + (Get-Date).ToString("yyyyMMddHHmmss")) `
+#     -TemplateFile .\environment.bicep `
+#     -TemplateParameterObject @{
+#         environment = $Environment
+#         sqlAdminAdGroupId = $sqlAdAdminAdGroup.Id
+#         sqlAdminAdGroupName = $sqlAdAdminAdGroup.DisplayName
+#     } `
+#     -Verbose | Out-Null
