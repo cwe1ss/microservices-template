@@ -5,10 +5,11 @@
 # * Assigns necessary Microsoft Graph API permissions to the application.
 # * Creates a service principal for the application.
 # * Gives admin consent to the previously configured API permissions for this service principal.
-# * Assigns the service principal the "Contributor"-role in the Azure subscription
-# * Adds GitHub federated identity credentials to the application (to allow signing in from the GitHub action without any passwords)
-# * Creates the necessary secrets in GitHub
-# * Creates the environments in GitHub
+# * Assigns the "Contributor"-role to the service principal in the Azure subscription.
+# * Assigns the "User Access Administrator"-role to the service principal in the Azure subscription.
+# * Adds GitHub federated identity credentials to the application (to allow signing in from the GitHub action without any passwords).
+# * Creates the necessary secrets in GitHub.
+# * Creates the environments in GitHub.
 #
 # https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows
 
@@ -89,7 +90,7 @@ if ($LASTEXITCODE -ne 0) {
 $config = Get-Content .\_config.json | ConvertFrom-Json
 
 $githubAppName = "$($config.platformResourcePrefix)-github"
-$acrName = "$($config.platformResourcePrefix)registry".Replace("-", "")
+$acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "")
 $msGraphPermissions = @( 
     "Group.Read.All"
     "Group.Create"
@@ -185,17 +186,26 @@ foreach ($permissionName in $msGraphPermissions) {
 ""
 "Assigning 'Contributor'-role to the service principal on the Azure subscription"
 
-$roleAssignment = Get-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName Contributor
+$roleAssignment = Get-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "Contributor"
 if ($roleAssignment) {
     Write-Success "Role assignment already existed"
 } else {
-    New-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName Contributor | Out-Null
+    New-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "Contributor" | Out-Null
     Write-Success "Role assignment created"
 }
 
 
-# TODO !!
-#New-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "User Access Administrator" -ErrorAction Ignore
+############################
+""
+"Assigning 'User Access Administrator'-role to the service principal on the Azure subscription"
+
+$roleAssignment = Get-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "User Access Administrator"
+if ($roleAssignment) {
+    Write-Success "Role assignment already existed"
+} else {
+    New-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "User Access Administrator" | Out-Null
+    Write-Success "Role assignment created"
+}
 
 
 ############################
