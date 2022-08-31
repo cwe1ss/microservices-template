@@ -9,6 +9,8 @@ Param (
 
 $ErrorActionPreference = "Stop"
 
+"ErrorActionPreference: $ErrorActionPreference"
+
 #$Environment = "development"
 
 
