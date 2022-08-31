@@ -14,6 +14,12 @@ $ErrorActionPreference = "Stop"
 #$Environment = "development"
 
 
+Get-AzAdGroup -DisplayName $sqlAdminAdGroupName
+"LastExitCode: $LASTEXITCODE"
+"exiting"
+exit
+
+
 ############################
 "Loading config"
 
@@ -35,9 +41,6 @@ if (-not $sqlAdAdminAdGroup) {
 
 # TODO: "SQL Administrators AAD group members"
 
-"foo"
-
-exit
 
 ############################
 # "Deploying Azure resources"
