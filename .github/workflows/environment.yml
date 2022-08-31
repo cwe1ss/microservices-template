@@ -1,4 +1,4 @@
-name: 'Deploy: 02 Environments'
+name: 'Deploy: 2. Environments'
 
 on:
   workflow_dispatch:

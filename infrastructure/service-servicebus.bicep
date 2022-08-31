@@ -36,7 +36,7 @@ resource incomingQueue 'Microsoft.ServiceBus/namespaces/queues@2022-01-01-previe
   }
 }
 
-resource svcUserIncomingQueueRead 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource svcUserIncomingQueueReceiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(incomingQueueName, 'receiver', svcUser.id)
   scope: incomingQueue
   properties: {
@@ -44,5 +44,29 @@ resource svcUserIncomingQueueRead 'Microsoft.Authorization/roleAssignments@2022-
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4f6d3b9b-027b-4f4c-9142-0e5a2a2247e0' /* Azure Service Bus Data Receiver */)
     principalId: svcUser.properties.principalId
     principalType: 'ServicePrincipal'
+  }
+}
+
+// TODO remove this once ACA supports MI in Dapr
+resource incomingQueueReceiverSas 'Microsoft.ServiceBus/namespaces/queues/authorizationRules@2022-01-01-preview' = {
+  name: 'receive'
+  parent: incomingQueue
+  properties: {
+    rights: [
+      'Listen'
+    ]
+  }
+}
+
+// TODO remove this once ACA supports MI in Dapr
+resource incomingQueueSenderSas 'Microsoft.ServiceBus/namespaces/queues/authorizationRules@2022-01-01-preview' = {
+  name: 'send'
+  parent: incomingQueue
+  properties: {
+    rights: [
+      //'Listen'
+      'Send'
+      //'Manage'
+    ]
   }
 }

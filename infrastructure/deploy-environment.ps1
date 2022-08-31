@@ -1,3 +1,5 @@
+# Deploys Azure infrastructure resources for one given environment.
+
 [CmdletBinding()]
 Param (
 
@@ -19,6 +21,7 @@ $env = $config.environments | Select-Object -ExpandProperty $Environment
 
 ############################
 "Deploying Azure AD resources"
+# These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
 
 ".. SQL Administrators AAD group"
 $sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"

@@ -1,3 +1,6 @@
+// The entire environment uses one shared Service Bus namespace.
+// The necessary queues & topics are added by the service deployments.
+
 param environment string
 param tags object
 

@@ -1,3 +1,5 @@
+// The main entry point for deploying all environment-specific infrastructure resources.
+
 targetScope = 'subscription'
 
 param now string = utcNow()
@@ -23,21 +25,6 @@ var tags = {
 
 // New resources
 
-resource envGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: envGroupName
-  location: config.location
-  tags: tags
-}
-
-module envResources 'environment-resources.bicep' = {
-  name: 'env-${now}'
-  scope: envGroup
-  params: {
-    environment: environment
-    tags: tags
-  }
-}
-
 resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: serviceBusGroupName
   location: config.location
@@ -47,8 +34,23 @@ resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 module serviceBusResources 'environment-servicebus.bicep' = {
   name: 'bus-${now}'
   scope: serviceBusGroup
+  params: {
+    environment: environment
+    tags: tags
+  }
+}
+
+resource envGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: envGroupName
+  location: config.location
+  tags: tags
+}
+
+module envResources 'environment-resources.bicep' = {
+  name: 'env-${now}'
+  scope: envGroup
   dependsOn: [
-    envResources
+    serviceBusGroup
   ]
   params: {
     environment: environment

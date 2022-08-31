@@ -1,3 +1,6 @@
+// The entire environment uses one shared SQL server instance.
+// The necessary databases are added by the service deployments.
+
 param environment string
 param tags object
 param sqlAdminAdGroupName string

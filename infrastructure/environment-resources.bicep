@@ -10,6 +10,8 @@ var env = config.environments[environment]
 
 var platformGroupName = '${config.platformResourcePrefix}-platform'
 var logsName = '${config.platformResourcePrefix}-logs'
+var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
+var serviceBusName = '${env.environmentResourcePrefix}-bus'
 
 var vnetName = '${env.environmentResourcePrefix}-vnet'
 var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
@@ -18,11 +20,18 @@ var appEnvName = '${env.environmentResourcePrefix}-env'
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
+var serviceBusGroup = resourceGroup(serviceBusGroupName)
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logsName
   scope: platformGroup
 }
+
+resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
+  name: serviceBusName
+  scope: serviceBusGroup
+}
+
 
 // New resources
 
@@ -85,5 +94,27 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
       internal: false
       infrastructureSubnetId: vnet.properties.subnets[0].id
     }
+  }
+}
+
+resource pubsubComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-03-01' = {
+  name: 'pubsub'
+  parent: appEnv
+  properties: {
+    // https://docs.dapr.io/reference/components-reference/supported-pubsub/setup-azure-servicebus/
+    componentType: 'pubsub.azure.servicebus'
+    version: 'v1'
+    secrets: [
+      {
+        name: 'pubsub-connection-string'
+        value: listKeys('${serviceBusNamespace.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBusNamespace.apiVersion).primaryConnectionString
+      }
+    ]
+    metadata: [
+      {
+        name: 'connectionString'
+        secretRef: 'pubsub-connection-string'
+      }
+    ]
   }
 }

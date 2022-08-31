@@ -1,3 +1,6 @@
+# Deploys Azure resources that are shared/used by all environments.
+# This must be deployed before any environment can be deployed.
+
 $ErrorActionPreference = "Stop"
 
 

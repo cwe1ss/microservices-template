@@ -5,7 +5,6 @@
   "environments": {
     "development": {
       "environmentResourcePrefix": "lab-msa-dev",
-
       "vnetAddressPrefix": "10.130.0.0/16",
       "acaInfrastructureAddressPrefix": "10.130.0.0/21",
 
@@ -32,6 +31,8 @@
     
         }
       }
+    },
+    "production": {
     }
   }
 }

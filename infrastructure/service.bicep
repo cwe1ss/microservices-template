@@ -1,3 +1,5 @@
+// Contains the main entry point for deploying all Azure resources required by one service.
+
 targetScope = 'subscription'
 
 param now string = utcNow()
@@ -14,6 +16,7 @@ var svcConfig = env.services[serviceName]
 // Naming conventions
 
 var platformGroupName = '${config.platformResourcePrefix}-platform'
+var envGroupName = '${env.environmentResourcePrefix}-env'
 var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
 var sqlGroupName = '${env.environmentResourcePrefix}-sql'
 var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
@@ -27,6 +30,7 @@ var tags = {
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
+var envGroup = resourceGroup(envGroupName)
 var serviceBusGroup = resourceGroup(serviceBusGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
@@ -40,7 +44,7 @@ resource svcGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 // Create the user assigned identity first, so that we can assign permissions to it before the rest of the service resources is created
 module svcIdentity 'service-identity.bicep' = {
-  name: 'svcIdentity-${now}'
+  name: 'svc-identity-${now}'
   scope: svcGroup
   params: {
     environment: environment
@@ -51,8 +55,8 @@ module svcIdentity 'service-identity.bicep' = {
 
 // Allow the identity to access the platform container registry.
 // This must be done before we can create the actual container app, as the deployment would fail otherwise.
-module svcIdentityAssignment 'service-platform-assignments.bicep' = {
-  name: 'svcIdentityAssignment-${now}'
+module svcPlatform 'service-platform.bicep' = {
+  name: 'svc-platform-${now}'
   scope: platformGroup
   dependsOn: [
     svcIdentity
@@ -85,13 +89,26 @@ module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
   }
 }
 
+module svcEnv 'service-environment.bicep' = {
+  name: 'svcEnv-${now}'
+  scope: envGroup
+  dependsOn: [
+    svcServiceBus
+  ]
+  params: {
+    environment: environment
+    serviceName: serviceName
+  }
+}
+
 module svcResources 'service-resources.bicep' = {
   name: 'svcResources-${now}'
   scope: svcGroup
   dependsOn: [
-    svcIdentityAssignment
+    svcPlatform
     svcServiceBus
     svcSql
+    svcEnv
   ]
   params: {
     environment: environment

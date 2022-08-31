@@ -1,4 +1,4 @@
-name: 'Deploy: 01 Platform'
+name: 'Deploy: 1. Platform'
 
 on:
   workflow_dispatch:

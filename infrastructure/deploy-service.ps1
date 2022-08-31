@@ -1,3 +1,6 @@
+# Deploys all Azure resources that are used by one single service.
+# It also adds some resources to the environment (SQL database, Service Bus queues & topics) and platform (permissions).
+
 [CmdletBinding()]
 Param (
 
@@ -22,7 +25,6 @@ $ErrorActionPreference = "Stop"
 "Loading config"
 
 $config = Get-Content .\_config.json | ConvertFrom-Json
-$env = $config.environments | Select-Object -ExpandProperty $Environment
 
 
 ############################
