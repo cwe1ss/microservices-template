@@ -80,7 +80,7 @@ module svcServiceBus 'service-servicebus.bicep' = if (svcConfig.serviceBus.enabl
 }
 
 module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
-  name: 'svcSql-${now}'
+  name: 'svc-sql-${now}'
   scope: sqlGroup
   params: {
     environment: environment
@@ -90,9 +90,10 @@ module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
 }
 
 module svcEnv 'service-environment.bicep' = {
-  name: 'svcEnv-${now}'
+  name: 'svc-env-${now}'
   scope: envGroup
   dependsOn: [
+    svcIdentity
     svcServiceBus
   ]
   params: {
@@ -102,7 +103,7 @@ module svcEnv 'service-environment.bicep' = {
 }
 
 module svcResources 'service-resources.bicep' = {
-  name: 'svcResources-${now}'
+  name: 'svc-resources-${now}'
   scope: svcGroup
   dependsOn: [
     svcPlatform

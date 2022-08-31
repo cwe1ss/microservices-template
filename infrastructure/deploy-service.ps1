@@ -40,4 +40,3 @@ New-AzSubscriptionDeployment `
         imageTag = $ImageTag
     } `
     -Verbose | Out-Null
-

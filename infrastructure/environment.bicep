@@ -50,7 +50,7 @@ module envResources 'environment-resources.bicep' = {
   name: 'env-${now}'
   scope: envGroup
   dependsOn: [
-    serviceBusGroup
+    serviceBusResources
   ]
   params: {
     environment: environment

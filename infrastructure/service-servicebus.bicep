@@ -64,9 +64,9 @@ resource incomingQueueSenderSas 'Microsoft.ServiceBus/namespaces/queues/authoriz
   parent: incomingQueue
   properties: {
     rights: [
-      //'Listen'
+      'Listen'
       'Send'
-      //'Manage'
+      'Manage'
     ]
   }
 }

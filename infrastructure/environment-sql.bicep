@@ -15,7 +15,7 @@ var env = config.environments[environment]
 
 var envGroupName = '${env.environmentResourcePrefix}-env'
 var vnetName = '${env.environmentResourcePrefix}-vnet'
-var sqlServerUserId = '${env.environmentResourcePrefix}-sql'
+var sqlServerUserName = '${env.environmentResourcePrefix}-sql'
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
 
 // Existing resources
@@ -35,7 +35,7 @@ resource acaInfrastructureSubnet 'Microsoft.Network/virtualNetworks/subnets@2022
 // New resources
 
 resource sqlServerUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
-  name: sqlServerUserId
+  name: sqlServerUserName
   location: config.location
   tags: tags
 }
@@ -71,5 +71,14 @@ resource infrastructureVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-
   properties: {
     ignoreMissingVnetServiceEndpoint: false
     virtualNetworkSubnetId: acaInfrastructureSubnet.id
+  }
+}
+
+resource allowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2020-11-01-preview' = {
+  name: 'AllowAllWindowsAzureIps'
+  parent: sqlServer
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
   }
 }
