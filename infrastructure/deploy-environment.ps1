@@ -13,9 +13,15 @@ $ErrorActionPreference = "Stop"
 
 #$Environment = "development"
 
+try {
+    Get-AzAdGroup -DisplayName "lab-msa-dev-sql-admins"
+    "LastExitCode: $LASTEXITCODE"
+}
+catch {
+    "Exception.Message: $($_.Exception.Message)"
+    "ErrorDetails.Message: $($_.ErrorDetails.Message)"
+}
 
-Get-AzAdGroup -DisplayName "lab-msa-dev-sql-admins"
-"LastExitCode: $LASTEXITCODE"
 "exiting"
 exit
 
