@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 #$Environment = "development"
 
 
-Get-AzAdGroup -DisplayName $sqlAdminAdGroupName
+Get-AzAdGroup -DisplayName "lab-msa-dev-sql-admins"
 "LastExitCode: $LASTEXITCODE"
 "exiting"
 exit
