@@ -35,7 +35,6 @@ if (-not $sqlAdAdminAdGroup) {
 
 # TODO: "SQL Administrators AAD group members"
 
-Write-Error "error"
 "foo"
 
 exit
