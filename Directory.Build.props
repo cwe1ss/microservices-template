@@ -5,5 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- TODO: Remove once this is no longer necessary. Grpc.Tools generates code that fails in .NET 7/C#11: https://github.com/grpc/grpc/issues/29672 -->
+    <NoWarn>$(NoWarn);8981</NoWarn>
   </PropertyGroup>
 </Project>

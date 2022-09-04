@@ -2,34 +2,28 @@
 
 This project contains a template for a .NET & Azure-based microservices system.
 
+## Usage
 
+* Download this repository (or fork it if you don't mind its git history)
+* Adjust the deployment configuration `.\infrastructure\_config.json`
+* Push your changes to a GitHub repository
+* Execute the platform initialization script locally `.\infrastructure\init-platform.ps1`
+* Deploy the shared platform resources via GitHub Actions
+* Deploy the shared environment resources via GitHub Actions
+* Deploy the sample services via GitHub Actions
 
 ## Requirements
 
 * winget install -e --id Microsoft.Bicep
 * Azure PowerShell
-* (Azure CLI)
-
-## Github
-
-* Environments:
-  * development
-  * production
-
-* Secrets:
-  * REGISTRY_SERVER - e.g. myregistry.azurecr.io
-
 
 ## Platform initialization
 
-To automate the deployment of Azure resources, the GitHub repository must be connected to the Azure subscription. As this connection requires elevated permissions and multiple steps, we provide the script `.\infrastructure\init-platform.ps1` to automates them.
+To automate the deployment of Azure resources, the GitHub repository must be connected to the Azure subscription. As this connection requires elevated permissions and multiple steps, we provide the following script to automates them: `.\infrastructure\init-platform.ps1`.
 
-The script will perform the following steps:
-* An Azure AD application will be created. It will be used by GitHub Actions to deploy resources to Azure.
-* The application will be given 'Group.Read.All' and 'Group.Create' permissions in Azure Active Directory (to create environment-specific AAD groups)
-* The application will be given 'Contributor' and 'User Access Administrator' roles in your Azure subscription (to create Azure-resources during deployment)
-* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given Azure AD application)
-* The configured 'environments' from `.\infrastructure\_config.json` will be created in your GitHub repository.
+The script will create an Azure AD application that will be used by GitHub Actions to deploy resources to Azure. The credentials of this application will be stored as "secrets" in the GitHub repository.
+
+The script will also create the configured "environments" from `.\infrastructure\_config.json` in the GitHub repository to allow for environment-specific protection rules when deploying resources.
 
 ### Required tools
 To run the initialization script, you must have the following tools installed:
@@ -49,11 +43,7 @@ cd .\infrastructure\
 
 ## Platform
 
-The "platform" contains resources that are shared by all services in all environments.
-
-The platform resources must be deployed first.
-
-Deployment can be initiated via the GitHub Action 
+The "platform" contains resources that are shared by all services in all environments. The platform resources must therefore be deployed first.
 
 ### Azure Container Registry
 
@@ -69,7 +59,20 @@ Microsoft recommends to start with a single workspace since this reduces the com
 
 This template therefore uses one workspace that's shared by all environments.
 
+## Environments
+
+* development
+* production
 
 
 # Configuration
 
+## Adding a new environment
+
+* Open `.\infrastructure\_config.json`
+* Duplicate an existing environment section (e.g. `development`).
+* Modify the environment name and all its content as desired.
+* Re-run the platform initialization script `.\infrastructure\init-platform.ps1`
+  * This will create the necessary environment in GitHub and its connection with the Azure subscription.
+* Create a new deployment for the environment GitHub action and approve the new environment
+* Create new deployments for all service GitHub actions and approve the new environment

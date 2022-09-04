@@ -19,13 +19,14 @@ builder.Services.AddSingleton<ITelemetryInitializer, ApplicationNameTelemetryIni
 
 builder.Services.AddDbContext<CustomersDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SQL"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQL") ?? throw new ArgumentException("SQL Connection String missing"));
 });
 
 builder.Services.AddGrpc(options =>
 {
     options.EnableDetailedErrors = true;
 });
+
 builder.Services.AddGrpcReflection();
 builder.Services.AddGrpcHttpApi();
 builder.Services.AddGrpcSwagger();

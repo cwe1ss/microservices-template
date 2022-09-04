@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+    - Directory.Packages.props
     - proto/customers.proto
     - services/customers/**
 
@@ -15,6 +16,7 @@ jobs:
   build:
     uses: ./.github/workflows/_service-build.yml
     with:
+      solutionFolder: ./services/customers
       dockerfile: ./services/customers/Customers.Api/Dockerfile
       imageName: lab-msa-svc-customers
     secrets: inherit
