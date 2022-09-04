@@ -54,9 +54,10 @@ jobs:
 
     # TODO tests
 
+    # TODO remove --prerelease switch once .NET 7 is GA
     - name: Create SQL migration script
       run: |
-        dotnet tool install --global dotnet-ef
+        dotnet tool install --global dotnet-ef --prerelease
         dotnet ef migrations script --configuration Release --no-build --idempotent -p "${{ inputs.projectFolder }}" -o artifacts/migration.sql
 
     # - name: Archive SQL Migration script
