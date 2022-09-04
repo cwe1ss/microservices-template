@@ -22,8 +22,11 @@ $config = Get-Content .\_config.json | ConvertFrom-Json
 $env = $config.environments | Select-Object -ExpandProperty $Environment
 
 # Naming conventions
-$githubAppName = "$($config.platformResourcePrefix)-github"
+
+#$githubAppName = "$($config.platformResourcePrefix)-github"
 $sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"
+$sqlGroupName = "$($env.environmentResourcePrefix)-sql"
+$sqlServerUserName = "$($env.environmentResourcePrefix)-sql"
 
 Write-Success "Done"
 
@@ -75,3 +78,19 @@ New-AzSubscriptionDeployment `
         sqlAdminAdGroupName = $sqlAdAdminAdGroup.DisplayName
     } `
     -Verbose | Out-Null
+
+
+############################
+""
+"Adding SQL server managed identity to AAD administrators group"
+
+# These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
+$sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdAdminAdGroup.Id
+$sqlAdminUser = Get-AzUserAssignedIdentity -ResourceGroupName $sqlGroupName -Name $sqlServerUserName
+
+if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.PrincipalId }) {
+    Write-Success "Member already exists in group"
+} else {
+    Add-AzADGroupMember -TargetGroupObjectId $sqlAdAdminAdGroup.Id -MemberObjectId $sqlAdminUser.PrincipalId
+    Write-Success "Member added to group"
+}
