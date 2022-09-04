@@ -47,8 +47,8 @@ New-AzSubscriptionDeployment `
     -TemplateFile .\environment.bicep `
     -TemplateParameterObject @{
         environment = $Environment
-        sqlAdminAdGroupId = $sqlAdAdminAdGroup.Id
-        sqlAdminAdGroupName = $sqlAdAdminAdGroup.DisplayName
+        sqlAdminAdGroupId = $sqlAdminAdGroup.Id
+        sqlAdminAdGroupName = $sqlAdminAdGroup.DisplayName
     } `
     -Verbose | Out-Null
 
