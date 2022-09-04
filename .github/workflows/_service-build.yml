@@ -47,7 +47,7 @@ jobs:
 
     - run: dotnet --version
 
-    - run: dotnet build "${{ inputs.solutionFolder }}" -c Release
+    - run: dotnet build "${{ inputs.solutionFolder }}" -c Release --runtime linux-x64
 
     # TODO tests
 
