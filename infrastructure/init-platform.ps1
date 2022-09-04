@@ -1,17 +1,24 @@
-# This script will connect your GitHub repository with your Azure subscription.
-#
-# It will do the following things:
-# * Creates an Azure AD application that will be used by GitHub Actions to deploy resources to Azure.
-# * Assigns necessary Microsoft Graph API permissions to the application.
-# * Creates a service principal for the application.
-# * Gives admin consent to the previously configured API permissions for this service principal.
-# * Assigns the "Contributor"-role to the service principal in the Azure subscription.
-# * Assigns the "User Access Administrator"-role to the service principal in the Azure subscription.
-# * Adds GitHub federated identity credentials to the application (to allow signing in from the GitHub action without any passwords).
-# * Creates the necessary secrets in GitHub.
-# * Creates the environments in GitHub.
-#
-# https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows
+Write-Host -ForegroundColor White "*******************************"
+Write-Host -ForegroundColor White "*** PLATFORM INITIALIZATION ***"
+Write-Host -ForegroundColor White "*******************************"
+""
+"This script will set up required resources to automatically deploy resources from your GitHub repository into your Azure account."
+""
+"IMPORTANT: You must be a 'Global Administrator' in your Azure tenant to execute this script!"
+""
+"The following steps will be executed:"
+"* An Azure AD application will be created. It will be used by GitHub Actions to deploy resources to Azure."
+"* The application will be given 'Group.Read.All' and 'Group.Create' permissions in Azure Active Directory (to create environment-specific AAD groups)"
+"* The application will be given 'Contributor' and 'User Access Administrator' roles in your Azure subscription (to create Azure-resources during deployment)"
+"* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given Azure AD application)"
+"* The configured (_config.json) 'environments' will be created in your GitHub repository."
+""
+$decision = $Host.UI.PromptForChoice($null, "Are you sure you want to execute this script?", ('&Yes', '&No'), 1)
+if ($decision -ne 0) {
+    Write-Error "Script aborted."
+    exit
+}
+
 
 $ErrorActionPreference = "Stop"
 
@@ -85,12 +92,32 @@ if ($LASTEXITCODE -ne 0) {
 
 ############################
 ""
+"Ensuring user is a 'Global Administrator'"
+
+$currentUser = Get-AzADUser -SignedIn
+
+$graphAccessToken = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/"
+$globalAdminRoleId = (Invoke-RestMethod -Method Get -Headers @{ Authorization = "Bearer $($graphAccessToken.Token)" } -Uri "https://graph.microsoft.com/v1.0/directoryRoles?`$filter=displayName eq 'Global Administrator'").value.id
+
+$globalAdminMembers = (Invoke-RestMethod -Method Get -Headers @{ Authorization = "Bearer $($graphAccessToken.Token)" } -Uri "https://graph.microsoft.com/v1.0/directoryRoles/$($globalAdminRoleId)/members").value
+$isGlobalAdmin = $globalAdminMembers | Where-Object { $_.id -eq $currentUser.Id }
+if ($isGlobalAdmin) {
+    Write-Success "User '$($currentUser.UserPrincipalName)' is a 'Global Administrator'"
+} else {
+    throw "Current user ($($currentUser.UserPrincipalName)) is not a 'Global Administrator' in Azure AD. You must run this script as a Global Administrator."
+}
+
+
+############################
+""
 "Loading config"
 
 $config = Get-Content .\_config.json | ConvertFrom-Json
+$environmentNames = $config.environments | Get-Member -MemberType NoteProperty | Select-Object -Property Name
 
 $githubAppName = "$($config.platformResourcePrefix)-github"
 $acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "")
+
 $msGraphPermissions = @( 
     "Group.Read.All"
     "Group.Create"
@@ -105,7 +132,7 @@ Write-Success "Config loaded"
 
 $githubApp = Get-AzADApplication -DisplayName $githubAppName
 if ($githubApp) {
-    Write-Success "Application '$githubAppName' already existed"
+    Write-Success "Application '$githubAppName' already exists"
 } else {
     $githubApp = New-AzADApplication -DisplayName $githubAppName `
         -AvailableToOtherTenants $false `
@@ -129,7 +156,7 @@ foreach ($permissionName in $msGraphPermissions) {
     if (!$permDefinition) { throw "INTERNAL ERROR: Couldn't load permission '$permissionName'." }
 
     if (($existingPermissions | Where-Object { $_.ApiId -eq $msGraphAppId -and $_.Id -eq $permDefinition.Id})) {
-        Write-Success "Permission '$permissionName' already existed"
+        Write-Success "Permission '$permissionName' already exists"
     } else {
         Add-AzADAppPermission -ObjectId $githubApp.Id -ApiId $msGraphAppId -PermissionId $permDefinition.Id -Type "Role"
         Write-Success "Permission '$permissionName' created"
@@ -143,7 +170,7 @@ foreach ($permissionName in $msGraphPermissions) {
 
 $githubAppSp = Get-AzADServicePrincipal -ApplicationId $githubApp.AppId
 if ($githubAppSp) {
-    Write-Success "Service principal already existed"
+    Write-Success "Service principal already exists"
 } else {
     $githubAppSp = New-AzADServicePrincipal -ApplicationId $githubApp.AppId
     Write-Success "Service principal created"
@@ -166,7 +193,7 @@ foreach ($permissionName in $msGraphPermissions) {
 
     $exists = $existingAssignments.value | Where-Object { $_.appRoleId -eq $appRoleId }
     if ($exists) {
-        Write-Success "Admin consent for '$permissionName' already existed"
+        Write-Success "Admin consent for '$permissionName' already exists"
     } else {
         $body = @{
             appRoleId = $appRoleId
@@ -188,7 +215,7 @@ foreach ($permissionName in $msGraphPermissions) {
 
 $roleAssignment = Get-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "Contributor"
 if ($roleAssignment) {
-    Write-Success "Role assignment already existed"
+    Write-Success "Role assignment already exists"
 } else {
     New-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "Contributor" | Out-Null
     Write-Success "Role assignment created"
@@ -201,7 +228,7 @@ if ($roleAssignment) {
 
 $roleAssignment = Get-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "User Access Administrator"
 if ($roleAssignment) {
-    Write-Success "Role assignment already existed"
+    Write-Success "Role assignment already exists"
 } else {
     New-AzRoleAssignment -ObjectId $githubAppSp.Id -RoleDefinitionName "User Access Administrator" | Out-Null
     Write-Success "Role assignment created"
@@ -216,7 +243,7 @@ $existingCredentials = Get-AzADAppFederatedCredential -ApplicationObjectId $gith
 
 $credentialName = "github-branch-$($ghRepo.defaultBranchRef.name)"
 if ($existingCredentials | Where-Object { $_.Name -eq $credentialName}) {
-    Write-Success "Credential '$credentialName' already existed"
+    Write-Success "Credential '$credentialName' already exists"
 } else {
     New-AzADAppFederatedCredential -ApplicationObjectId $githubApp.Id `
         -Audience "api://AzureADTokenExchange" `
@@ -228,13 +255,12 @@ if ($existingCredentials | Where-Object { $_.Name -eq $credentialName}) {
 }
 
 # Environments
-$environmentNames = $config.environments | Get-Member -MemberType NoteProperty | Select-Object -Property Name
 foreach ($envObj in $environmentNames) {
     $env = $envObj.Name
     $credentialName = "github-env-$env"
 
     if ($existingCredentials | Where-Object { $_.Name -eq $credentialName}) {
-        Write-Success "Credential '$credentialName' already existed"
+        Write-Success "Credential '$credentialName' already exists"
     } else {
         New-AzADAppFederatedCredential -ApplicationObjectId $githubApp.Id `
             -Audience "api://AzureADTokenExchange" `
@@ -261,12 +287,28 @@ Exec { gh secret set "REGISTRY_SERVER" -b $acrName }
 ############################
 ""
 "Creating GitHub environments"
+# There are no CLI methods for managing environments, so we have to use the REST API: https://github.com/cli/cli/issues/5149 
+
+$ghEnvironments = Exec { gh api "/repos/$($ghRepo.nameWithOwner)/environments" -H "Accept: application/vnd.github+json" } | ConvertFrom-Json
+$ghUser = Exec { gh api "/user" -H "Accept: application/vnd.github+json" } | ConvertFrom-Json
+
 foreach ($envObj in $environmentNames) {
     $env = $envObj.Name
+    #$env = "development"
 
-    # There is no CLI method, so we have to use the REST API: https://github.com/cli/cli/issues/5149 
-    Exec { gh api "/repos/$($ghRepo.nameWithOwner)/environments/$env" -X PUT -H "Accept: application/vnd.github+json" | Out-Null }
-    Write-Success "Environment '$env' created"
+    if ($ghEnvironments.environments | Where-Object { $_.name -eq $env }) {
+        Write-Success "Environment '$env' already exists"
+    } else {
+        $body = @{
+            reviewers = @( 
+                @{ type = "User"; id = $ghUser.id }
+            )
+        } | ConvertTo-Json -Compress
+        $ghEnv = Exec { $body | gh api "/repos/$($ghRepo.nameWithOwner)/environments/$env" -X PUT -H "Accept: application/vnd.github+json" --input - } | ConvertFrom-Json
+        Write-Success "Environment '$env' created with YOU ($($ghUser.login)) as a required reviewer."
+        "    You can modify the protection rules here: $($ghRepo.url)/settings/environments/$($ghEnv.id)/edit"
+    }
 }
 
-# TODO Branch protection rules??
+""
+"Script finished."
