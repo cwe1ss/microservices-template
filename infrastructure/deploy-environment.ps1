@@ -58,13 +58,13 @@ New-AzSubscriptionDeployment `
 "Adding SQL server managed identity to SQL administrators AAD group"
 
 # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
-$sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdAdminAdGroup.Id
+$sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdminAdGroup.Id
 $sqlAdminUser = Get-AzUserAssignedIdentity -ResourceGroupName $sqlGroupName -Name $sqlServerAdminUserName
 
 if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.PrincipalId }) {
     Write-Success "Member already exists in group"
 } else {
-    Add-AzADGroupMember -TargetGroupObjectId $sqlAdAdminAdGroup.Id -MemberObjectId $sqlAdminUser.PrincipalId
+    Add-AzADGroupMember -TargetGroupObjectId $sqlAdminAdGroup.Id -MemberObjectId $sqlAdminUser.PrincipalId
     Write-Success "Member added to group"
 }
 
