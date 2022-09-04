@@ -15,7 +15,7 @@ var env = config.environments[environment]
 
 var envGroupName = '${env.environmentResourcePrefix}-env'
 var vnetName = '${env.environmentResourcePrefix}-vnet'
-var sqlServerUserName = '${env.environmentResourcePrefix}-sql'
+var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql'
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
 
 // Existing resources
@@ -34,8 +34,8 @@ resource acaInfrastructureSubnet 'Microsoft.Network/virtualNetworks/subnets@2022
 
 // New resources
 
-resource sqlServerUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
-  name: sqlServerUserName
+resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+  name: sqlServerAdminUserName
   location: config.location
   tags: tags
 }
@@ -47,7 +47,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${sqlServerUser.id}': {}
+      '${sqlServerAdminUser.id}': {}
     }
   }
   properties: {
@@ -60,7 +60,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
       tenantId: subscription().tenantId
     }
     minimalTlsVersion: '1.2'
-    primaryUserAssignedIdentityId: sqlServerUser.id
+    primaryUserAssignedIdentityId: sqlServerAdminUser.id
     publicNetworkAccess: 'Enabled'
   }
 }

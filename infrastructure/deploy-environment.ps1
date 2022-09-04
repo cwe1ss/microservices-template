@@ -33,39 +33,6 @@ Write-Success "Done"
 
 ############################
 ""
-"Creating AAD group for SQL administrators"
-
-# These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
-$sqlAdAdminAdGroup = Get-AzAdGroup -DisplayName $sqlAdminAdGroupName
-if ($sqlAdAdminAdGroup) {
-    Write-Success "Group already exists"
-} else {
-    $sqlAdAdminAdGroup = New-AzAdGroup -DisplayName $sqlAdminAdGroupName -MailNickname $sqlAdminAdGroupName
-    Write-Success "Group created"
-}
-
-
-############################
-# ""
-# "Adding GitHub Actions application to SQL Administrators group"
-
-# # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
-# $sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdAdminAdGroup.Id
-# $githubApp = Get-AzADServicePrincipal -DisplayName $githubAppName
-
-# if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $githubApp.Id }) {
-#     Write-Success "Member already exists in group"
-# } else {
-#     Add-AzADGroupMember -TargetGroupObjectId $sqlAdAdminAdGroup.Id -MemberObjectId $githubApp.Id
-#     Write-Success "Member added to group"
-# }
-
-
-# TODO: "Other SQL Administrators AAD group members"
-
-
-############################
-""
 "Deploying Azure resources"
 
 New-AzSubscriptionDeployment `
@@ -94,3 +61,6 @@ if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.PrincipalId
     Add-AzADGroupMember -TargetGroupObjectId $sqlAdAdminAdGroup.Id -MemberObjectId $sqlAdminUser.PrincipalId
     Write-Success "Member added to group"
 }
+
+
+# TODO: "Other SQL Administrators AAD group members"
