@@ -39,6 +39,13 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    - name: Docker Login to ACR
+      run: |
+        set -euo pipefail
+        access_token=$(az account get-access-token --query accessToken -o tsv)
+        refresh_token=$(curl https://${{ secrets.REGISTRY_SERVER }}/oauth2/exchange -v -d "grant_type=access_token&service=${{ secrets.REGISTRY_SERVER }}&access_token=$access_token" | jq -r .refresh_token)
+        docker login -u 00000000-0000-0000-0000-000000000000 --password-stdin ${{ secrets.REGISTRY_SERVER }} <<< "$refresh_token"
+
     - uses: actions/setup-dotnet@v2
 
     - run: dotnet --version
@@ -48,16 +55,18 @@ jobs:
     # TODO tests
 
     - name: EF Core
-      run: dotnet ef migrations script --idempotent -p "${{ inputs.projectFolder }}" --no-build
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet ef migrations script --idempotent -p "${{ inputs.projectFolder }}" --no-build -o artifacts/migration.sql
 
     - run: dotnet publish "${{ inputs.projectFolder }}" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }} -p:ContainerImageTag=${{ github.run_number }}
 
-    - name: Docker Login to ACR
-      run: |
-        set -euo pipefail
-        access_token=$(az account get-access-token --query accessToken -o tsv)
-        refresh_token=$(curl https://${{ secrets.REGISTRY_SERVER }}/oauth2/exchange -v -d "grant_type=access_token&service=${{ secrets.REGISTRY_SERVER }}&access_token=$access_token" | jq -r .refresh_token)
-        docker login -u 00000000-0000-0000-0000-000000000000 --password-stdin ${{ secrets.REGISTRY_SERVER }} <<< "$refresh_token"
+    - name: Archive SQL Migration script
+      uses: actions/upload-artifact@v3
+      with:
+        name: sql-migration
+        path: |
+          artifacts/migration.sql
 
     - run: docker tag ${{ inputs.imageName }}:${{ github.run_number }} ${{ secrets.REGISTRY_SERVER }}/${{ inputs.imageName }}:${{ github.run_number }}
 
