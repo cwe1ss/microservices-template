@@ -2,16 +2,18 @@ Write-Host -ForegroundColor White "*******************************"
 Write-Host -ForegroundColor White "*** PLATFORM INITIALIZATION ***"
 Write-Host -ForegroundColor White "*******************************"
 ""
-"This script will set up required resources to automatically deploy resources from your GitHub repository into your Azure account."
+"This script will set up the connection between your GitHub repository and your Azure account to allow for automated deployments."
 ""
-"IMPORTANT: You must be a 'Global Administrator' in your Azure tenant to execute this script!"
-""
-"The following steps will be executed:"
-"* An Azure AD application will be created. It will be used by GitHub Actions to deploy resources to Azure."
+"The script will perform the following actions:"
+"* It will create an Azure AD application that will be used by GitHub Actions to deploy resources to Azure."
 "* The application will be given 'Group.Read.All' and 'Group.Create' permissions in Azure Active Directory (to create environment-specific AAD groups)"
 "* The application will be given 'Contributor' and 'User Access Administrator' roles in your Azure subscription (to create Azure-resources during deployment)"
 "* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given Azure AD application)"
 "* The configured (_config.json) 'environments' will be created in your GitHub repository."
+""
+"IMPORTANT: You must be a 'Global Administrator' in your Azure tenant to execute this script!"
+""
+"NOTE: It is safe to run this script multiple times (e.g. when you add an environment)."
 ""
 $decision = $Host.UI.PromptForChoice($null, "Are you sure you want to execute this script?", ('&Yes', '&No'), 1)
 if ($decision -ne 0) {
@@ -25,6 +27,7 @@ $ErrorActionPreference = "Stop"
 . .\helpers.ps1
 
 ############################
+""
 "Ensuring required tools are installed"
 
 if (Get-Command Get-AzContext -ErrorAction Ignore) {
@@ -304,7 +307,9 @@ foreach ($envObj in $environmentNames) {
                 @{ type = "User"; id = $ghUser.id }
             )
         } | ConvertTo-Json -Compress
+
         $ghEnv = Exec { $body | gh api "/repos/$($ghRepo.nameWithOwner)/environments/$env" -X PUT -H "Accept: application/vnd.github+json" --input - } | ConvertFrom-Json
+
         Write-Success "Environment '$env' created with YOU ($($ghUser.login)) as a required reviewer."
         "    You can modify the protection rules here: $($ghRepo.url)/settings/environments/$($ghEnv.id)/edit"
     }
