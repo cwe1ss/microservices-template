@@ -6,10 +6,13 @@ Write-Host -ForegroundColor White "*******************************"
 ""
 "The script will perform the following actions:"
 "* It will create an Azure AD application that will be used by GitHub Actions to deploy resources to Azure."
-"* The application will be given 'Group.Read.All' and 'Group.Create' permissions in Azure Active Directory (to create environment-specific AAD groups)"
+"* The application will be given the 'GroupMember.ReadWrite.All' permission in Azure Active Directory (to add environment-specific users to AAD groups)"
 "* The application will be given 'Contributor' and 'User Access Administrator' roles in your Azure subscription (to create Azure-resources during deployment)"
 "* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given Azure AD application)"
-"* The configured (_config.json) 'environments' will be created in your GitHub repository."
+"* For each configured environment (_config.json), the following will be created:"
+"  * An 'environment' in your GitHub repository with the current user as a required reviewer (can be changed afterwards)"
+"  * An Azure AD group for admins of the environment-specific SQL server"
+"  * The group will be assigned the 'Directory Readers'-role to allow members (e.g. the managed identity of the SQL server) to query AAD users"
 ""
 "IMPORTANT: You must be a 'Global Administrator' in your Azure tenant to execute this script!"
 ""
@@ -116,14 +119,13 @@ if ($isGlobalAdmin) {
 "Loading config"
 
 $config = Get-Content .\_config.json | ConvertFrom-Json
-$environmentNames = $config.environments | Get-Member -MemberType NoteProperty | Select-Object -Property Name
+$environmentNames = $config.environments | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name }
 
 $githubAppName = "$($config.platformResourcePrefix)-github"
 $acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "")
 
 $msGraphPermissions = @( 
-    "Group.Read.All"
-    "Group.Create"
+    "GroupMember.ReadWrite.All"
 )
 
 Write-Success "Config loaded"
@@ -155,6 +157,7 @@ $msGraphSp = Get-AzAdServicePrincipal -ApplicationId $msGraphAppId
 $existingPermissions = Get-AzADAppPermission -ObjectId $githubApp.Id
 
 foreach ($permissionName in $msGraphPermissions) {
+    #$permissionName = "GroupMember.ReadWrite.All"
     $permDefinition = $msGraphSp.AppRole | Where-Object { $_.Value -eq $permissionName } | Select-Object
     if (!$permDefinition) { throw "INTERNAL ERROR: Couldn't load permission '$permissionName'." }
 
@@ -191,7 +194,7 @@ $apiUrl = "https://graph.microsoft.com/v1.0/servicePrincipals/$($githubAppSp.Id)
 $existingAssignments = Invoke-RestMethod -Uri $apiUrl -Method Get -Headers @{ Authorization = "Bearer $($graphAccessToken.Token)" } 
 
 foreach ($permissionName in $msGraphPermissions) {
-    #$permissionName = "Group.Read.All"
+    #$permissionName = "GroupMember.ReadWrite.All"
     $appRoleId = ($msGraphSp.AppRole | Where-Object { $_.Value -eq $permissionName } | Select-Object).Id 
 
     $exists = $existingAssignments.value | Where-Object { $_.appRoleId -eq $appRoleId }
@@ -240,7 +243,7 @@ if ($roleAssignment) {
 
 ############################
 ""
-"Assigning GitHub federated credentials to application"
+"Allowing GitHub Actions AAD-app to deploy from branch '$($ghRepo.defaultBranchRef.name)' (via federated credentials)"
 
 $existingCredentials = Get-AzADAppFederatedCredential -ApplicationObjectId $githubApp.Id
 
@@ -257,24 +260,6 @@ if ($existingCredentials | Where-Object { $_.Name -eq $credentialName}) {
     Write-Success "Credential '$credentialName' created"
 }
 
-# Environments
-foreach ($envObj in $environmentNames) {
-    $env = $envObj.Name
-    $credentialName = "github-env-$env"
-
-    if ($existingCredentials | Where-Object { $_.Name -eq $credentialName}) {
-        Write-Success "Credential '$credentialName' already exists"
-    } else {
-        New-AzADAppFederatedCredential -ApplicationObjectId $githubApp.Id `
-            -Audience "api://AzureADTokenExchange" `
-            -Issuer "https://token.actions.githubusercontent.com" `
-            -Name $credentialName `
-            -Subject "repo:$($ghRepo.nameWithOwner):environment:$env" | Out-Null
-        
-        Write-Success "Credential '$credentialName' created"
-    }
-}
-
 
 ############################
 ""
@@ -288,16 +273,25 @@ Exec { gh secret set "REGISTRY_SERVER" -b $acrName }
 
 
 ############################
-""
-"Creating GitHub environments"
-# There are no CLI methods for managing environments, so we have to use the REST API: https://github.com/cli/cli/issues/5149 
+# ENVIRONMENTS             #
+############################
 
-$ghEnvironments = Exec { gh api "/repos/$($ghRepo.nameWithOwner)/environments" -H "Accept: application/vnd.github+json" } | ConvertFrom-Json
-$ghUser = Exec { gh api "/user" -H "Accept: application/vnd.github+json" } | ConvertFrom-Json
 
-foreach ($envObj in $environmentNames) {
-    $env = $envObj.Name
+foreach ($env in $environmentNames) {
     #$env = "development"
+
+    $envConfig = $config.environments | Select-Object -ExpandProperty $env
+
+    $sqlAdminAdGroupName = "$($envConfig.environmentResourcePrefix)-sql-admins"
+
+
+    ############################
+    ""
+    "Environment '$env': Creating GitHub environment"
+    # There are no CLI methods for managing environments, so we have to use the REST API: https://github.com/cli/cli/issues/5149 
+
+    $ghEnvironments = Exec { gh api "/repos/$($ghRepo.nameWithOwner)/environments" -H "Accept: application/vnd.github+json" } | ConvertFrom-Json
+    $ghUser = Exec { gh api "/user" -H "Accept: application/vnd.github+json" } | ConvertFrom-Json
 
     if ($ghEnvironments.environments | Where-Object { $_.name -eq $env }) {
         Write-Success "Environment '$env' already exists"
@@ -312,6 +306,66 @@ foreach ($envObj in $environmentNames) {
 
         Write-Success "Environment '$env' created with YOU ($($ghUser.login)) as a required reviewer."
         "    You can modify the protection rules here: $($ghRepo.url)/settings/environments/$($ghEnv.id)/edit"
+    }
+
+
+    ############################
+    ""
+    "Environment '$env': Allowing GitHub Actions AAD-app to deploy from environment (via federated credentials)"
+
+    $credentialName = "github-env-$env"
+
+    if ($existingCredentials | Where-Object { $_.Name -eq $credentialName}) {
+        Write-Success "Credential '$credentialName' already exists"
+    } else {
+        New-AzADAppFederatedCredential -ApplicationObjectId $githubApp.Id `
+            -Audience "api://AzureADTokenExchange" `
+            -Issuer "https://token.actions.githubusercontent.com" `
+            -Name $credentialName `
+            -Subject "repo:$($ghRepo.nameWithOwner):environment:$env" | Out-Null
+        
+        Write-Success "Credential '$credentialName' created"
+    }
+
+
+    ############################
+    ""
+    "Environment '$env': Creating SQL Admins AAD group"
+
+    $sqlAdminAdGroup = Get-AzAdGroup -DisplayName $sqlAdminAdGroupName
+    if ($sqlAdminAdGroup) {
+        Write-Success "AAD group '$sqlAdminAdGroupName' already exists"
+    } else {
+        $sqlAdminAdGroup = New-AzAdGroup -DisplayName $sqlAdminAdGroupName -MailNickname $sqlAdminAdGroupName -IsAssignableToRole
+        Write-Success "AAD group '$sqlAdminAdGroupName' already exists"
+    }
+
+
+    ############################
+    ""
+    "Environment '$env': Assigning 'Directory Reader'-role to SQL Admins AAD group"
+
+    $graphAccessToken = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/"
+
+    $adRoleDefinition = Invoke-RestMethod -Method Get -Headers @{ Authorization = "Bearer $($graphAccessToken.Token)" } `
+        -Uri "https://graph.microsoft.com/v1.0/roleManagement/directory/roleDefinitions?`$filter=displayName eq 'Directory Readers'"
+    
+    $existingAdRoleAssignments = Invoke-RestMethod -Method Get -Headers @{ Authorization = "Bearer $($graphAccessToken.Token)" } `
+        -Uri "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '$($adRoleDefinition.value.id)'"
+    
+    if ($existingAdRoleAssignments.value | Where-Object { $_.principalId -eq $sqlAdminAdGroup.Id }) {
+        Write-Success "Role assignment already exists"
+    } else {
+        $body = @{
+            principalId = $sqlAdminAdGroup.Id;
+            roleDefinitionId = $adRoleDefinition.value.id;
+            directoryScopeId = "/"
+        }
+        Invoke-RestMethod -Method Post -ContentType "application/json" -Headers @{ Authorization = "Bearer $($graphAccessToken.Token)" } `
+            -Body $($body | convertto-json) `
+            -Uri "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments" | Out-Null
+        
+        Write-Success "Role assignment created"
     }
 }
 
