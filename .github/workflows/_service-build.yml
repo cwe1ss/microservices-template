@@ -59,12 +59,17 @@ jobs:
         dotnet tool install --global dotnet-ef
         dotnet ef migrations script --configuration Release --no-build --idempotent -p "${{ inputs.projectFolder }}" -o artifacts/migration.sql
 
-    - name: Archive SQL Migration script
-      uses: actions/upload-artifact@v3
-      with:
-        name: sql-migration
-        path: |
-          artifacts/migration.sql
+    # - name: Archive SQL Migration script
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: sql-migration
+    #     path: |
+    #       artifacts/migration.sql
+
+    # TODO: Storage account name & container
+    - name: Upload SQL migration script to Azure Storage
+      run: |
+        az storage blob upload --account-name labmsasa --container-name sql-migration --name sql-${{ inputs.imageName }}-${{ github.run_number }}.sql --file .\artifacts\migration.sql
 
     - run: dotnet publish "${{ inputs.projectFolder }}" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }} -p:ContainerImageTag=${{ github.run_number }}
 

@@ -10,7 +10,28 @@ var config = loadJsonContent('./_config.json')
 var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
 var logsName = '${config.platformResourcePrefix}-logs'
 
+var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
+var sqlMigrationContainerName = 'sql-migration'
+
 // New resources
+
+resource sa 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: storageAccountName
+  location: location
+  tags: tags
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  properties: {
+    accessTier: 'Hot'
+    minimumTlsVersion: 'TLS1_2'
+  }
+}
+
+resource sqlMigrationContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+  name: '${sa.name}/default/${sqlMigrationContainerName}'
+}
 
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   name: acrName
