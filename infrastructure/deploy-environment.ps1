@@ -23,12 +23,18 @@ $env = $config.environments | Select-Object -ExpandProperty $Environment
 
 # Naming conventions
 
-#$githubAppName = "$($config.platformResourcePrefix)-github"
 $sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"
 $sqlGroupName = "$($env.environmentResourcePrefix)-sql"
-$sqlServerUserName = "$($env.environmentResourcePrefix)-sql"
+$sqlServerAdminUserName = "$($env.environmentResourcePrefix)-sql-admin"
 
 Write-Success "Done"
+
+
+############################
+"Loading Azure AD objects"
+
+$sqlAdminAdGroup = Get-AzAdGroup -DisplayName $sqlAdminAdGroupName
+if (!$sqlAdminAdGroup) { throw "AAD group '$sqlAdminAdGroupName' not found. Did you run 'init-platform.ps1' after you added the environment?" }
 
 
 ############################
@@ -49,11 +55,11 @@ New-AzSubscriptionDeployment `
 
 ############################
 ""
-"Adding SQL server managed identity to AAD administrators group"
+"Adding SQL server managed identity to SQL administrators AAD group"
 
 # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
 $sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdAdminAdGroup.Id
-$sqlAdminUser = Get-AzUserAssignedIdentity -ResourceGroupName $sqlGroupName -Name $sqlServerUserName
+$sqlAdminUser = Get-AzUserAssignedIdentity -ResourceGroupName $sqlGroupName -Name $sqlServerAdminUserName
 
 if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.PrincipalId }) {
     Write-Success "Member already exists in group"

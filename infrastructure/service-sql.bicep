@@ -12,7 +12,7 @@ var svcConfig = env.services[serviceName]
 // Naming conventions
 
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
-var sqlServerUserName = '${env.environmentResourcePrefix}-sql'
+var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
 var sqlDatabaseName = serviceName
 var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
@@ -25,8 +25,8 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
   name: sqlServerName
 }
 
-resource sqlServerUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
-  name: sqlServerUserName
+resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+  name: sqlServerAdminUserName
 }
 
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
@@ -61,7 +61,7 @@ resource assignUserToDb 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${sqlServerUser.id}': {}
+      '${sqlServerAdminUser.id}': {}
     }
   }
   properties: {

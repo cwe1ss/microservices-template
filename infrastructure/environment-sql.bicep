@@ -15,7 +15,7 @@ var env = config.environments[environment]
 
 var envGroupName = '${env.environmentResourcePrefix}-env'
 var vnetName = '${env.environmentResourcePrefix}-vnet'
-var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql'
+var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
 
 // Existing resources
