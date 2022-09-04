@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+    - Directory.Packages.props
     - proto/orders.proto
     - services/orders/**
 
@@ -15,7 +16,8 @@ jobs:
   build:
     uses: ./.github/workflows/_service-build.yml
     with:
-      dockerfile: ./services/orders/Orders.Api/Dockerfile
+      solutionFolder: ./services/orders
+      projectFolder: ./services/orders/Orders.Api
       imageName: lab-msa-svc-orders
     secrets: inherit
     permissions:

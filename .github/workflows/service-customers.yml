@@ -18,8 +18,6 @@ jobs:
     with:
       solutionFolder: ./services/customers
       projectFolder: ./services/customers/Customers.Api
-      
-      dockerfile: ./services/customers/Customers.Api/Dockerfile
       imageName: lab-msa-svc-customers
     secrets: inherit
     permissions:
