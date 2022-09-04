@@ -47,11 +47,11 @@ jobs:
 
     - run: dotnet --version
 
-    - run: dotnet build "${{ inputs.solutionFolder }}" -c Release --runtime linux-x64
+    - run: dotnet build "${{ inputs.solutionFolder }}" -c Release
 
     # TODO tests
 
-    - run: dotnet publish "${{ inputs.projectFolder }}" --no-build --os linux --arch x64 -c Release -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }}
+    - run: dotnet publish "${{ inputs.projectFolder }}" --no-restore --os linux --arch x64 -c Release -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }}
 
     # - name: Set up Docker Buildx
     #   uses: docker/setup-buildx-action@v1
