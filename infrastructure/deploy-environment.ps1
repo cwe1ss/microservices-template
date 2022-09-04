@@ -24,7 +24,6 @@ $env = $config.environments | Select-Object -ExpandProperty $Environment
 # Naming conventions
 
 $sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"
-$sqlGroupName = "$($env.environmentResourcePrefix)-sql"
 $sqlServerAdminUserName = "$($env.environmentResourcePrefix)-sql-admin"
 
 Write-Success "Done"
@@ -59,12 +58,12 @@ New-AzSubscriptionDeployment `
 
 # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
 $sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdminAdGroup.Id
-$sqlAdminUser = Get-AzUserAssignedIdentity -ResourceGroupName $sqlGroupName -Name $sqlServerAdminUserName
+$sqlAdminUser = Get-AzADServicePrincipal -DisplayName $sqlServerAdminUserName
 
-if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.PrincipalId }) {
+if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.Id }) {
     Write-Success "Member already exists in group"
 } else {
-    Add-AzADGroupMember -TargetGroupObjectId $sqlAdminAdGroup.Id -MemberObjectId $sqlAdminUser.PrincipalId
+    Add-AzADGroupMember -TargetGroupObjectId $sqlAdminAdGroup.Id -MemberObjectId $sqlAdminUser.Id
     Write-Success "Member added to group"
 }
 
