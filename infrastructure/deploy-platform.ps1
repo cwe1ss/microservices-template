@@ -9,6 +9,14 @@ $ErrorActionPreference = "Stop"
 
 $config = Get-Content .\_config.json | ConvertFrom-Json
 
+$githubAppName = "$($config.platformResourcePrefix)-github"
+
+
+############################
+"Loading GitHub application from Azure AAD"
+
+$githubSp = Get-AzADServicePrincipal -DisplayName $githubAppName
+
 
 ############################
 "Deploying Azure resources"
@@ -18,5 +26,6 @@ New-AzSubscriptionDeployment `
     -Name ("platform-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
     -TemplateFile .\platform.bicep `
     -TemplateParameterObject @{
+        githubServicePrincipalId = $githubSp.Id
     } `
     -Verbose | Out-Null

@@ -1,4 +1,5 @@
 param location string = resourceGroup().location
+param githubServicePrincipalId string
 param tags object
 
 // Configuration
@@ -15,7 +16,7 @@ var sqlMigrationContainerName = 'sql-migration'
 
 // New resources
 
-resource sa 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: storageAccountName
   location: location
   tags: tags
@@ -30,7 +31,18 @@ resource sa 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 }
 
 resource sqlMigrationContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: '${sa.name}/default/${sqlMigrationContainerName}'
+  name: '${storage.name}/default/${sqlMigrationContainerName}'
+}
+
+// Allows GitHub to upload artifacts to the storage account
+resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid('githubStorageContributor', storage.id)
+  scope: storage
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' /* Storage Blob Data Contributor */)
+    principalId: githubServicePrincipalId
+    principalType: 'ServicePrincipal'
+  }
 }
 
 resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {

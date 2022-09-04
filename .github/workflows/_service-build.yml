@@ -69,7 +69,7 @@ jobs:
     # TODO: Storage account name & container
     - name: Upload SQL migration script to Azure Storage
       run: |
-        az storage blob upload --auth-mode login --account-name labmsasa --container-name sql-migration --name sql-${{ inputs.imageName }}-${{ github.run_number }}.sql --file artifacts/migration.sql
+        az storage blob upload --auth-mode login --account-name labmsasa --container-name sql-migration --name ${{ inputs.imageName }}-${{ github.run_number }}.sql --file artifacts/migration.sql
 
     - run: dotnet publish "${{ inputs.projectFolder }}" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }} -p:ContainerImageTag=${{ github.run_number }}
 

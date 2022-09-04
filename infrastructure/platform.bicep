@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param now string = utcNow()
+param githubServicePrincipalId string
 
 // Configuration
 
@@ -28,6 +29,7 @@ module platformResources 'platform-resources.bicep' = {
   scope: platformGroup
   params: {
     location: config.location
+    githubServicePrincipalId: githubServicePrincipalId
     tags: tags
   }
 }
