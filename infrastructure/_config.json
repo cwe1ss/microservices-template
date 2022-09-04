@@ -1,6 +1,6 @@
 {
-  "platformResourcePrefix": "lab-msa",
   "location": "westeurope",
+  "platformResourcePrefix": "lab-msa",
 
   "environments": {
     "development": {
@@ -33,6 +33,7 @@
       }
     },
     "production": {
+      "environmentResourcePrefix": "lab-msa-prod"
     }
   }
 }
