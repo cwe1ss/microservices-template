@@ -1,4 +1,5 @@
-# Deploys Azure infrastructure resources for one given environment.
+# Deploys Azure infrastructure resources that are shared by all services in one given environment.
+# Must be deployed before any service.
 
 [CmdletBinding()]
 Param (
@@ -9,21 +10,9 @@ Param (
 
 $ErrorActionPreference = "Stop"
 
-"ErrorActionPreference: $ErrorActionPreference"
-
 #$Environment = "development"
 
-try {
-    Get-AzAdGroup -DisplayName "lab-msa-dev-sql-admins"
-    "LastExitCode: $LASTEXITCODE"
-}
-catch {
-    "Exception.Message: $($_.Exception.Message)"
-    "ErrorDetails.Message: $($_.ErrorDetails.Message)"
-}
-
-"exiting"
-exit
+. .\helpers.ps1
 
 
 ############################
@@ -32,32 +21,57 @@ exit
 $config = Get-Content .\_config.json | ConvertFrom-Json
 $env = $config.environments | Select-Object -ExpandProperty $Environment
 
+# Naming conventions
+$githubAppName = "$($config.platformResourcePrefix)-github"
+$sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"
+
+Write-Success "Done"
+
 
 ############################
-"Deploying Azure AD resources"
-# These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
+""
+"Creating AAD group for SQL administrators"
 
-".. SQL Administrators AAD group"
-$sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"
+# These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
 $sqlAdAdminAdGroup = Get-AzAdGroup -DisplayName $sqlAdminAdGroupName
-if (-not $sqlAdAdminAdGroup) {
-    ".... Creating group"
+if ($sqlAdAdminAdGroup) {
+    Write-Success "Group already exists"
+} else {
     $sqlAdAdminAdGroup = New-AzAdGroup -DisplayName $sqlAdminAdGroupName -MailNickname $sqlAdminAdGroupName
+    Write-Success "Group created"
 }
 
-# TODO: "SQL Administrators AAD group members"
+
+############################
+# ""
+# "Adding GitHub Actions application to SQL Administrators group"
+
+# # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
+# $sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdAdminAdGroup.Id
+# $githubApp = Get-AzADServicePrincipal -DisplayName $githubAppName
+
+# if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $githubApp.Id }) {
+#     Write-Success "Member already exists in group"
+# } else {
+#     Add-AzADGroupMember -TargetGroupObjectId $sqlAdAdminAdGroup.Id -MemberObjectId $githubApp.Id
+#     Write-Success "Member added to group"
+# }
+
+
+# TODO: "Other SQL Administrators AAD group members"
 
 
 ############################
-# "Deploying Azure resources"
+""
+"Deploying Azure resources"
 
-# New-AzSubscriptionDeployment `
-#     -Location $config.location `
-#     -Name ("env" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-#     -TemplateFile .\environment.bicep `
-#     -TemplateParameterObject @{
-#         environment = $Environment
-#         sqlAdminAdGroupId = $sqlAdAdminAdGroup.Id
-#         sqlAdminAdGroupName = $sqlAdAdminAdGroup.DisplayName
-#     } `
-#     -Verbose | Out-Null
+New-AzSubscriptionDeployment `
+    -Location $config.location `
+    -Name ("env-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
+    -TemplateFile .\environment.bicep `
+    -TemplateParameterObject @{
+        environment = $Environment
+        sqlAdminAdGroupId = $sqlAdAdminAdGroup.Id
+        sqlAdminAdGroupName = $sqlAdAdminAdGroup.DisplayName
+    } `
+    -Verbose | Out-Null
