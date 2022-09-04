@@ -54,12 +54,10 @@ jobs:
 
     # TODO tests
 
-    - name: EF Core
+    - name: Create SQL migration script
       run: |
         dotnet tool install --global dotnet-ef
-        dotnet ef migrations script --idempotent -p "${{ inputs.projectFolder }}" --no-build -o artifacts/migration.sql
-
-    - run: dotnet publish "${{ inputs.projectFolder }}" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }} -p:ContainerImageTag=${{ github.run_number }}
+        dotnet ef migrations script --configuration Release --no-build --idempotent -p "${{ inputs.projectFolder }}" -o artifacts/migration.sql
 
     - name: Archive SQL Migration script
       uses: actions/upload-artifact@v3
@@ -67,6 +65,8 @@ jobs:
         name: sql-migration
         path: |
           artifacts/migration.sql
+
+    - run: dotnet publish "${{ inputs.projectFolder }}" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }} -p:ContainerImageTag=${{ github.run_number }}
 
     - run: docker tag ${{ inputs.imageName }}:${{ github.run_number }} ${{ secrets.REGISTRY_SERVER }}/${{ inputs.imageName }}:${{ github.run_number }}
 
