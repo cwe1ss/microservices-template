@@ -1,21 +1,13 @@
 using System.Globalization;
 using Customers.Api.Domain;
 using Dapr.Client;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
-using Shared.AppInsights;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddApplicationInsightsTelemetry(x =>
-{
-    // No need to track performance counters separately as they are tracked in Container Apps anyway.
-    x.EnablePerformanceCounterCollectionModule = false;
-});
-builder.Services.AddSingleton<ITelemetryInitializer, ApplicationNameTelemetryInitializer>();
+builder.Services.AddCustomAppInsights();
 
 builder.Services.AddDbContext<CustomersDbContext>(options =>
 {
@@ -52,20 +44,23 @@ app.UseSwaggerUI();
 //app.UseAuthentication();
 //app.UseAuthorization();
 
+app.MapCustomHealthCheckEndpoints();
+
 app.MapGrpcService<CustomersService>();
 app.MapGrpcReflectionService();
 
-// https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-6-adding-health-checks-with-liveness-readiness-and-startup-probes/
-app.MapHealthChecks("/healthz/startup"); // Execute all checks on startup
-app.MapHealthChecks("/healthz/liveness", new HealthCheckOptions {Predicate = _ => false}); // Liveness only tests if the app can serve requests
-
-app.MapPost("/send", async () =>
+app.MapPost("/publish", async (DaprClient dapr) =>
 {
-    var daprClient = new DaprClientBuilder().Build();
-    await daprClient.InvokeBindingAsync("customers-test", "create", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));
+    await dapr.PublishEventAsync("pubsub", "test-topic", new MyEvent { Text = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) });
     return Results.Ok();
 });
 
 app.MapGet("/", () => "Hello World");
 
 app.Run();
+
+
+record MyEvent
+{
+    public string Text { get; set; } = string.Empty;
+}

@@ -6,10 +6,10 @@ on:
       serviceName:
         required: true
         type: string
-      hostProjectName:
+      servicePath:
         required: true
         type: string
-      imageName:
+      hostProjectName:
         required: true
         type: string
 
@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
+
     - uses: azure/login@v1
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -43,9 +43,6 @@ jobs:
       with:
         inlineScript: |
           Set-Location ./infrastructure
-          ./build-service.ps1 -ServiceName ${{ inputs.serviceName }} -HostProjectName ${{ inputs.hostProjectName }} -ContainerImageName ${{ inputs.imageName }} -BuildNumber ${{ github.run_number }}
+          ./build-service.ps1 -ServiceName ${{ inputs.serviceName }} -ServicePath ${{ inputs.servicePath }} -HostProjectName ${{ inputs.hostProjectName }} -BuildNumber ${{ github.run_number }} -RegistryServer ${{ secrets.REGISTRY_SERVER }} -UploadArtifacts
         azPSVersion: "latest"
 
-    - run: docker tag ${{ inputs.imageName }}:${{ github.run_number }} ${{ secrets.REGISTRY_SERVER }}/${{ inputs.imageName }}:${{ github.run_number }}
-
-    - run: docker push ${{ secrets.REGISTRY_SERVER }}/${{ inputs.imageName }}:${{ github.run_number }}

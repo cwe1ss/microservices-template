@@ -18,8 +18,8 @@ jobs:
     secrets: inherit
     with:
       serviceName: customers
+      servicePath: services/customers
       hostProjectName: Customers.Api
-      imageName: lab-msa-svc-customers
 
   deploy-development:
     needs: build

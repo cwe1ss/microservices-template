@@ -18,8 +18,8 @@ jobs:
     secrets: inherit
     with:
       serviceName: orders
+      servicePath: services/orders
       hostProjectName: Orders.Api
-      imageName: lab-msa-svc-orders
 
   deploy-development:
     needs: build

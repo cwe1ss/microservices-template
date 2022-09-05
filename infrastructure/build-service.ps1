@@ -1,40 +1,49 @@
 [CmdletBinding()]
 Param (
 
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory=$true)]
     [string]$ServiceName,
 
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory=$true)]
+    [string]$ServicePath,
+
+    [Parameter(Mandatory=$true)]
     [string]$HostProjectName,
 
-    [Parameter(Mandatory=$True)]
-    [string]$ContainerImageName,
+    [Parameter(Mandatory=$true)]
+    [string]$BuildNumber,
 
-    [Parameter(Mandatory=$True)]
-    [string]$BuildNumber
+    [Parameter(Mandatory=$true)]
+    [string]$RegistryServer,
+
+    [Parameter(Mandatory=$false)]
+    [Switch]$UploadArtifacts
 )
 
-#$ServiceName = "customers"
-#$HostProjectName = "Customers.Api"
-#$ContainerImageName = "lab-msa-svc-customers"
+#$ServiceName = "internal-http-bus"
+#$ServicePath = "services/_internal-http-bus"
+#$HostProjectName = "InternalHttpBus"
 #$BuildNumber = "1"
+#$RegistryServer = "labmsaregistry.azurecr.io"
 
 $ErrorActionPreference = "Stop"
 
-. $PSScriptRoot\helpers.ps1
+. .\helpers.ps1
 
 ############################
 ""
 "Loading config"
 
-$config = Get-Content $PSScriptRoot\_config.json | ConvertFrom-Json
+$config = Get-Content .\_config.json | ConvertFrom-Json
 $serviceDefaults = $config.services | Select-Object -ExpandProperty $ServiceName
 
 $platformGroupName = "$($config.platformResourcePrefix)-platform"
 $storageAccountName = "$($config.platformResourcePrefix)sa".Replace("-", "")
 $sqlMigrationContainerName = 'sql-migration'
+$containerImageName = "$($config.platformResourcePrefix)-svc-$serviceName"
 
-$solutionFolder = (Get-Item (Join-Path "../services" $ServiceName)).FullName
+
+$solutionFolder = (Get-Item (Join-Path "../" $ServicePath)).FullName
 $projectFolder = (Get-Item (Join-Path $solutionFolder $HostProjectName)).FullName
 
 Get-Item $solutionFolder | Out-Null
@@ -79,19 +88,38 @@ if ($serviceDefaults.sqlDatabaseEnabled) {
 
 ############################
 ""
-"Creating Docker image"
-Exec { dotnet publish "$projectFolder" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=$ContainerImageName -p:ContainerImageTag=$BuildNumber }
+"Creating docker image"
+Exec { dotnet publish "$projectFolder" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=$containerImageName -p:ContainerImageTag=$BuildNumber }
+
+
+############################
+""
+"Tagging docker image with Azure Container Registry"
+Exec { docker tag "$($containerImageName):$BuildNumber" "$RegistryServer/$($containerImageName):$BuildNumber" }
 
 
 ############################
 ""
 "Uploading SQL migration file"
 
-if ($serviceDefaults.sqlDatabaseEnabled) {
+if (!$serviceDefaults.sqlDatabaseEnabled) {
+    ".. SKIPPED (sqlDatabaseEnabled=false)"
+} elseif (!$UploadArtifacts) {
+    ".. SKIPPED (UploadArtifacts=false)"
+} else {
     Get-AzStorageAccount -ResourceGroupName $platformGroupName -Name $storageAccountName `
         | Get-AzStorageContainer -Container $sqlMigrationContainerName `
-        | Set-AzStorageBlobContent -File "../artifacts/migration.sql" -Blob "$ContainerImageName-$BuildNumber.sql" -Force `
+        | Set-AzStorageBlobContent -File "../artifacts/migration.sql" -Blob "$containerImageName-$BuildNumber.sql" -Force `
         | Out-Null
+}
+
+
+############################
+""
+"Pushing docker image to Azure Container Registry"
+
+if (!$UploadArtifacts) {
+    ".. SKIPPED (UploadArtifacts=false)"
 } else {
-    ".. SKIPPED (sqlDatabaseEnabled=false)"
+    Exec { docker push "$RegistryServer/$($containerImageName):$BuildNumber" }
 }

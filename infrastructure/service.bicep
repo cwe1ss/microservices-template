@@ -48,7 +48,7 @@ var serviceBusName = '${env.environmentResourcePrefix}-bus'
 // Service
 var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var appName = '${env.environmentResourcePrefix}-svc-${serviceName}'
+var appName = take('${env.environmentResourcePrefix}-svc-${serviceName}', 32 /* max allowed length */)
 
 // Service: SQL
 var sqlDatabaseName = '${env.environmentResourcePrefix}-sql-${serviceName}'

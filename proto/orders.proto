@@ -27,7 +27,7 @@ message ListOrdersRequest {
 }
 
 message ListOrdersResponse {
-  repeated OrderDto Orders = 1;
+  repeated OrderDto orders = 1;
 }
 
 message OrderDto {
