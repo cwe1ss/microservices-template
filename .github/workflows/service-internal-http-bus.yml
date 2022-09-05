@@ -18,7 +18,7 @@ jobs:
     with:
       serviceName: internal-http-bus
       servicePath: services/_internal-http-bus
-      hostProjectName: InternalHttpBus.APi
+      hostProjectName: InternalHttpBus.Api
 
   deploy-development:
     needs: build
