@@ -6,19 +6,19 @@
     "development": {
       "environmentResourcePrefix": "lab-msa-dev",
       "vnetAddressPrefix": "10.130.0.0/16",
-      "acaInfrastructureAddressPrefix": "10.130.0.0/21",
+      "appsSubnetAddressPrefix": "10.130.0.0/21",
 
       "services": {
         "customers": {
-          "appCpu": "0.5",
-          "appMemory": "1.0Gi",
-          "appMinReplicas": 0,
-          "appMaxReplicas": 3,
-
+          "app": {
+            "cpu": "0.5",
+            "memory": "1.0Gi",
+            "minReplicas": 0,
+            "maxReplicas": 3
+          },
           "serviceBus": {
             "enabled": true
           },
-
           "sqlDatabase": {
             "enabled": true,
             "skuName": "Basic",

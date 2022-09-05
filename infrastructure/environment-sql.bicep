@@ -13,22 +13,24 @@ var env = config.environments[environment]
 
 // Naming conventions
 
-var envGroupName = '${env.environmentResourcePrefix}-env'
+var networkGroupName = '${env.environmentResourcePrefix}-network'
 var vnetName = '${env.environmentResourcePrefix}-vnet'
+var appsSubnetName = 'apps'
+
 var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
 var sqlServerName = '${env.environmentResourcePrefix}-sql'
 
 // Existing resources
 
-var envGroup = resourceGroup(envGroupName)
+var networkGroup = resourceGroup(networkGroupName)
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   name: vnetName
-  scope: envGroup
+  scope: networkGroup
 }
 
-resource acaInfrastructureSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: 'aca-infrastructure'
+resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+  name: appsSubnetName
   parent: vnet
 }
 
@@ -65,12 +67,12 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   }
 }
 
-resource infrastructureVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {
-  name: 'aca-infrastructure'
+resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {
+  name: appsSubnetName
   parent: sqlServer
   properties: {
     ignoreMissingVnetServiceEndpoint: false
-    virtualNetworkSubnetId: acaInfrastructureSubnet.id
+    virtualNetworkSubnetId: appsSubnet.id
   }
 }
 

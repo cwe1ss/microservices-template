@@ -107,8 +107,8 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
           image: fullImageName
           name: 'app'
           resources: {
-            cpu: svcConfig.appCpu
-            memory: svcConfig.appMemory
+            cpu: svcConfig.app.cpu
+            memory: svcConfig.app.memory
           }
           probes: [
             {
@@ -168,8 +168,8 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
         }
       ]
       scale: {
-        minReplicas: svcConfig.appMinReplicas
-        maxReplicas: svcConfig.appMaxReplicas
+        minReplicas: svcConfig.app.minReplicas
+        maxReplicas: svcConfig.app.maxReplicas
       }
     }
   }

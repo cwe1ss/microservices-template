@@ -10,16 +10,21 @@ var env = config.environments[environment]
 
 var platformGroupName = '${config.platformResourcePrefix}-platform'
 var logsName = '${config.platformResourcePrefix}-logs'
+
+var networkGroupName = '${env.environmentResourcePrefix}-network'
+var vnetName = '${env.environmentResourcePrefix}-vnet'
+var appsSubnetName = 'apps'
+
 var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
 var serviceBusName = '${env.environmentResourcePrefix}-bus'
 
-var vnetName = '${env.environmentResourcePrefix}-vnet'
 var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
 var appEnvName = '${env.environmentResourcePrefix}-env'
 
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
+var networkGroup = resourceGroup(networkGroupName)
 var serviceBusGroup = resourceGroup(serviceBusGroupName)
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
@@ -27,43 +32,22 @@ resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   scope: platformGroup
 }
 
+resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+  name: vnetName
+  scope: networkGroup
+}
+
+resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+  name: appsSubnetName
+  parent: vnet
+}
+
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
   name: serviceBusName
   scope: serviceBusGroup
 }
 
-
 // New resources
-
-resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
-  name: vnetName
-  location: config.location
-  tags: tags
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        env.vnetAddressPrefix
-      ]
-    }
-    subnets: [
-      {
-        name: 'aca-infrastructure'
-        properties: {
-          addressPrefix: env.acaInfrastructureAddressPrefix
-          serviceEndpoints: [
-            // TODO: Add any other service endpoints you require
-            {
-              service: 'Microsoft.Sql'
-              locations: [
-                '${config.location}'
-              ]
-            }
-          ]
-        }
-      }
-    ]
-  }
-}
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
@@ -92,7 +76,7 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
     daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
     vnetConfiguration: {
       internal: false
-      infrastructureSubnetId: vnet.properties.subnets[0].id
+      infrastructureSubnetId: appsSubnet.id
     }
   }
 }

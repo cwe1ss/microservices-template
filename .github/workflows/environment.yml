@@ -11,18 +11,12 @@ jobs:
 
   deploy-development:
     uses: ./.github/workflows/_environment-deploy.yml
+    secrets: inherit
     with:
       environment: development
-    secrets: inherit
-    # permissions:
-    #   id-token: write
-    #   contents: read
 
   deploy-production:
     uses: ./.github/workflows/_environment-deploy.yml
+    secrets: inherit
     with:
       environment: production
-    secrets: inherit
-    # permissions:
-    #   id-token: write
-    #   contents: read
