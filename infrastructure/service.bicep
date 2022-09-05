@@ -13,7 +13,7 @@ param buildNumber string
 
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
-var svcConfig = env.services[serviceName]
+var serviceDefaults = config.services[serviceName]
 
 var tags = {
   product: config.platformResourcePrefix
@@ -107,7 +107,7 @@ module svcPlatform 'service-platform.bicep' = {
   }
 }
 
-module svcServiceBus 'service-servicebus.bicep' = if (svcConfig.serviceBus.enabled) {
+module svcServiceBus 'service-servicebus.bicep' = if (serviceDefaults.serviceBusEnabled) {
   name: 'svc-bus-${now}'
   scope: serviceBusGroup
   dependsOn: [
@@ -122,7 +122,7 @@ module svcServiceBus 'service-servicebus.bicep' = if (svcConfig.serviceBus.enabl
   }
 }
 
-module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
+module svcSql 'service-sql.bicep' = if (serviceDefaults.sqlDatabaseEnabled) {
   name: 'svc-sql-${now}'
   scope: sqlGroup
   params: {

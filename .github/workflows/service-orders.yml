@@ -15,33 +15,24 @@ permissions:
 jobs:
   build:
     uses: ./.github/workflows/_service-build.yml
-    with:
-      solutionFolder: ./services/orders
-      projectFolder: ./services/orders/Orders.Api
-      imageName: lab-msa-svc-orders
     secrets: inherit
-    permissions:
-      id-token: write
-      contents: read
+    with:
+      serviceName: orders
+      hostProjectName: Orders.Api
+      imageName: lab-msa-svc-orders
 
   deploy-development:
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
+    secrets: inherit
     with:
       service: orders
       environment: development
-    secrets: inherit
-    permissions:
-      id-token: write
-      contents: read
 
   # deploy-production:
   #   needs: build
   #   uses: ./.github/workflows/_service-deploy.yml
+  #   secrets: inherit
   #   with:
   #     service: orders
   #     environment: production
-  #   secrets: inherit
-  #   permissions:
-  #     id-token: write
-  #     contents: read

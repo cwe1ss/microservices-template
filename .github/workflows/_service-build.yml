@@ -3,10 +3,10 @@ name: 'Template: Service Build'
 on:
   workflow_call:
     inputs:
-      solutionFolder:
+      serviceName:
         required: true
         type: string
-      projectFolder:
+      hostProjectName:
         required: true
         type: string
       imageName:
@@ -37,22 +37,30 @@ jobs:
 
     - run: dotnet --version
 
-    - run: dotnet build "${{ inputs.solutionFolder }}" -c Release
+    - name: 'Build service'
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          Set-Location ./infrastructure
+          ./build-service.ps1 -ServiceName ${{ inputs.serviceName }} -HostProjectName ${{ inputs.hostProjectName }} -ContainerImageName ${{ inputs.imageName }} -BuildNumber ${{ github.run_number }}
+        azPSVersion: "latest"
+
+    #- run: dotnet build "${{ inputs.solutionFolder }}" -c Release
 
     # TODO tests
 
     # TODO remove --prerelease switch once .NET 7 is GA
-    - name: Create SQL migration script
-      run: |
-        dotnet tool install --global dotnet-ef --prerelease
-        dotnet ef migrations script --configuration Release --no-build --idempotent -p "${{ inputs.projectFolder }}" -o artifacts/migration.sql
+    #- name: Create SQL migration script
+    #  run: |
+    #    dotnet tool install --global dotnet-ef --prerelease
+    #    dotnet ef migrations script --configuration Release --no-build --idempotent -p "${{ inputs.projectFolder }}" -o artifacts/migration.sql
 
     # TODO: Storage account name & container
     - name: Upload SQL migration script to Azure Storage
       run: |
         az storage blob upload --auth-mode login --account-name labmsasa --container-name sql-migration --name ${{ inputs.imageName }}-${{ github.run_number }}.sql --file artifacts/migration.sql
 
-    - run: dotnet publish "${{ inputs.projectFolder }}" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }} -p:ContainerImageTag=${{ github.run_number }}
+    #- run: dotnet publish "${{ inputs.projectFolder }}" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=${{ inputs.imageName }} -p:ContainerImageTag=${{ github.run_number }}
 
     - run: docker tag ${{ inputs.imageName }}:${{ github.run_number }} ${{ secrets.REGISTRY_SERVER }}/${{ inputs.imageName }}:${{ github.run_number }}
 

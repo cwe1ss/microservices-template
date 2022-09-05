@@ -2,6 +2,17 @@
   "location": "westeurope",
   "platformResourcePrefix": "lab-msa",
 
+  "services": {
+    "customers": {
+      "serviceBusEnabled": true,
+      "sqlDatabaseEnabled": true
+    },
+    "orders": {
+      "serviceBusEnabled": true,
+      "sqlDatabaseEnabled": false
+    }
+  },
+  
   "environments": {
     "development": {
       "environmentResourcePrefix": "lab-msa-dev",
@@ -16,11 +27,7 @@
             "minReplicas": 0,
             "maxReplicas": 3
           },
-          "serviceBus": {
-            "enabled": true
-          },
           "sqlDatabase": {
-            "enabled": true,
             "skuName": "Basic",
             "skuTier": "Basic",
             "skuCapacity": 5
@@ -28,7 +35,6 @@
         },
 
         "orders": {
-    
         }
       }
     },

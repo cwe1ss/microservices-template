@@ -17,8 +17,8 @@ jobs:
     uses: ./.github/workflows/_service-build.yml
     secrets: inherit
     with:
-      solutionFolder: ./services/customers
-      projectFolder: ./services/customers/Customers.Api
+      serviceName: customers
+      hostProjectName: Customers.Api
       imageName: lab-msa-svc-customers
 
   deploy-development:
