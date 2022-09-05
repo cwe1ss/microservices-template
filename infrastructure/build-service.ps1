@@ -15,9 +15,9 @@ Param (
 )
 
 #$ServiceName = "customers"
-#$SolutionFolder = "./services/customers"
-#$ProjectFolder = "./services/customers/Customers.Api"
+#$HostProjectName = "Customers.Api"
 #$ContainerImageName = "lab-msa-svc-customers"
+#$BuildNumber = "1"
 
 $ErrorActionPreference = "Stop"
 

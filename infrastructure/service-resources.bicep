@@ -25,7 +25,8 @@ param sqlDatabaseName string
 
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
-var svcConfig = env.services[serviceName]
+var serviceDefaults = config.services[serviceName]
+var serviceConfig = env.services[serviceName]
 
 
 ///////////////////////////////////
@@ -69,7 +70,7 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 // Configuration values
 
 var fullImageName = '${containerRegistry.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${buildNumber}'
-var sqlConnectionString = svcConfig.sqlDatabase.enabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${database.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
+var sqlConnectionString = serviceDefaults.sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${database.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
 var grpcPort = 80
 var http1Port = 8080
 
@@ -116,8 +117,8 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
           image: fullImageName
           name: 'app'
           resources: {
-            cpu: svcConfig.app.cpu
-            memory: svcConfig.app.memory
+            cpu: serviceConfig.app.cpu
+            memory: serviceConfig.app.memory
           }
           probes: [
             {
@@ -177,8 +178,8 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
         }
       ]
       scale: {
-        minReplicas: svcConfig.app.minReplicas
-        maxReplicas: svcConfig.app.maxReplicas
+        minReplicas: serviceConfig.app.minReplicas
+        maxReplicas: serviceConfig.app.maxReplicas
       }
     }
   }
