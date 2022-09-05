@@ -7,51 +7,22 @@ permissions:
   id-token: write
   contents: read
 
-jobs: 
+jobs:
+
   deploy-development:
-    runs-on: ubuntu-latest
-    environment: development
+    uses: ./.github/workflows/_environment-deploy.yml
+    with:
+      environment: development
+    secrets: inherit
+    # permissions:
+    #   id-token: write
+    #   contents: read
 
-    steps:
-    - name: Git checkout
-      uses: actions/checkout@v2
-
-    - name: 'Azure login'
-      uses: azure/login@v1
-      with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
-  
-    - name: 'Deploy Azure resources'
-      uses: azure/powershell@v1
-      with:
-        inlineScript: |
-          Set-Location ./infrastructure
-          ./deploy-environment.ps1 -Environment development
-        azPSVersion: "latest"
-
-  # deploy-production:
-  #   runs-on: ubuntu-latest
-  #   environment: production
-
-  #   steps:
-  #   - name: Git checkout
-  #     uses: actions/checkout@v2
-
-  #   - name: 'Azure login'
-  #     uses: azure/login@v1
-  #     with:
-  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #         enable-AzPSSession: true
-  
-  #   - name: 'Deploy Azure resources'
-  #     uses: azure/powershell@v1
-  #     with:
-  #       inlineScript: |
-  #         Set-Location ./infrastructure
-  #         ./deploy-environment.ps1 -Environment production
-  #       azPSVersion: "latest"
+  deploy-production:
+    uses: ./.github/workflows/_environment-deploy.yml
+    with:
+      environment: production
+    secrets: inherit
+    # permissions:
+    #   id-token: write
+    #   contents: read
