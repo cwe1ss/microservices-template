@@ -30,6 +30,10 @@ $ErrorActionPreference = "Stop"
 $config = Get-Content $PSScriptRoot\_config.json | ConvertFrom-Json
 $serviceDefaults = $config.services | Select-Object -ExpandProperty $ServiceName
 
+$platformGroupName = "$($config.platformResourcePrefix)-platform"
+$storageAccountName = "$($config.platformResourcePrefix)sa".Replace("-", "")
+$sqlMigrationContainerName = 'sql-migration'
+
 $solutionFolder = (Get-Item (Join-Path "../services" $ServiceName)).FullName
 $projectFolder = (Get-Item (Join-Path $solutionFolder $HostProjectName)).FullName
 
@@ -77,3 +81,17 @@ if ($serviceDefaults.sqlDatabaseEnabled) {
 ""
 "Creating Docker image"
 Exec { dotnet publish "$projectFolder" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=$ContainerImageName -p:ContainerImageTag=$BuildNumber }
+
+
+############################
+""
+"Uploading SQL migration file"
+
+if ($serviceDefaults.sqlDatabaseEnabled) {
+    Get-AzStorageAccount -ResourceGroupName $platformGroupName -Name $storageAccountName `
+        | Get-AzStorageContainer -Container $sqlMigrationContainerName `
+        | Set-AzStorageBlobContent -File "../artifacts/migration.sql" -Blob "$ContainerImageName-$BuildNumber.sql" -Force `
+        | Out-Null
+} else {
+    ".. SKIPPED (sqlDatabaseEnabled=false)"
+}
