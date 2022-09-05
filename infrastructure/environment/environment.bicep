@@ -11,12 +11,12 @@ param sqlAdminAdGroupId string
 ///////////////////////////////////
 // Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+var config = loadJsonContent('./../config.json')
+var envConfig = config.environments[environment]
 
 var tags = {
   product: config.platformResourcePrefix
-  environment: env.environmentResourcePrefix
+  environment: envConfig.environmentResourcePrefix
 }
 
 
@@ -26,20 +26,20 @@ var tags = {
 var platformGroupName = '${config.platformResourcePrefix}-platform'
 var logsName = '${config.platformResourcePrefix}-logs'
 
-var networkGroupName = '${env.environmentResourcePrefix}-network'
-var vnetName = '${env.environmentResourcePrefix}-vnet'
+var networkGroupName = '${envConfig.environmentResourcePrefix}-network'
+var vnetName = '${envConfig.environmentResourcePrefix}-vnet'
 var appsSubnetName = 'apps'
 
-var sqlGroupName = '${env.environmentResourcePrefix}-sql'
-var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
-var sqlServerName = '${env.environmentResourcePrefix}-sql'
+var sqlGroupName = '${envConfig.environmentResourcePrefix}-sql'
+var sqlServerAdminUserName = '${envConfig.environmentResourcePrefix}-sql-admin'
+var sqlServerName = '${envConfig.environmentResourcePrefix}-sql'
 
-var envGroupName = '${env.environmentResourcePrefix}-env'
-var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
-var appEnvName = '${env.environmentResourcePrefix}-env'
+var envGroupName = '${envConfig.environmentResourcePrefix}-env'
+var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
+var appEnvName = '${envConfig.environmentResourcePrefix}-env'
 
-var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
-var serviceBusName = '${env.environmentResourcePrefix}-bus'
+var serviceBusGroupName = '${envConfig.environmentResourcePrefix}-bus'
+var serviceBusName = '${envConfig.environmentResourcePrefix}-bus'
 
 
 ///////////////////////////////////

@@ -9,14 +9,11 @@ permissions:
 
 jobs:
 
-  deploy-development:
+  deploy:
+    strategy:
+      matrix:
+        environment: [ development, production ]
     uses: ./.github/workflows/_environment-deploy.yml
     secrets: inherit
     with:
-      environment: development
-
-  deploy-production:
-    uses: ./.github/workflows/_environment-deploy.yml
-    secrets: inherit
-    with:
-      environment: production
+      environment: ${{ matrix.environment }}

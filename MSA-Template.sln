@@ -35,39 +35,19 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}"
 	ProjectSection(SolutionItems) = preProject
 		infrastructure\build-service.ps1 = infrastructure\build-service.ps1
+		infrastructure\config.json = infrastructure\config.json
 		infrastructure\deploy-environment.ps1 = infrastructure\deploy-environment.ps1
-		infrastructure\deploy-helpers.ps1 = infrastructure\deploy-helpers.ps1
 		infrastructure\deploy-platform.ps1 = infrastructure\deploy-platform.ps1
 		infrastructure\deploy-service.ps1 = infrastructure\deploy-service.ps1
-		infrastructure\environment-network.bicep = infrastructure\environment-network.bicep
-		infrastructure\environment-resources.bicep = infrastructure\environment-resources.bicep
-		infrastructure\environment-servicebus.bicep = infrastructure\environment-servicebus.bicep
-		infrastructure\environment-sql.bicep = infrastructure\environment-sql.bicep
-		infrastructure\environment.bicep = infrastructure\environment.bicep
-		infrastructure\helpers.ps1 = infrastructure\helpers.ps1
 		infrastructure\init-platform.ps1 = infrastructure\init-platform.ps1
-		infrastructure\platform-resources.bicep = infrastructure\platform-resources.bicep
-		infrastructure\platform.bicep = infrastructure\platform.bicep
-		infrastructure\service-environment.bicep = infrastructure\service-environment.bicep
-		infrastructure\service-identity.bicep = infrastructure\service-identity.bicep
-		infrastructure\service-platform-assignments.bicep = infrastructure\service-platform-assignments.bicep
-		infrastructure\service-platform.bicep = infrastructure\service-platform.bicep
-		infrastructure\service-resources.bicep = infrastructure\service-resources.bicep
-		infrastructure\service-servicebus.bicep = infrastructure\service-servicebus.bicep
-		infrastructure\service-sql-migration.ps1 = infrastructure\service-sql-migration.ps1
-		infrastructure\service-sql-user.ps1 = infrastructure\service-sql-user.ps1
-		infrastructure\service-sql.bicep = infrastructure\service-sql.bicep
-		infrastructure\service.bicep = infrastructure\service.bicep
-		infrastructure\_config.json = infrastructure\_config.json
+		infrastructure\README.md = infrastructure\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E84EB295-5A86-4941-A33B-CDF73C4F7020}"
 	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
-		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
 		LICENSE = LICENSE
 		nuget.config = nuget.config
@@ -78,13 +58,53 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{F77B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{ED8B77E3-4DC3-413D-A5C3-BC3648A036C4}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\deploy-environment.yml = .github\workflows\deploy-environment.yml
-		.github\workflows\deploy-platform.yml = .github\workflows\deploy-platform.yml
-		.github\workflows\svc-customers.yml = .github\workflows\svc-customers.yml
-		.github\workflows\svc-demo.yml = .github\workflows\svc-demo.yml
-		.github\workflows\svc-orders.yml = .github\workflows\svc-orders.yml
+		.github\workflows\environment.yml = .github\workflows\environment.yml
+		.github\workflows\platform.yml = .github\workflows\platform.yml
+		.github\workflows\service-customers.yml = .github\workflows\service-customers.yml
+		.github\workflows\service-internal-http-bus.yml = .github\workflows\service-internal-http-bus.yml
+		.github\workflows\service-orders.yml = .github\workflows\service-orders.yml
+		.github\workflows\_environment-deploy.yml = .github\workflows\_environment-deploy.yml
 		.github\workflows\_service-build.yml = .github\workflows\_service-build.yml
 		.github\workflows\_service-deploy.yml = .github\workflows\_service-deploy.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-http-bus", "_internal-http-bus", "{A578A299-6EC4-441D-970A-FD794E6AB9E7}"
+	ProjectSection(SolutionItems) = preProject
+		services\_internal-http-bus\README.md = services\_internal-http-bus\README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalHttpBus.Api", "services\_internal-http-bus\InternalHttpBus.Api\InternalHttpBus.Api.csproj", "{B72C0307-0215-48AB-80CB-2B0EA1139E67}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "platform", "platform", "{2ED2B334-2239-4895-89E3-EC905290F81A}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\platform\platform-resources.bicep = infrastructure\platform\platform-resources.bicep
+		infrastructure\platform\platform.bicep = infrastructure\platform\platform.bicep
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_includes", "_includes", "{BE81219E-C5F4-453B-B22F-C9347532F5CE}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\_includes\helpers.ps1 = infrastructure\_includes\helpers.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "environment", "environment", "{F1652340-7A13-4851-87F7-13BAED6D8FC2}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\environment\environment-network.bicep = infrastructure\environment\environment-network.bicep
+		infrastructure\environment\environment-resources.bicep = infrastructure\environment\environment-resources.bicep
+		infrastructure\environment\environment-servicebus.bicep = infrastructure\environment\environment-servicebus.bicep
+		infrastructure\environment\environment-sql.bicep = infrastructure\environment\environment-sql.bicep
+		infrastructure\environment\environment.bicep = infrastructure\environment\environment.bicep
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service", "service", "{78B929A4-7A08-4BDA-A553-C663F894CD22}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\service\service-app-grpc.bicep = infrastructure\service\service-app-grpc.bicep
+		infrastructure\service\service-app-http.bicep = infrastructure\service\service-app-http.bicep
+		infrastructure\service\service-identity.bicep = infrastructure\service\service-identity.bicep
+		infrastructure\service\service-platform.bicep = infrastructure\service\service-platform.bicep
+		infrastructure\service\service-sql-migration.ps1 = infrastructure\service\service-sql-migration.ps1
+		infrastructure\service\service-sql-user.ps1 = infrastructure\service\service-sql-user.ps1
+		infrastructure\service\service-sql.bicep = infrastructure\service\service-sql.bicep
+		infrastructure\service\service.bicep = infrastructure\service\service.bicep
 	EndProjectSection
 EndProject
 Global
@@ -105,6 +125,10 @@ Global
 		{1A29C5C0-6FC4-43A2-BEBE-054D51562797}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A29C5C0-6FC4-43A2-BEBE-054D51562797}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A29C5C0-6FC4-43A2-BEBE-054D51562797}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B72C0307-0215-48AB-80CB-2B0EA1139E67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B72C0307-0215-48AB-80CB-2B0EA1139E67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B72C0307-0215-48AB-80CB-2B0EA1139E67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B72C0307-0215-48AB-80CB-2B0EA1139E67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +142,12 @@ Global
 		{A89B459F-F992-4543-B95A-7885DAC6CB97} = {8384016D-C1E8-4E29-BD12-E6C9E089F912}
 		{1A29C5C0-6FC4-43A2-BEBE-054D51562797} = {FF648FB9-64D9-47ED-B625-16E01F54DDD6}
 		{ED8B77E3-4DC3-413D-A5C3-BC3648A036C4} = {F77B1E11-7E64-4B50-A943-541C3B06B848}
+		{A578A299-6EC4-441D-970A-FD794E6AB9E7} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
+		{B72C0307-0215-48AB-80CB-2B0EA1139E67} = {A578A299-6EC4-441D-970A-FD794E6AB9E7}
+		{2ED2B334-2239-4895-89E3-EC905290F81A} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
+		{BE81219E-C5F4-453B-B22F-C9347532F5CE} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
+		{F1652340-7A13-4851-87F7-13BAED6D8FC2} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
+		{78B929A4-7A08-4BDA-A553-C663F894CD22} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D423435A-06C9-47CA-A100-D16D6E066AF7}

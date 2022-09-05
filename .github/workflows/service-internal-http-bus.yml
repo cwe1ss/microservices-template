@@ -1,0 +1,37 @@
+name: 'Service: _Internal HTTP Bus'
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - Directory.Packages.props
+    - services/_internal-http-bus/**
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      serviceName: internal-http-bus
+      servicePath: services/_internal-http-bus
+      hostProjectName: InternalHttpBus.APi
+
+  deploy-development:
+    needs: build
+    uses: ./.github/workflows/_service-deploy.yml
+    secrets: inherit
+    with:
+      service: internal-http-bus
+      environment: development
+
+  # deploy-production:
+  #   needs: build
+  #   uses: ./.github/workflows/_service-deploy.yml
+  #   secrets: inherit
+  #   with:
+  #     service: _internal-http-bus
+  #     environment: production

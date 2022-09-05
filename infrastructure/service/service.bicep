@@ -11,13 +11,13 @@ param buildNumber string
 ///////////////////////////////////
 // Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+var config = loadJsonContent('./../config.json')
+var envConfig = config.environments[environment]
 var serviceDefaults = config.services[serviceName]
 
 var tags = {
   product: config.platformResourcePrefix
-  environment: env.environmentResourcePrefix
+  environment: envConfig.environmentResourcePrefix
   service: serviceName
 }
 
@@ -32,40 +32,31 @@ var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
 var sqlMigrationContainerName = 'sql-migration'
 
 // Environment: SQL
-var sqlGroupName = '${env.environmentResourcePrefix}-sql'
-var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
-var sqlServerName = '${env.environmentResourcePrefix}-sql'
+var sqlGroupName = '${envConfig.environmentResourcePrefix}-sql'
+var sqlServerAdminUserName = '${envConfig.environmentResourcePrefix}-sql-admin'
+var sqlServerName = '${envConfig.environmentResourcePrefix}-sql'
 
 // Environment: Container Apps
-var envGroupName = '${env.environmentResourcePrefix}-env'
-var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
-var appEnvName = '${env.environmentResourcePrefix}-env'
-
-// Environment: Service Bus
-var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
-var serviceBusName = '${env.environmentResourcePrefix}-bus'
+var envGroupName = '${envConfig.environmentResourcePrefix}-env'
+var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
+var appEnvName = '${envConfig.environmentResourcePrefix}-env'
 
 // Service
-var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var appName = take('${env.environmentResourcePrefix}-svc-${serviceName}', 32 /* max allowed length */)
+var svcGroupName = '${envConfig.environmentResourcePrefix}-svc-${serviceName}'
+var svcUserName = '${envConfig.environmentResourcePrefix}-${serviceName}'
+var appName = take('${envConfig.environmentResourcePrefix}-${serviceName}', 32 /* max allowed length */)
 
 // Service: SQL
-var sqlDatabaseName = '${env.environmentResourcePrefix}-sql-${serviceName}'
+var sqlDatabaseName = '${envConfig.environmentResourcePrefix}-${serviceName}'
 var sqlDeployUserScriptName = '${sqlDatabaseName}-deploy-user'
 var sqlDeployMigrationScriptName = '${sqlDatabaseName}-deploy-migration'
-var sqlMigrationFile = '${config.platformResourcePrefix}-svc-${serviceName}-${buildNumber}.sql'
-
-// Service: Service Bus
-var serviceBusIncomingQueueName = serviceName
+var sqlMigrationFile = '${config.platformResourcePrefix}-${serviceName}-${buildNumber}.sql'
 
 
 ///////////////////////////////////
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
-var envGroup = resourceGroup(envGroupName)
-var serviceBusGroup = resourceGroup(serviceBusGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
 
@@ -107,21 +98,6 @@ module svcPlatform 'service-platform.bicep' = {
   }
 }
 
-module svcServiceBus 'service-servicebus.bicep' = if (serviceDefaults.serviceBusEnabled) {
-  name: 'svc-bus-${now}'
-  scope: serviceBusGroup
-  dependsOn: [
-    svcIdentity
-  ]
-  params: {
-    // Resource names
-    serviceBusName: serviceBusName
-    svcGroupName: svcGroupName
-    svcUserName: svcUserName
-    serviceBusIncomingQueueName: serviceBusIncomingQueueName
-  }
-}
-
 module svcSql 'service-sql.bicep' = if (serviceDefaults.sqlDatabaseEnabled) {
   name: 'svc-sql-${now}'
   scope: sqlGroup
@@ -147,34 +123,40 @@ module svcSql 'service-sql.bicep' = if (serviceDefaults.sqlDatabaseEnabled) {
   }
 }
 
-module svcEnv 'service-environment.bicep' = {
-  name: 'svc-env-${now}'
-  scope: envGroup
-  dependsOn: [
-    svcIdentity
-    svcServiceBus
-  ]
-  params: {
-    serviceName: serviceName
-
-    // Resource names
-    appEnvName: appEnvName
-    serviceBusGroupName: serviceBusGroupName
-    serviceBusName: serviceBusName
-    svcGroupName: svcGroupName
-    svcUserName: svcUserName
-    serviceBusIncomingQueueName: serviceBusIncomingQueueName
-  }
-}
-
-module svcResources 'service-resources.bicep' = {
-  name: 'svc-resources-${now}'
+module svcAppGrpc 'service-app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
+  name: 'svc-app-grpc-${now}'
   scope: svcGroup
   dependsOn: [
     svcPlatform
-    svcServiceBus
     svcSql
-    svcEnv
+  ]
+  params: {
+    location: config.location
+    environment: environment
+    serviceName: serviceName
+    buildNumber: buildNumber
+    tags: tags
+
+    // Resource names
+    platformGroupName: platformGroupName
+    containerRegistryName: containerRegistryName
+    envGroupName: envGroupName
+    appEnvName: appEnvName
+    sqlGroupName: sqlGroupName
+    sqlServerName: sqlServerName
+    appInsightsName: appInsightsName
+    svcUserName: svcUserName
+    appName: appName
+    sqlDatabaseName: sqlDatabaseName
+  }
+}
+
+module svcAppHttp 'service-app-http.bicep' = if (serviceDefaults.appType == 'http') {
+  name: 'svc-app-http-${now}'
+  scope: svcGroup
+  dependsOn: [
+    svcPlatform
+    svcSql
   ]
   params: {
     location: config.location

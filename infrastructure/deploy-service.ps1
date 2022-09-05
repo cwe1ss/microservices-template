@@ -24,7 +24,7 @@ $ErrorActionPreference = "Stop"
 ############################
 "Loading config"
 
-$config = Get-Content .\_config.json | ConvertFrom-Json
+$config = Get-Content .\config.json | ConvertFrom-Json
 
 
 ############################
@@ -33,7 +33,7 @@ $config = Get-Content .\_config.json | ConvertFrom-Json
 New-AzSubscriptionDeployment `
     -Location $config.location `
     -Name ("svc-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\service.bicep `
+    -TemplateFile .\service\service.bicep `
     -TemplateParameterObject @{
         environment = $Environment
         serviceName = $ServiceName

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "..\..\shared\Shared\Shared.csproj", "{976F22AB-934E-40EC-8F7F-D3788F82DDC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternalHttpBus.Api", "InternalHttpBus.Api\InternalHttpBus.Api.csproj", "{E337404D-D5C5-4CF2-B194-E7EA86211E47}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{976F22AB-934E-40EC-8F7F-D3788F82DDC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{976F22AB-934E-40EC-8F7F-D3788F82DDC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{976F22AB-934E-40EC-8F7F-D3788F82DDC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{976F22AB-934E-40EC-8F7F-D3788F82DDC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E337404D-D5C5-4CF2-B194-E7EA86211E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E337404D-D5C5-4CF2-B194-E7EA86211E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E337404D-D5C5-4CF2-B194-E7EA86211E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E337404D-D5C5-4CF2-B194-E7EA86211E47}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

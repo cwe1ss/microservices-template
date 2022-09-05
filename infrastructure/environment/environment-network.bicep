@@ -13,8 +13,8 @@ param appsSubnetName string
 ///////////////////////////////////
 // Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+var config = loadJsonContent('./../config.json')
+var envConfig = config.environments[environment]
 
 
 ///////////////////////////////////
@@ -27,14 +27,14 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   properties: {
     addressSpace: {
       addressPrefixes: [
-        env.vnetAddressPrefix
+        envConfig.vnetAddressPrefix
       ]
     }
     subnets: [
       {
         name: appsSubnetName
         properties: {
-          addressPrefix: env.appsSubnetAddressPrefix
+          addressPrefix: envConfig.appsSubnetAddressPrefix
           serviceEndpoints: [
             // TODO: Add any other service endpoints you require
             {

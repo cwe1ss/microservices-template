@@ -23,10 +23,10 @@ param sqlDatabaseName string
 ///////////////////////////////////
 // Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+var config = loadJsonContent('./../config.json')
+var envConfig = config.environments[environment]
 var serviceDefaults = config.services[serviceName]
-var serviceConfig = env.services[serviceName]
+var serviceConfig = envConfig.services[serviceName]
 
 
 ///////////////////////////////////
@@ -69,16 +69,17 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 ///////////////////////////////////
 // Configuration values
 
-var fullImageName = '${containerRegistry.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${buildNumber}'
+var fullImageName = '${containerRegistry.properties.loginServer}/${config.platformResourcePrefix}-${serviceName}:${buildNumber}'
 var sqlConnectionString = serviceDefaults.sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${database.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
-var grpcPort = 80
-var http1Port = 8080
 
 
 ///////////////////////////////////
 // New resources
 
-resource app 'Microsoft.App/containerApps@2022-03-01' = {
+// TODO: It's not currently possible to dynamically create the environment variables array.
+// https://github.com/microsoft/azure-container-apps/issues/391
+
+resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
   name: appName
   location: location
   tags: tags
@@ -93,14 +94,14 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
     configuration: {
       dapr: {
         appId: serviceName
-        appPort: grpcPort
-        appProtocol: 'grpc'
+        appPort: 80
+        appProtocol: 'http'
         enabled: true
       }
       ingress: {
         external: true
-        targetPort: grpcPort
-        transport: 'http2'
+        targetPort: 80
+        transport: 'auto'
       }
       registries: [
         {
@@ -125,7 +126,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
               type: 'Startup'
               httpGet: {
                 path: '/healthz/startup'
-                port: http1Port
+                port: 80
                 scheme: 'HTTP'
               }
               initialDelaySeconds: 2
@@ -136,7 +137,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
               type: 'Liveness'
               httpGet: {
                 path: '/healthz/liveness'
-                port: http1Port
+                port: 80
                 scheme: 'HTTP'
               }
               periodSeconds: 10
@@ -155,22 +156,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
               value: appInsights.properties.ConnectionString
             }
             {
-              name: 'ASPNETCORE_Kestrel__Endpoints__GRPC__Protocols'
-              value: 'Http2'
-            }
-            {
-              name: 'ASPNETCORE_Kestrel__Endpoints__GRPC__URL'
-              value: 'http://*:${grpcPort}'
-            }
-            {
-              name: 'ASPNETCORE_Kestrel__Endpoints__WEB__Protocols'
-              value: 'Http1'
-            }
-            {
-              name: 'ASPNETCORE_Kestrel__Endpoints__WEB__URL'
-              value: 'http://*:${http1Port}'
-            }
-            {
+              // Will not actually be set if sqlConnectionString is empty
               name: 'ASPNETCORE_CONNECTIONSTRINGS__SQL'
               value: sqlConnectionString
             }

@@ -25,9 +25,9 @@ param sqlDeployMigrationScriptName string
 ///////////////////////////////////
 // Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
-var svcConfig = env.services[serviceName]
+var config = loadJsonContent('./../config.json')
+var envConfig = config.environments[environment]
+var serviceConfig = envConfig.services[serviceName]
 
 
 ///////////////////////////////////
@@ -64,9 +64,9 @@ resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   location: location
   tags: tags
   sku: {
-    name: svcConfig.sqlDatabase.skuName
-    tier: svcConfig.sqlDatabase.skuTier
-    capacity: svcConfig.sqlDatabase.skuCapacity
+    name: serviceConfig.sqlDatabase.skuName
+    tier: serviceConfig.sqlDatabase.skuTier
+    capacity: serviceConfig.sqlDatabase.skuCapacity
   }
   properties: {
   }

@@ -12,19 +12,17 @@ $ErrorActionPreference = "Stop"
 
 #$Environment = "development"
 
-. .\helpers.ps1
-
 
 ############################
 "Loading config"
 
-$config = Get-Content .\_config.json | ConvertFrom-Json
-$env = $config.environments | Select-Object -ExpandProperty $Environment
+$config = Get-Content .\config.json | ConvertFrom-Json
+$envConfig = $config.environments | Select-Object -ExpandProperty $Environment
 
 # Naming conventions
 
-$sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"
-$sqlServerAdminUserName = "$($env.environmentResourcePrefix)-sql-admin"
+$sqlAdminAdGroupName = "$($envConfig.environmentResourcePrefix)-sql-admins"
+$sqlServerAdminUserName = "$($envConfig.environmentResourcePrefix)-sql-admin"
 
 
 ############################
@@ -35,13 +33,12 @@ if (!$sqlAdminAdGroup) { throw "AAD group '$sqlAdminAdGroupName' not found. Did 
 
 
 ############################
-""
 "Deploying Azure resources"
 
 New-AzSubscriptionDeployment `
     -Location $config.location `
     -Name ("env-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\environment.bicep `
+    -TemplateFile .\environment\environment.bicep `
     -TemplateParameterObject @{
         environment = $Environment
         sqlAdminAdGroupId = $sqlAdminAdGroup.Id
@@ -51,7 +48,6 @@ New-AzSubscriptionDeployment `
 
 
 ############################
-""
 "Adding SQL server managed identity to SQL administrators AAD group"
 
 # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
@@ -59,10 +55,10 @@ $sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdminAdGroup.Id
 $sqlAdminUser = Get-AzADServicePrincipal -DisplayName $sqlServerAdminUserName
 
 if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.Id }) {
-    Write-Success "Member already exists in group"
+    ".. Member already exists in group"
 } else {
     Add-AzADGroupMember -TargetGroupObjectId $sqlAdminAdGroup.Id -MemberObjectId $sqlAdminUser.Id
-    Write-Success "Member added to group"
+    ".. Member added to group"
 }
 
 

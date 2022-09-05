@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 ############################
 "Loading config"
 
-$config = Get-Content .\_config.json | ConvertFrom-Json
+$config = Get-Content .\config.json | ConvertFrom-Json
 
 $githubAppName = "$($config.platformResourcePrefix)-github"
 
@@ -25,7 +25,7 @@ if (!$githubSp) { throw "Service principal '$githubAppName' not found. Did you r
 New-AzSubscriptionDeployment `
     -Location $config.location `
     -Name ("platform-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\platform.bicep `
+    -TemplateFile .\platform\platform.bicep `
     -TemplateParameterObject @{
         githubServicePrincipalId = $githubSp.Id
     } `

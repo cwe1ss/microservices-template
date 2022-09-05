@@ -22,25 +22,25 @@ Param (
 
 #$ServiceName = "internal-http-bus"
 #$ServicePath = "services/_internal-http-bus"
-#$HostProjectName = "InternalHttpBus"
+#$HostProjectName = "InternalHttpBus.Api"
 #$BuildNumber = "1"
 #$RegistryServer = "labmsaregistry.azurecr.io"
 
 $ErrorActionPreference = "Stop"
 
-. .\helpers.ps1
+. .\_includes\helpers.ps1
 
 ############################
 ""
 "Loading config"
 
-$config = Get-Content .\_config.json | ConvertFrom-Json
+$config = Get-Content .\config.json | ConvertFrom-Json
 $serviceDefaults = $config.services | Select-Object -ExpandProperty $ServiceName
 
 $platformGroupName = "$($config.platformResourcePrefix)-platform"
 $storageAccountName = "$($config.platformResourcePrefix)sa".Replace("-", "")
 $sqlMigrationContainerName = 'sql-migration'
-$containerImageName = "$($config.platformResourcePrefix)-svc-$serviceName"
+$containerImageName = "$($config.platformResourcePrefix)-$serviceName"
 
 
 $solutionFolder = (Get-Item (Join-Path "../" $ServicePath)).FullName

@@ -7,7 +7,7 @@ param githubServicePrincipalId string
 ///////////////////////////////////
 // Configuration
 
-var config = loadJsonContent('./_config.json')
+var config = loadJsonContent('./../config.json')
 
 var tags = {
   product: config.platformResourcePrefix
