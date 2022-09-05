@@ -35,8 +35,8 @@ builder.Services.AddGrpcSwagger();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHealthChecks();
-    //.AddDbContextCheck<CustomersDbContext>();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<CustomersDbContext>();
 
 builder.Services.AddDaprClient();
 
