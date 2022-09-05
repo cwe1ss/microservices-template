@@ -1,37 +1,42 @@
+param location string
 param environment string
 param serviceName string
 param buildNumber string
 param tags object
 
+
+///////////////////////////////////
+// Resource names
+
+param platformGroupName string
+param containerRegistryName string
+param envGroupName string
+param appEnvName string
+param sqlGroupName string
+param sqlServerName string
+param appInsightsName string
+param svcUserName string
+param appName string
+param sqlDatabaseName string
+
+
+///////////////////////////////////
 // Configuration
 
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 var svcConfig = env.services[serviceName]
 
-// Naming conventions
 
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
-
-var envGroupName = '${env.environmentResourcePrefix}-env'
-var appEnvName = '${env.environmentResourcePrefix}-env'
-var sqlGroupName = '${env.environmentResourcePrefix}-sql'
-var sqlServerName = '${env.environmentResourcePrefix}-sql'
-var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
-
-var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var appName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var sqlDatabaseName = '${env.environmentResourcePrefix}-sql-${serviceName}'
-
+///////////////////////////////////
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
 var envGroup = resourceGroup(envGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
-resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
-  name: acrName
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
+  name: containerRegistryName
   scope: platformGroup
 }
 
@@ -59,18 +64,22 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
   name: svcUserName
 }
 
+
+///////////////////////////////////
 // Configuration values
 
-var fullImageName = '${acr.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${buildNumber}'
+var fullImageName = '${containerRegistry.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${buildNumber}'
 var sqlConnectionString = svcConfig.sqlDatabase.enabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${database.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
 var grpcPort = 80
 var http1Port = 8080
 
+
+///////////////////////////////////
 // New resources
 
 resource app 'Microsoft.App/containerApps@2022-03-01' = {
   name: appName
-  location: config.location
+  location: location
   tags: tags
   identity: {
     type: 'UserAssigned'
@@ -94,7 +103,7 @@ resource app 'Microsoft.App/containerApps@2022-03-01' = {
       }
       registries: [
         {
-          server: acr.properties.loginServer
+          server: containerRegistry.properties.loginServer
           identity: svcUser.id
         }
       ]

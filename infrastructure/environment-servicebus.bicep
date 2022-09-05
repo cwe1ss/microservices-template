@@ -1,23 +1,22 @@
 // The entire environment uses one shared Service Bus namespace.
 // The necessary queues & topics are added by the service deployments.
 
-param environment string
+param location string
 param tags object
 
-// Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+///////////////////////////////////
+// Resource names
 
-// Naming conventions
+param serviceBusName string
 
-var serviceBusName = '${env.environmentResourcePrefix}-bus'
 
+///////////////////////////////////
 // New resources
 
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' = {
   name: serviceBusName
-  location: config.location
+  location: location
   tags: tags
   sku: {
     name: 'Standard'

@@ -1,26 +1,22 @@
-param environment string
+param location string
 param tags object
 
-// Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+///////////////////////////////////
+// Resource names
 
-// Naming conventions
+param platformGroupName string
+param logsName string
+param networkGroupName string
+param vnetName string
+param appsSubnetName string
+param serviceBusGroupName string
+param serviceBusName string
+param appInsightsName string
+param appEnvName string
 
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var logsName = '${config.platformResourcePrefix}-logs'
 
-var networkGroupName = '${env.environmentResourcePrefix}-network'
-var vnetName = '${env.environmentResourcePrefix}-vnet'
-var appsSubnetName = 'apps'
-
-var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
-var serviceBusName = '${env.environmentResourcePrefix}-bus'
-
-var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
-var appEnvName = '${env.environmentResourcePrefix}-env'
-
+///////////////////////////////////
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
@@ -47,11 +43,13 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview
   scope: serviceBusGroup
 }
 
+
+///////////////////////////////////
 // New resources
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
-  location: config.location
+  location: location
   tags: tags
   kind: 'web'
   properties: {
@@ -62,7 +60,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 
 resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
   name: appEnvName
-  location: config.location
+  location: location
   tags: tags
   properties: {
     appLogsConfiguration: {
@@ -81,6 +79,7 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
   }
 }
 
+// TODO Remove this?
 resource pubsubComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-03-01' = {
   name: 'pubsub'
   parent: appEnv

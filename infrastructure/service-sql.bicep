@@ -1,31 +1,36 @@
 param now string = utcNow()
+param location string
 param environment string
 param serviceName string
 param buildNumber string
 param tags object
 
+
+///////////////////////////////////
+// Resource names
+
+param platformGroupName string
+param storageAccountName string
+param sqlMigrationContainerName string
+param sqlMigrationFile string
+param sqlServerName string
+param sqlServerAdminUserName string
+param sqlDatabaseName string
+param svcGroupName string
+param svcUserName string
+param sqlDeployUserScriptName string
+param sqlDeployMigrationScriptName string
+
+
+///////////////////////////////////
 // Configuration
 
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 var svcConfig = env.services[serviceName]
 
-// Naming conventions
 
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
-var sqlMigrationContainerName = 'sql-migration'
-var sqlMigrationFile = '${config.platformResourcePrefix}-svc-${serviceName}-${buildNumber}.sql'
-
-var sqlServerName = '${env.environmentResourcePrefix}-sql'
-var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
-var sqlDatabaseName = '${env.environmentResourcePrefix}-sql-${serviceName}'
-var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-
-var deploySqlUserScriptName = '${sqlDatabaseName}-deploy-user'
-var deploySqlMigrationScriptName = '${sqlDatabaseName}-deploy-migration'
-
+///////////////////////////////////
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
@@ -49,12 +54,14 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
   scope: svcGroup
 }
 
+
+///////////////////////////////////
 // New resources
 
 resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   name: sqlDatabaseName
   parent: sqlServer
-  location: config.location
+  location: location
   tags: tags
   sku: {
     name: svcConfig.sqlDatabase.skuName
@@ -66,8 +73,8 @@ resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
 }
 
 resource deploySqlUserScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: deploySqlUserScriptName
-  location: config.location
+  name: sqlDeployUserScriptName
+  location: location
   tags: tags
   kind: 'AzurePowerShell'
   identity: {
@@ -97,8 +104,8 @@ var containerSas = storage.listServiceSAS(storage.apiVersion, {
 var sqlMigrationBlobUrl = '${storage.properties.primaryEndpoints.blob}${sqlMigrationContainerName}/${sqlMigrationFile}?${containerSas.serviceSasToken}'
 
 resource deploySqlMigrationScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: deploySqlMigrationScriptName
-  location: config.location
+  name: sqlDeployMigrationScriptName
+  location: location
   tags: tags
   kind: 'AzurePowerShell'
   identity: {

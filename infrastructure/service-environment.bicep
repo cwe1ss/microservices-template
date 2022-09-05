@@ -1,22 +1,27 @@
-param environment string
+//param environment string
 param serviceName string
 
+
+///////////////////////////////////
+// Resource names
+
+param appEnvName string
+param serviceBusGroupName string
+param serviceBusName string
+param svcGroupName string
+param svcUserName string
+param serviceBusIncomingQueueName string
+
+
+///////////////////////////////////
 // Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+//var config = loadJsonContent('./_config.json')
+//var env = config.environments[environment]
 //var svcConfig = env.services[serviceName]
 
-// Naming conventions
 
-var appEnvName = '${env.environmentResourcePrefix}-env'
-var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
-var serviceBusName = '${env.environmentResourcePrefix}-bus'
-
-var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var incomingQueueName = serviceName
-
+///////////////////////////////////
 // Existing resources
 
 //var svcGroup = resourceGroup(svcGroupName)
@@ -37,10 +42,12 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview
 }
 
 resource incomingQueue 'Microsoft.ServiceBus/namespaces/queues@2022-01-01-preview' existing = {
-  name: incomingQueueName
+  name: serviceBusIncomingQueueName
   parent: serviceBusNamespace
 }
 
+
+///////////////////////////////////
 // New resources
 
 // resource incomingQueueComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-03-01' = {
@@ -97,7 +104,7 @@ resource testQueueComponent 'Microsoft.App/managedEnvironments/daprComponents@20
       // }
       {
         name: 'queueName'
-        value: incomingQueueName
+        value: serviceBusIncomingQueueName
       }
     ]
     scopes: [

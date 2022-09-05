@@ -26,8 +26,6 @@ $env = $config.environments | Select-Object -ExpandProperty $Environment
 $sqlAdminAdGroupName = "$($env.environmentResourcePrefix)-sql-admins"
 $sqlServerAdminUserName = "$($env.environmentResourcePrefix)-sql-admin"
 
-Write-Success "Done"
-
 
 ############################
 "Loading Azure AD objects"

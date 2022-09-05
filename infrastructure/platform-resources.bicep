@@ -1,19 +1,18 @@
-param location string = resourceGroup().location
+param location string
 param githubServicePrincipalId string
 param tags object
 
-// Configuration
 
-var config = loadJsonContent('./_config.json')
+///////////////////////////////////
+// Resource names
 
-// Naming conventions
+param containerRegistryName string
+param logsName string
+param storageAccountName string
+param sqlMigrationContainerName string
 
-var acrName = replace('${config.platformResourcePrefix}-registry', '-', '')
-var logsName = '${config.platformResourcePrefix}-logs'
 
-var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
-var sqlMigrationContainerName = 'sql-migration'
-
+///////////////////////////////////
 // New resources
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
@@ -45,8 +44,8 @@ resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' 
   }
 }
 
-resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
-  name: acrName
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
+  name: containerRegistryName
   location: location
   tags: tags
   sku: {

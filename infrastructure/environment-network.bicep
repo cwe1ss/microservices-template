@@ -1,21 +1,28 @@
+param location string
 param environment string
 param tags object
 
+
+///////////////////////////////////
+// Resource names
+
+param vnetName string
+param appsSubnetName string
+
+
+///////////////////////////////////
 // Configuration
 
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 
-// Naming conventions
 
-var vnetName = '${env.environmentResourcePrefix}-vnet'
-var appsSubnetName = 'apps'
-
+///////////////////////////////////
 // New resources
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: vnetName
-  location: config.location
+  location: location
   tags: tags
   properties: {
     addressSpace: {
@@ -33,7 +40,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
             {
               service: 'Microsoft.Sql'
               locations: [
-                '${config.location}'
+                '${location}'
               ]
             }
           ]

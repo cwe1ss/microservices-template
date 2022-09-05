@@ -1,19 +1,13 @@
-param environment string
-param serviceName string
+///////////////////////////////////
+// Resource names
 
-// Configuration
+param serviceBusName string
+param svcGroupName string
+param svcUserName string
+param serviceBusIncomingQueueName string
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
-//var svcConfig = env.services[serviceName]
 
-// Naming conventions
-
-var serviceBusName = '${env.environmentResourcePrefix}-bus'
-var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
-var incomingQueueName = serviceName
-
+///////////////////////////////////
 // Existing resources
 
 var svcGroup = resourceGroup(svcGroupName)
@@ -27,17 +21,19 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview
   name: serviceBusName
 }
 
+
+///////////////////////////////////
 // New resources
 
 resource incomingQueue 'Microsoft.ServiceBus/namespaces/queues@2022-01-01-preview' = {
-  name: incomingQueueName
+  name: serviceBusIncomingQueueName
   parent: serviceBusNamespace
   properties: {
   }
 }
 
 resource svcUserIncomingQueueReceiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(incomingQueueName, 'receiver', svcUser.id)
+  name: guid(serviceBusIncomingQueueName, 'receiver', svcUser.id)
   scope: incomingQueue
   properties: {
     // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#azure-service-bus-data-receiver

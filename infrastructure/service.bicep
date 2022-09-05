@@ -7,19 +7,13 @@ param environment string
 param serviceName string
 param buildNumber string
 
+
+///////////////////////////////////
 // Configuration
 
 var config = loadJsonContent('./_config.json')
 var env = config.environments[environment]
 var svcConfig = env.services[serviceName]
-
-// Naming conventions
-
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var envGroupName = '${env.environmentResourcePrefix}-env'
-var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
-var sqlGroupName = '${env.environmentResourcePrefix}-sql'
-var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
 
 var tags = {
   product: config.platformResourcePrefix
@@ -27,6 +21,46 @@ var tags = {
   service: serviceName
 }
 
+
+///////////////////////////////////
+// Resource names
+
+// Platform
+var platformGroupName = '${config.platformResourcePrefix}-platform'
+var containerRegistryName = replace('${config.platformResourcePrefix}-registry', '-', '')
+var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
+var sqlMigrationContainerName = 'sql-migration'
+
+// Environment: SQL
+var sqlGroupName = '${env.environmentResourcePrefix}-sql'
+var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
+var sqlServerName = '${env.environmentResourcePrefix}-sql'
+
+// Environment: Container Apps
+var envGroupName = '${env.environmentResourcePrefix}-env'
+var appInsightsName = '${env.environmentResourcePrefix}-appinsights'
+var appEnvName = '${env.environmentResourcePrefix}-env'
+
+// Environment: Service Bus
+var serviceBusGroupName = '${env.environmentResourcePrefix}-bus'
+var serviceBusName = '${env.environmentResourcePrefix}-bus'
+
+// Service
+var svcGroupName = '${env.environmentResourcePrefix}-svc-${serviceName}'
+var svcUserName = '${env.environmentResourcePrefix}-svc-${serviceName}'
+var appName = '${env.environmentResourcePrefix}-svc-${serviceName}'
+
+// Service: SQL
+var sqlDatabaseName = '${env.environmentResourcePrefix}-sql-${serviceName}'
+var sqlDeployUserScriptName = '${sqlDatabaseName}-deploy-user'
+var sqlDeployMigrationScriptName = '${sqlDatabaseName}-deploy-migration'
+var sqlMigrationFile = '${config.platformResourcePrefix}-svc-${serviceName}-${buildNumber}.sql'
+
+// Service: Service Bus
+var serviceBusIncomingQueueName = serviceName
+
+
+///////////////////////////////////
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
@@ -34,6 +68,8 @@ var envGroup = resourceGroup(envGroupName)
 var serviceBusGroup = resourceGroup(serviceBusGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
+
+///////////////////////////////////
 // New resources
 
 resource svcGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -47,9 +83,11 @@ module svcIdentity 'service-identity.bicep' = {
   name: 'svc-identity-${now}'
   scope: svcGroup
   params: {
-    environment: environment
-    serviceName: serviceName
+    location: config.location
     tags: tags
+
+    // Resource names
+    svcUserName: svcUserName
   }
 }
 
@@ -62,8 +100,10 @@ module svcPlatform 'service-platform.bicep' = {
     svcIdentity
   ]
   params: {
-    environment: environment
-    serviceName: serviceName
+    // Resource names
+    containerRegistryName: containerRegistryName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
   }
 }
 
@@ -74,8 +114,11 @@ module svcServiceBus 'service-servicebus.bicep' = if (svcConfig.serviceBus.enabl
     svcIdentity
   ]
   params: {
-    environment: environment
-    serviceName: serviceName
+    // Resource names
+    serviceBusName: serviceBusName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+    serviceBusIncomingQueueName: serviceBusIncomingQueueName
   }
 }
 
@@ -83,10 +126,24 @@ module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
   name: 'svc-sql-${now}'
   scope: sqlGroup
   params: {
+    location: config.location
     environment: environment
     serviceName: serviceName
     buildNumber: buildNumber
     tags: tags
+
+    // Resource names
+    platformGroupName: platformGroupName
+    storageAccountName: storageAccountName
+    sqlMigrationContainerName: sqlMigrationContainerName
+    sqlMigrationFile: sqlMigrationFile
+    sqlServerName: sqlServerName
+    sqlServerAdminUserName: sqlServerAdminUserName
+    sqlDatabaseName: sqlDatabaseName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+    sqlDeployUserScriptName: sqlDeployUserScriptName
+    sqlDeployMigrationScriptName: sqlDeployMigrationScriptName
   }
 }
 
@@ -98,8 +155,15 @@ module svcEnv 'service-environment.bicep' = {
     svcServiceBus
   ]
   params: {
-    environment: environment
     serviceName: serviceName
+
+    // Resource names
+    appEnvName: appEnvName
+    serviceBusGroupName: serviceBusGroupName
+    serviceBusName: serviceBusName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+    serviceBusIncomingQueueName: serviceBusIncomingQueueName
   }
 }
 
@@ -113,9 +177,22 @@ module svcResources 'service-resources.bicep' = {
     svcEnv
   ]
   params: {
+    location: config.location
     environment: environment
     serviceName: serviceName
     buildNumber: buildNumber
     tags: tags
+
+    // Resource names
+    platformGroupName: platformGroupName
+    containerRegistryName: containerRegistryName
+    envGroupName: envGroupName
+    appEnvName: appEnvName
+    sqlGroupName: sqlGroupName
+    sqlServerName: sqlServerName
+    appInsightsName: appInsightsName
+    svcUserName: svcUserName
+    appName: appName
+    sqlDatabaseName: sqlDatabaseName
   }
 }

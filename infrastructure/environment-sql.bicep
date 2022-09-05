@@ -1,25 +1,23 @@
 // The entire environment uses one shared SQL server instance.
 // The necessary databases are added by the service deployments.
 
-param environment string
+param location string
 param tags object
 param sqlAdminAdGroupName string
 param sqlAdminAdGroupId string
 
-// Configuration
 
-var config = loadJsonContent('./_config.json')
-var env = config.environments[environment]
+///////////////////////////////////
+// Resource names
 
-// Naming conventions
+param networkGroupName string
+param vnetName string
+param appsSubnetName string
+param sqlServerAdminUserName string
+param sqlServerName string
 
-var networkGroupName = '${env.environmentResourcePrefix}-network'
-var vnetName = '${env.environmentResourcePrefix}-vnet'
-var appsSubnetName = 'apps'
 
-var sqlServerAdminUserName = '${env.environmentResourcePrefix}-sql-admin'
-var sqlServerName = '${env.environmentResourcePrefix}-sql'
-
+///////////////////////////////////
 // Existing resources
 
 var networkGroup = resourceGroup(networkGroupName)
@@ -34,17 +32,19 @@ resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' exist
   parent: vnet
 }
 
+
+///////////////////////////////////
 // New resources
 
 resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: sqlServerAdminUserName
-  location: config.location
+  location: location
   tags: tags
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: sqlServerName
-  location: config.location
+  location: location
   tags: tags
   identity: {
     type: 'UserAssigned'
