@@ -66,7 +66,6 @@ resource incomingQueue 'Microsoft.ServiceBus/namespaces/queues@2022-01-01-previe
 //   }
 // }
 
-//var sbConnectionString = listKeys('${serviceBusNamespace.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBusNamespace.apiVersion).primaryConnectionString
 var sbConnectionString = listKeys('${incomingQueue.id}/AuthorizationRules/send', incomingQueue.apiVersion).primaryConnectionString
 
 resource testQueueComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-03-01' = {
