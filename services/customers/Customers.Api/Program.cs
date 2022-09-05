@@ -49,9 +49,15 @@ app.MapCustomHealthCheckEndpoints();
 app.MapGrpcService<CustomersService>();
 app.MapGrpcReflectionService();
 
-app.MapPost("/publish", async (DaprClient dapr) =>
+app.MapPost("/publish-event1", async (DaprClient dapr) =>
 {
-    await dapr.PublishEventAsync("pubsub", "test-topic", new MyEvent { Text = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) });
+    await dapr.PublishEventAsync("pubsub", "test-topic", new MyEvent1 { Text1 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) });
+    return Results.Ok();
+});
+
+app.MapPost("/publish-event2", async (DaprClient dapr) =>
+{
+    await dapr.PublishEventAsync("pubsub", "test-topic", new MyEvent2 { Text2 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) });
     return Results.Ok();
 });
 
@@ -60,7 +66,12 @@ app.MapGet("/", () => "Hello World");
 app.Run();
 
 
-record MyEvent
+record MyEvent1
 {
-    public string Text { get; set; } = string.Empty;
+    public string Text1 { get; set; } = string.Empty;
+}
+
+record MyEvent2
+{
+    public string Text2 { get; set; } = string.Empty;
 }
