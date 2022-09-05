@@ -1,5 +1,6 @@
 using System.Globalization;
 using Customers.Api.Domain;
+using Dapr;
 using Dapr.Client;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,13 +52,31 @@ app.MapGrpcReflectionService();
 
 app.MapPost("/publish-event1", async (DaprClient dapr) =>
 {
-    await dapr.PublishEventAsync("pubsub", "test-topic", new MyEvent1 { Text1 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) });
+    var evt = new MyEvent1
+    {
+        Text1 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
+    };
+    // We must manually construct the cloud event because the .NET SDK doesn't change the default "type" (com.dapr.event.sent)
+    var cloudEvt = new CloudEvent<MyEvent1>(evt)
+    {
+        Type = nameof(MyEvent1)
+    };
+    await dapr.PublishEventAsync("pubsub", "test-topic", cloudEvt);
     return Results.Ok();
 });
 
 app.MapPost("/publish-event2", async (DaprClient dapr) =>
 {
-    await dapr.PublishEventAsync("pubsub", "test-topic", new MyEvent2 { Text2 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) });
+    var evt = new MyEvent2
+    {
+        Text2 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
+    };
+    // We must manually construct the cloud event because the .NET SDK doesn't change the default "type" (com.dapr.event.sent)
+    var cloudEvt = new CloudEvent<MyEvent2>(evt)
+    {
+        Type = nameof(MyEvent2)
+    };
+    await dapr.PublishEventAsync("pubsub", "test-topic", cloudEvt);
     return Results.Ok();
 });
 
