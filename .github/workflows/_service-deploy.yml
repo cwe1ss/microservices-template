@@ -36,5 +36,5 @@ jobs:
       with:
         inlineScript: |
           Set-Location ./infrastructure
-          ./deploy-service.ps1 -Environment development -Service ${{ inputs.service }} -ImageTag ${{ github.run_number }}
+          ./deploy-service.ps1 -Environment development -Service ${{ inputs.service }} -BuildNumber ${{ github.run_number }}
         azPSVersion: "latest"

@@ -6,7 +6,7 @@ Write-Host -ForegroundColor White "*******************************"
 ""
 "The script will perform the following actions:"
 "* It will create an Azure AD application that will be used by GitHub Actions to deploy resources to Azure."
-"* The application will be given the 'GroupMember.ReadWrite.All' permission in Azure Active Directory (to add environment-specific users to AAD groups)"
+"* The application will be given the 'Application.Read.All', 'GroupMember.ReadWrite.All' permission in Azure Active Directory (to add environment-specific users to AAD groups)"
 "* The application will be given 'Contributor' and 'User Access Administrator' roles in your Azure subscription (to create Azure-resources during deployment)"
 "* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given Azure AD application)"
 "* For each configured environment (_config.json), the following will be created:"
@@ -125,6 +125,7 @@ $githubAppName = "$($config.platformResourcePrefix)-github"
 $acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "")
 
 $msGraphPermissions = @( 
+    "Application.Read.All",
     "GroupMember.ReadWrite.All"
 )
 

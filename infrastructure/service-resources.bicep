@@ -1,6 +1,6 @@
 param environment string
 param serviceName string
-param imageTag string
+param buildNumber string
 param tags object
 
 // Configuration
@@ -56,7 +56,7 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 
 // Configuration values
 
-var fullImageName = '${acr.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${imageTag}'
+var fullImageName = '${acr.properties.loginServer}/${config.platformResourcePrefix}-svc-${serviceName}:${buildNumber}'
 var sqlConnectionString = svcConfig.sqlDatabase.enabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabaseName};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
 var grpcPort = 80
 var http1Port = 8080

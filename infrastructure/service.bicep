@@ -5,7 +5,7 @@ targetScope = 'subscription'
 param now string = utcNow()
 param environment string
 param serviceName string
-param imageTag string
+param buildNumber string
 
 // Configuration
 
@@ -68,7 +68,7 @@ module svcPlatform 'service-platform.bicep' = {
 }
 
 module svcServiceBus 'service-servicebus.bicep' = if (svcConfig.serviceBus.enabled) {
-  name: 'svc-sb-${now}'
+  name: 'svc-bus-${now}'
   scope: serviceBusGroup
   dependsOn: [
     svcIdentity
@@ -85,6 +85,7 @@ module svcSql 'service-sql.bicep' = if (svcConfig.sqlDatabase.enabled) {
   params: {
     environment: environment
     serviceName: serviceName
+    buildNumber: buildNumber
     tags: tags
   }
 }
@@ -114,7 +115,7 @@ module svcResources 'service-resources.bicep' = {
   params: {
     environment: environment
     serviceName: serviceName
-    imageTag: imageTag
+    buildNumber: buildNumber
     tags: tags
   }
 }

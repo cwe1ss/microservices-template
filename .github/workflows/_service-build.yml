@@ -60,13 +60,6 @@ jobs:
         dotnet tool install --global dotnet-ef --prerelease
         dotnet ef migrations script --configuration Release --no-build --idempotent -p "${{ inputs.projectFolder }}" -o artifacts/migration.sql
 
-    # - name: Archive SQL Migration script
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: sql-migration
-    #     path: |
-    #       artifacts/migration.sql
-
     # TODO: Storage account name & container
     - name: Upload SQL migration script to Azure Storage
       run: |

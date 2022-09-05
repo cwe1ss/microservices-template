@@ -32,7 +32,7 @@ resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 }
 
 module serviceBusResources 'environment-servicebus.bicep' = {
-  name: 'bus-${now}'
+  name: 'env-bus-${now}'
   scope: serviceBusGroup
   params: {
     environment: environment
@@ -65,7 +65,7 @@ resource sqlGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 }
 
 module sqlResources 'environment-sql.bicep' = {
-  name: 'sql-${now}'
+  name: 'env-sql-${now}'
   scope: sqlGroup
   dependsOn: [
     envResources

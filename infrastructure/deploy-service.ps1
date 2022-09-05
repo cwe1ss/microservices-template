@@ -11,14 +11,14 @@ Param (
     [string]$ServiceName,
 
     [Parameter(Mandatory=$True)]
-    [string]$ImageTag
+    [string]$BuildNumber
 )
 
 $ErrorActionPreference = "Stop"
 
 #$Environment = "development"
 #$ServiceName = "customers"
-#$ImageTag = "27"
+#$BuildNumber = "27"
 
 
 ############################
@@ -37,6 +37,6 @@ New-AzSubscriptionDeployment `
     -TemplateParameterObject @{
         environment = $Environment
         serviceName = $ServiceName
-        imageTag = $ImageTag
+        buildNumber = $buildNumber
     } `
     -Verbose | Out-Null
