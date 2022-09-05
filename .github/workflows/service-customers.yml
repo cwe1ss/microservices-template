@@ -20,9 +20,6 @@ jobs:
       solutionFolder: ./services/customers
       projectFolder: ./services/customers/Customers.Api
       imageName: lab-msa-svc-customers
-    permissions:
-      id-token: write
-      contents: read
 
   deploy-development:
     needs: build
@@ -31,17 +28,11 @@ jobs:
     with:
       service: customers
       environment: development
-    permissions:
-      id-token: write
-      contents: read
 
   # deploy-production:
   #   needs: build
   #   uses: ./.github/workflows/_service-deploy.yml
+  #   secrets: inherit
   #   with:
   #     service: customers
   #     environment: production
-  #   secrets: inherit
-  #   permissions:
-  #     id-token: write
-  #     contents: read
