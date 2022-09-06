@@ -58,7 +58,7 @@ New-AzSubscriptionDeployment `
 Start-Sleep -Seconds (6*60)
 ".... done"
 
-Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/" | Out-Null
+#Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/" | Out-Null
 
 
 ############################
