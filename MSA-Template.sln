@@ -5,19 +5,15 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "customers", "customers", "{BEBB0D9E-CD38-4932-81EB-2F04B41388D1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-grpc", "_internal-grpc", "{25B76532-40F3-4284-871B-A7B0E8AD25BF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "orders", "orders", "{25B76532-40F3-4284-871B-A7B0E8AD25BF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Customers.Api", "services\customers\Customers.Api\Customers.Api.csproj", "{AF3F3D42-F5B7-4B6A-B7F4-A789FEDE35CF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orders.Api", "services\orders\Orders.Api\Orders.Api.csproj", "{53388159-633C-4FA4-B308-C5D262D83F11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalGrpc.Api", "services\_internal-grpc\InternalGrpc.Api\InternalGrpc.Api.csproj", "{53388159-633C-4FA4-B308-C5D262D83F11}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "proto", "proto", "{BCC48E1E-5991-4896-8A25-4B289DFE9DB6}"
 	ProjectSection(SolutionItems) = preProject
-		proto\customers.proto = proto\customers.proto
-		proto\orders.proto = proto\orders.proto
 		proto\types.proto = proto\types.proto
+		proto\_internal-grpc-sql-bus.proto = proto\_internal-grpc-sql-bus.proto
+		proto\_internal-grpc.proto = proto\_internal-grpc.proto
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "google", "google", "{8384016D-C1E8-4E29-BD12-E6C9E089F912}"
@@ -107,16 +103,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service", "service", "{78B9
 		infrastructure\service\service.bicep = infrastructure\service\service.bicep
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalGrpcSqlBus.Api", "services\_internal-grpc-sql-bus\InternalGrpcSqlBus.Api\InternalGrpcSqlBus.Api.csproj", "{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-grpc-sql-bus", "_internal-grpc-sql-bus", "{24003D62-0728-4F67-908C-5DC121318EF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AF3F3D42-F5B7-4B6A-B7F4-A789FEDE35CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF3F3D42-F5B7-4B6A-B7F4-A789FEDE35CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF3F3D42-F5B7-4B6A-B7F4-A789FEDE35CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF3F3D42-F5B7-4B6A-B7F4-A789FEDE35CF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{53388159-633C-4FA4-B308-C5D262D83F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{53388159-633C-4FA4-B308-C5D262D83F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53388159-633C-4FA4-B308-C5D262D83F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -129,14 +125,16 @@ Global
 		{B72C0307-0215-48AB-80CB-2B0EA1139E67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B72C0307-0215-48AB-80CB-2B0EA1139E67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B72C0307-0215-48AB-80CB-2B0EA1139E67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BEBB0D9E-CD38-4932-81EB-2F04B41388D1} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
 		{25B76532-40F3-4284-871B-A7B0E8AD25BF} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
-		{AF3F3D42-F5B7-4B6A-B7F4-A789FEDE35CF} = {BEBB0D9E-CD38-4932-81EB-2F04B41388D1}
 		{53388159-633C-4FA4-B308-C5D262D83F11} = {25B76532-40F3-4284-871B-A7B0E8AD25BF}
 		{8384016D-C1E8-4E29-BD12-E6C9E089F912} = {BCC48E1E-5991-4896-8A25-4B289DFE9DB6}
 		{A89B459F-F992-4543-B95A-7885DAC6CB97} = {8384016D-C1E8-4E29-BD12-E6C9E089F912}
@@ -148,6 +146,8 @@ Global
 		{BE81219E-C5F4-453B-B22F-C9347532F5CE} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
 		{F1652340-7A13-4851-87F7-13BAED6D8FC2} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
 		{78B929A4-7A08-4BDA-A553-C663F894CD22} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
+		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761} = {24003D62-0728-4F67-908C-5DC121318EF7}
+		{24003D62-0728-4F67-908C-5DC121318EF7} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D423435A-06C9-47CA-A100-D16D6E066AF7}

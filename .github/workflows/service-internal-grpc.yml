@@ -1,12 +1,11 @@
-name: 'Service: Customers'
+name: 'Service: _Internal/gRPC'
 
 on:
   workflow_dispatch:
   push:
     paths:
-    - Directory.Packages.props
-    - proto/customers.proto
-    - services/customers/**
+    - services/_internal-grpc/**
+    - proto/_internal-grpc.proto
 
 permissions:
   id-token: write
@@ -17,16 +16,16 @@ jobs:
     uses: ./.github/workflows/_service-build.yml
     secrets: inherit
     with:
-      serviceName: customers
-      servicePath: services/customers
-      hostProjectName: Customers.Api
+      serviceName: internal-grpc
+      servicePath: services/_internal-grpc
+      hostProjectName: InternalGrpc.Api
 
   deploy-development:
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
     secrets: inherit
     with:
-      service: customers
+      service: internal-grpc
       environment: development
 
   # deploy-production:
@@ -34,5 +33,5 @@ jobs:
   #   uses: ./.github/workflows/_service-deploy.yml
   #   secrets: inherit
   #   with:
-  #     service: customers
+  #     service: internal-grpc
   #     environment: production

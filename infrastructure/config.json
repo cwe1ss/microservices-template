@@ -3,16 +3,16 @@
   "platformResourcePrefix": "lab-msa",
 
   "services": {
-    "internal-http-bus": {
-      "appType": "http",
+    "internal-grpc": {
+      "appType": "grpc",
       "sqlDatabaseEnabled": false
     },
-    "customers": {
+    "internal-grpc-sql-bus": {
       "appType": "grpc",
       "sqlDatabaseEnabled": true
     },
-    "orders": {
-      "appType": "grpc",
+    "internal-http-bus": {
+      "appType": "http",
       "sqlDatabaseEnabled": false
     }
   },
@@ -24,7 +24,7 @@
       "appsSubnetAddressPrefix": "10.130.0.0/21",
 
       "services": {
-        "internal-http-bus": {
+        "internal-grpc": {
           "app": {
             "cpu": "0.5",
             "memory": "1.0Gi",
@@ -32,7 +32,7 @@
             "maxReplicas": 2
           }
         },
-        "customers": {
+        "internal-grpc-sql-bus": {
           "app": {
             "cpu": "0.5",
             "memory": "1.0Gi",
@@ -45,7 +45,7 @@
             "skuCapacity": 5
           }
         },
-        "orders": {
+        "internal-http-bus": {
           "app": {
             "cpu": "0.5",
             "memory": "1.0Gi",

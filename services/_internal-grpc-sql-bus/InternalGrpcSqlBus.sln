@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.Api", "Customers.Api\Customers.Api.csproj", "{72EAD5CF-B459-4152-98F2-E05D72B10D82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternalGrpcSqlBus.Api", "InternalGrpcSqlBus.Api\InternalGrpcSqlBus.Api.csproj", "{72EAD5CF-B459-4152-98F2-E05D72B10D82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "..\..\shared\Shared\Shared.csproj", "{DC9FFD15-0536-4344-B66A-6C076FFE866E}"
 EndProject

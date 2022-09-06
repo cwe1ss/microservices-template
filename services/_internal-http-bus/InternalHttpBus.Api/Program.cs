@@ -6,14 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddCustomAppInsights();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHealthChecks();
+builder.Services.AddCustomAppInsights();
 
 builder.Services.AddDaprClient();
+
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -22,15 +22,14 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-//app.UseHttpsRedirection();
-
 app.UseCloudEvents();
-
 app.MapSubscribeHandler();
 
 app.MapCustomHealthCheckEndpoints();
 
-app.MapGet("/", () => "Hello World");
+// Custom endpoints
+
+app.MapGet("/", () => "Hello World").ExcludeFromDescription();
 
 app.MapPost("/publish-event1", async (string text, DaprClient daprClient) =>
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Customers.Api.Domain;
+namespace InternalGrpcSqlBus.Api.Domain;
 
 public class CustomersDbContext : DbContext
 {

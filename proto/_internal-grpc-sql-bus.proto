@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "Customers.Api";
+option csharp_namespace = "InternalGrpcSqlBus.Api";
 
 import "google/api/annotations.proto";
 

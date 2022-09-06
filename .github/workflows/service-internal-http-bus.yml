@@ -1,10 +1,9 @@
-name: 'Service: _Internal HTTP Bus'
+name: 'Service: _Internal/HTTP/Bus'
 
 on:
   workflow_dispatch:
   push:
     paths:
-    - Directory.Packages.props
     - services/_internal-http-bus/**
 
 permissions:

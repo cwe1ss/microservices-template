@@ -1,7 +1,7 @@
 ﻿using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 
-namespace Customers.Api.Domain;
+namespace InternalGrpcSqlBus.Api.Domain;
 
 public class CustomersService : Customers.CustomersBase
 {
@@ -42,7 +42,7 @@ public class CustomersService : Customers.CustomersBase
         if (request.Customer is null)
             throw new RpcException(new Status(StatusCode.InvalidArgument, "'customer' is missing"));
 
-        if (!string.IsNullOrWhiteSpace(request.Customer.CustomerId) 
+        if (!string.IsNullOrWhiteSpace(request.Customer.CustomerId)
             && await _dbContext.Customers.AnyAsync(x => x.CustomerId == request.Customer.CustomerId, context.CancellationToken))
             throw new RpcException(new Status(StatusCode.AlreadyExists, "The given id already exists"));
 

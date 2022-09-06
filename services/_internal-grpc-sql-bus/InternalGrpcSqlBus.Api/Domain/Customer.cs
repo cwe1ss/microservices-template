@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Customers.Api.Domain;
- 
+namespace InternalGrpcSqlBus.Api.Domain;
+
 public class Customer
 {
     [MaxLength(36)]

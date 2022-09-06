@@ -1,12 +1,11 @@
-name: 'Service: Orders'
+name: 'Service: _Internal/gRPC/SQL/Bus'
 
 on:
   workflow_dispatch:
   push:
     paths:
-    - Directory.Packages.props
-    - proto/orders.proto
-    - services/orders/**
+    - services/_internal-grpc-sql-bus/**
+    - proto/_internal-grpc-sql-bus.proto
 
 permissions:
   id-token: write
@@ -17,16 +16,16 @@ jobs:
     uses: ./.github/workflows/_service-build.yml
     secrets: inherit
     with:
-      serviceName: orders
-      servicePath: services/orders
-      hostProjectName: Orders.Api
+      serviceName: internal-grpc-sql-bus
+      servicePath: services/_internal-grpc-sql-bus
+      hostProjectName: InternalGrpcSqlBus.Api
 
   deploy-development:
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
     secrets: inherit
     with:
-      service: orders
+      service: internal-grpc-sql-bus
       environment: development
 
   # deploy-production:
@@ -34,5 +33,5 @@ jobs:
   #   uses: ./.github/workflows/_service-deploy.yml
   #   secrets: inherit
   #   with:
-  #     service: orders
+  #     service: internal-grpc-sql-bus
   #     environment: production
