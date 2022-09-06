@@ -6,7 +6,7 @@ Write-Host -ForegroundColor White "*******************************"
 ""
 "The script will perform the following actions:"
 "* It will create an Azure AD application that will be used by GitHub Actions to deploy resources to Azure."
-"* The application will be given the 'Application.Read.All', 'GroupMember.ReadWrite.All' permission in Azure Active Directory (to add environment-specific users to AAD groups)"
+"* The application will be given MS Graph application permissions in Azure Active Directory (to add environment-specific users to AAD groups)"
 "* The application will be given 'Contributor' and 'User Access Administrator' roles in your Azure subscription (to create Azure-resources during deployment)"
 "* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given Azure AD application)"
 "* A 'platform'-environment will be added to your GitHub repository with you as a required reviewer (can be changed afterwards)"
@@ -129,7 +129,12 @@ $environments += $config.environments | Get-Member -MemberType NoteProperty | Fo
 
 $msGraphPermissions = @(
     "Application.Read.All",
-    "GroupMember.ReadWrite.All"
+
+    # Allow adding members to groups.
+    # Important: To add members to a role-assignable group, the calling user or app must also be assigned the RoleManagement.ReadWrite.Directory permission.
+    # https://docs.microsoft.com/en-us/graph/api/group-post-members?view=graph-rest-1.0&tabs=http#permissions
+    "GroupMember.ReadWrite.All",
+    "RoleManagement.ReadWrite.Directory"
 )
 
 Write-Success "Config loaded"

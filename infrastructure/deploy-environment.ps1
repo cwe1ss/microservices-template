@@ -54,8 +54,8 @@ New-AzSubscriptionDeployment `
 # will fail with the error "AADSTS700024: Client assertion is not within its valid time range".
 
 # TODO REMOVE THIS
-".. Sleeping for 6 minutes to test behavior"
-Start-Sleep -Seconds (6*60)
+".. Sleeping for 10 minutes to test behavior"
+Start-Sleep -Seconds (10*60)
 ".... done"
 
 #Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/" | Out-Null
