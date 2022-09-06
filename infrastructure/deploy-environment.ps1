@@ -49,6 +49,7 @@ New-AzSubscriptionDeployment `
 
 ############################
 "Adding SQL server managed identity to SQL administrators AAD group"
+# TODO: This fails if the previous Azure deployment takes 5+ minutes: https://github.com/Azure/login/issues/180
 
 # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
 $sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdminAdGroup.Id
