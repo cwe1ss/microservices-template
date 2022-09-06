@@ -1,4 +1,4 @@
-name: 'Service: _Internal/HTTP/Bus'
+name: '_Internal/HTTP/Bus'
 
 on:
   workflow_dispatch:

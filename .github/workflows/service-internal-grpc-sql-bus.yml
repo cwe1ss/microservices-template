@@ -1,4 +1,4 @@
-name: 'Service: _Internal/gRPC/SQL/Bus'
+name: '_Internal/gRPC/SQL/Bus'
 
 on:
   workflow_dispatch:
