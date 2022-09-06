@@ -33,4 +33,4 @@ jobs:
         inlineScript: |
           Set-Location ./infrastructure
           ./deploy-environment.ps1 -Environment ${{ matrix.environment }}
-        azPSVersion: "latest"
+        azPSVersion: "8.2.0"
