@@ -29,4 +29,4 @@ jobs:
         inlineScript: |
           Set-Location ./infrastructure
           ./deploy-platform.ps1
-        azPSVersion: "latest"
+        azPSVersion: "8.2.0"
