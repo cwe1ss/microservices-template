@@ -10,6 +10,7 @@ permissions:
 jobs:
   deploy-platform:
     runs-on: ubuntu-latest
+    environment: platform
 
     steps:
     - uses: actions/checkout@v2
