@@ -1,4 +1,4 @@
-name: 'Template: Service Build'
+name: '_Template: Service Build'
 
 on:
   workflow_call:
