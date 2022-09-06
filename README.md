@@ -72,8 +72,23 @@ This template therefore uses one workspace that's shared by all environments.
 * Open `.\infrastructure\config.json`
 * Duplicate an existing environment section (e.g. `development`).
 * Modify the environment name and all its content as desired.
+* Add the environment to `.\.github\workflows\environment.yml`.
 * Add the environment to all `.\.github\workflows\service-*.yml` files by duplicating and adjusting an existing `deploy-*`-job.
 * Re-run the platform initialization script `.\infrastructure\init-platform.ps1`
   * This will create the necessary environment in GitHub and its connection with the Azure subscription.
 * Create a new deployment for the environment GitHub action and approve the new environment
 * Create new deployments for all service GitHub actions and approve the new environment
+
+
+# Deleting all resources
+
+If you want to delete all resources that have been created by this project, you must perform the following *manual* steps:
+
+* Delete all Azure resource groups with the tag `product: (config.platformResourcePrefix)` (e.g. `product: lab-msa`)
+  * You should delete all service-groups first, environment-groups second, and platform-groups last.
+* Delete Azure AD groups that start with `(config.platformResourcePrefix)-` (e.g. `lab-msa-dev-sql-admins`)
+* Delete the subscription role assignments for the GitHub Azure AD application
+* Delete the GitHub Azure AD application `(config.platformResourcePrefix)-github` (e.g. `lab-msa-github`)
+* Delete all secrets from your GitHub repository
+* Delete all environments from your GitHub repository
+* Delete any GitHub Actions workflow runs
