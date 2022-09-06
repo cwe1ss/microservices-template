@@ -48,20 +48,6 @@ New-AzSubscriptionDeployment `
 
 
 ############################
-"Refreshing Az access token"
-
-# When the previous Azure deployment takes more than 5 minutes the access token will expire and future calls
-# will fail with the error "AADSTS700024: Client assertion is not within its valid time range".
-
-# TODO REMOVE THIS
-".. Sleeping for 10 minutes to test behavior"
-Start-Sleep -Seconds (10*60)
-".... done"
-
-Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/" | Out-Null
-
-
-############################
 "Adding SQL server managed identity to SQL administrators AAD group"
 
 # These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
