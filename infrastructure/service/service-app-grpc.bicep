@@ -176,6 +176,16 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
               name: 'ASPNETCORE_Kestrel__Endpoints__WEB__URL'
               value: 'http://*:8080'
             }
+            {
+              // Apps use the Application Insights SDK to log requests and exceptions, so we don't need to output anything to the console.
+              name: 'Logging__Console__LogLevel__Default'
+              value: 'Critical'
+            }
+            {
+              // For troubleshooting purposes, we do however output app start/shutdown events.
+              name: 'Logging__Console__LogLevel__Microsoft.Hosting.Lifetime'
+              value: 'Information'
+            }
           ]
         }
       ]
