@@ -32,15 +32,14 @@ resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' exist
   parent: vnet
 }
 
+@description('The SQL identity must have been created beforehand via the init script.')
+resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+  name: sqlServerAdminUserName
+}
+
 
 ///////////////////////////////////
 // New resources
-
-resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
-  name: sqlServerAdminUserName
-  location: location
-  tags: tags
-}
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: sqlServerName
@@ -67,6 +66,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   }
 }
 
+@description('Allows apps from the Container Apps-subnet to access the SQL server')
 resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {
   name: appsSubnetName
   parent: sqlServer
@@ -76,6 +76,8 @@ resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-prev
   }
 }
 
+// TODO We currently need this because the container instances created by the deploymentScripts can not yet be joined to a VNET.
+@description('Allows all Azure services to access the SQL server')
 resource allowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2020-11-01-preview' = {
   name: 'AllowAllWindowsAzureIps'
   parent: sqlServer

@@ -25,13 +25,16 @@ var sqlMigrationContainerName = 'sql-migration'
 
 
 ///////////////////////////////////
-// New resources
+// Existing resources
 
-resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+@description('The platform resource group - must be created by using the `init-platform.ps1`-script before an automated platform-deployment can be run.')
+resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   name: platformGroupName
-  location: config.location
-  tags: tags
 }
+
+
+///////////////////////////////////
+// New resources
 
 module platformResources 'platform-resources.bicep' = {
   name: 'platform-${now}'

@@ -1,5 +1,5 @@
 # Deploys all Azure resources that are used by one single service.
-# It also adds some resources to the environment (SQL database, Service Bus queues & topics) and platform (permissions).
+# It also adds some resources to the environment (e.g. SQL database) and platform (role assignments).
 
 [CmdletBinding()]
 Param (

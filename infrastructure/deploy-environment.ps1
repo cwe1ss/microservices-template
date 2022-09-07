@@ -22,7 +22,6 @@ $envConfig = $config.environments | Select-Object -ExpandProperty $Environment
 # Naming conventions
 
 $sqlAdminAdGroupName = "$($envConfig.environmentResourcePrefix)-sql-admins"
-$sqlServerAdminUserName = "$($envConfig.environmentResourcePrefix)-sql-admin"
 
 
 ############################
@@ -45,22 +44,3 @@ New-AzSubscriptionDeployment `
         sqlAdminAdGroupName = $sqlAdminAdGroup.DisplayName
     } `
     -Verbose | Out-Null
-
-
-############################
-"Adding SQL server managed identity to SQL administrators AAD group"
-# TODO: This fails if the previous Azure deployment takes 5+ minutes: https://github.com/Azure/login/issues/180
-
-# These resources can not be created via ARM/Bicep, so we need to use the PowerShell module.
-$sqlAdminAdGroupMembers = Get-AzADGroupMember -GroupObjectId $sqlAdminAdGroup.Id
-$sqlAdminUser = Get-AzADServicePrincipal -DisplayName $sqlServerAdminUserName
-
-if ($sqlAdminAdGroupMembers | Where-Object { $_.Id -eq $sqlAdminUser.Id }) {
-    ".. Member already exists in group"
-} else {
-    Add-AzADGroupMember -TargetGroupObjectId $sqlAdminAdGroup.Id -MemberObjectId $sqlAdminUser.Id
-    ".. Member added to group"
-}
-
-
-# TODO: "Other SQL Administrators AAD group members"
