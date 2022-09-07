@@ -10,6 +10,7 @@ Param ()
 "* A managed identity '{platform}-github' will be created"
 "  - The identity will be used by GitHub Actions to deploy resources to Azure"
 "  - The identity will be given 'Contributor' and 'User Access Administrator' roles in your current Azure subscription"
+"  - The identity will be given the AAD permission 'Group.Read.All'"
 ""
 "* A managed identity '{env}-sql-admin' will be created per environment (as configured in 'config.json')"
 "  - The identity will later be used by the SQL server to allow for Azure AD-based authentication"
@@ -143,6 +144,9 @@ $acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "
 $environments = $config.environments | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name }
 
 $githubIdentityMsGraphPermissions = @(
+    "Group.Read.All"
+
+    # TODO REMOVE what's no longer necessary
     #"Application.Read.All",
 
     # Allow adding members to groups.
@@ -176,13 +180,14 @@ $deployment = New-AzSubscriptionDeployment `
     -TemplateFile .\init\github-identity.bicep `
     -TemplateParameterObject @{
         githubRepoNameWithOwner = $($ghRepo.nameWithOwner)
+        githubDefaultBranchName = $ghRepo.defaultBranchRef.name
     }
 
 Write-Success "GitHub identity resources deployed"
 
 # AAD replicates data so future queries might not immediately recognize the newly created object
 $githubIdentity = $null
-for ($i=1; $i -le 10; $i++) {
+for ($i=1; $i -le 12; $i++) {
     $githubIdentity = Get-AzADServicePrincipal -ObjectId $deployment.Outputs.githubIdentityPrincipalId.Value -ErrorAction Ignore
     if ($githubIdentity) {
         if ($i -gt 1) { Write-Success "Identity found in Azure AD API" }
@@ -270,7 +275,7 @@ foreach ($environment in $environments) {
 
     # AAD replicates data so future queries might not immediately recognize the newly created object
     $sqlIdentity = $null
-    for ($i=1; $i -le 10; $i++) {
+    for ($i=1; $i -le 12; $i++) {
         $sqlIdentity = Get-AzADServicePrincipal -ObjectId $deployment.Outputs.sqlIdentityPrincipalId.Value -ErrorAction Ignore
         if ($sqlIdentity) {
             if ($i -gt 1) { Write-Success "Identity found in AAD API" }
@@ -378,4 +383,4 @@ Exec { gh secret set "REGISTRY_SERVER" -b $acrName }
 
 
 ""
-"Script finished. Push your code to your GitHub repository and use the GitHub Actions to deploy the 'Platform'-resources next."
+"Script finished. Push your code to your GitHub repository and use GitHub Actions to deploy the 'Platform'-resources next."

@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param now string = utcNow()
 
 param githubRepoNameWithOwner string
+param githubDefaultBranchName string
 
 
 ///////////////////////////////////
@@ -56,6 +57,7 @@ module githubIdentity 'github-identity-resources.bicep' = {
     location: config.location
     tags: tags
     githubRepoNameWithOwner: githubRepoNameWithOwner
+    githubDefaultBranchName: githubDefaultBranchName
 
     // Resource names
     githubIdentityName: githubIdentityName

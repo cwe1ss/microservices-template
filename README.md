@@ -91,6 +91,12 @@ We currently use it to store the SQL migration scripts.
 
 An environment in our template consists of the following resources:
 
+### Azure Virtual Network
+
+To ensure communication is happening via a private network, the Azure Container Apps environment is deployed into a VNET.
+
+You can use VNET peering to connect the VNET to your hub if you use a [Hub-spoke network topology](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli)
+
 ### Azure Container Apps environment
 
 TODO
