@@ -12,7 +12,7 @@ public class Customer
 
     protected Customer()
     {
-        // EF
+        // EF Core uses this constructor when loading entities from the database.
         CustomerId = null!;
         FullName = null!;
     }

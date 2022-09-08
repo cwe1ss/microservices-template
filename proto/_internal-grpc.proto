@@ -4,7 +4,7 @@ option csharp_namespace = "InternalGrpc.Api";
 
 import "google/api/annotations.proto";
 
-service InternalGrpcService {
+service InternalGrpcEntities {
   rpc ListEntities (ListEntitiesRequest) returns (ListEntitiesResponse) {
     option (google.api.http) = {
       get: "/v1/entitites"

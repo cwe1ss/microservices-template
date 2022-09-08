@@ -23,6 +23,8 @@ service Customers {
   }
 }
 
+// Service messages
+
 message CreateCustomerRequest {
   CustomerDto customer = 1;
 }
@@ -41,4 +43,10 @@ message ListCustomersResponse {
 message CustomerDto {
   string customer_id = 1;
   string full_name = 2;
+}
+
+// Events
+
+message CustomerCreatedEvent {
+  string customer_id = 1;
 }

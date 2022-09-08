@@ -31,6 +31,9 @@
     <Protobuf Include="..\..\..\proto\_internal-grpc-sql-bus.proto" GrpcServices="Server">
       <Link>Protos\_internal-grpc-sql-bus.proto</Link>
     </Protobuf>
+    <Protobuf Include="..\..\..\proto\_internal-grpc.proto" GrpcServices="Client">
+      <Link>Protos\_internal-grpc.proto</Link>
+    </Protobuf>
   </ItemGroup>
 
 </Project>

@@ -7,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 // ASP.NET Core
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHealthChecks();
 
 // Application Insights
 builder.Services.AddCustomAppInsights();
@@ -21,18 +20,25 @@ builder.Services.AddGrpcReflection();
 builder.Services.AddGrpcHttpApi();
 builder.Services.AddGrpcSwagger();
 
+// Health checks
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+// Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGrpcService<InternalGrpcServiceImpl>();
+// gRPC Server
+app.MapGrpcService<InternalGrpcService>();
 app.MapGrpcReflectionService();
 
+// Health checks
 app.MapCustomHealthCheckEndpoints();
 
-app.MapGet("/", () => "Hello World").ExcludeFromDescription();
+
+app.MapGet("/", () => "Hello from 'internal-grpc'").ExcludeFromDescription();
 
 app.Run();

@@ -2,7 +2,7 @@
 
 namespace InternalGrpc.Api;
 
-public class InternalGrpcServiceImpl : InternalGrpcService.InternalGrpcServiceBase
+public class InternalGrpcService : InternalGrpcEntities.InternalGrpcEntitiesBase
 {
     private static readonly List<InternalGrpcEntityDto> Entities = new();
 

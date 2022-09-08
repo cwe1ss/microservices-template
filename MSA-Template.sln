@@ -37,6 +37,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalGrpcSqlBus.Api", "services\_internal-grpc-sql-bus\InternalGrpcSqlBus.Api\InternalGrpcSqlBus.Api.csproj", "{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-grpc-sql-bus", "_internal-grpc-sql-bus", "{24003D62-0728-4F67-908C-5DC121318EF7}"
+	ProjectSection(SolutionItems) = preProject
+		services\_internal-grpc-sql-bus\README.md = services\_internal-grpc-sql-bus\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
