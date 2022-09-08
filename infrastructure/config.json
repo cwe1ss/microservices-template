@@ -14,6 +14,9 @@
     "internal-http-bus": {
       "appType": "http",
       "sqlDatabaseEnabled": false
+    },
+    "public-web": {
+      "appType": "public"
     }
   },
 
@@ -29,7 +32,8 @@
             "cpu": "0.5",
             "memory": "1.0Gi",
             "minReplicas": 0,
-            "maxReplicas": 2
+            "maxReplicas": 2,
+            "concurrentRequests": 15
           }
         },
         "internal-grpc-sql-bus": {
@@ -52,6 +56,8 @@
             "minReplicas": 0,
             "maxReplicas": 2
           }
+        },
+        "public-web": {
         }
       }
     },

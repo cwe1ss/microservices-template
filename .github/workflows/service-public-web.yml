@@ -1,0 +1,36 @@
+name: '_Public/Web'
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - services/_public-web/**
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      serviceName: public-web
+      servicePath: services/_public-web
+      hostProjectName: PublicWeb
+
+  deploy-development:
+    needs: build
+    uses: ./.github/workflows/_service-deploy.yml
+    secrets: inherit
+    with:
+      service: public-web
+      environment: development
+
+  # deploy-production:
+  #   needs: build
+  #   uses: ./.github/workflows/_service-deploy.yml
+  #   secrets: inherit
+  #   with:
+  #     service: public-web
+  #     environment: production

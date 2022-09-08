@@ -41,6 +41,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-grpc-sql-bus", "_
 		services\_internal-grpc-sql-bus\README.md = services\_internal-grpc-sql-bus\README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_public-web", "_public-web", "{ACD65BE0-F674-4E03-B2BF-37478C577C08}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicWeb", "services\_public-web\PublicWeb\PublicWeb.csproj", "{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +67,10 @@ Global
 		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +83,8 @@ Global
 		{B72C0307-0215-48AB-80CB-2B0EA1139E67} = {A578A299-6EC4-441D-970A-FD794E6AB9E7}
 		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761} = {24003D62-0728-4F67-908C-5DC121318EF7}
 		{24003D62-0728-4F67-908C-5DC121318EF7} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
+		{ACD65BE0-F674-4E03-B2BF-37478C577C08} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
+		{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9} = {ACD65BE0-F674-4E03-B2BF-37478C577C08}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D423435A-06C9-47CA-A100-D16D6E066AF7}
