@@ -25,7 +25,7 @@ if (!$githubSp) { throw "Service principal '$githubAppName' not found. Did you r
 New-AzSubscriptionDeployment `
     -Location $config.location `
     -Name ("platform-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\platform\platform.bicep `
+    -TemplateFile .\platform\main.bicep `
     -TemplateParameterObject @{
         githubServicePrincipalId = $githubSp.Id
     } `

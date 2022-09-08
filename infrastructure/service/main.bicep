@@ -31,14 +31,21 @@ var containerRegistryName = replace('${config.platformResourcePrefix}-registry',
 var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
 var sqlMigrationContainerName = 'sql-migration'
 
+// Environment: Monitoring
+var monitoringGroupName = '${envConfig.environmentResourcePrefix}-monitoring'
+var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
+
 // Environment: SQL
 var sqlGroupName = '${envConfig.environmentResourcePrefix}-sql'
 var sqlServerAdminUserName = '${envConfig.environmentResourcePrefix}-sql-admin'
 var sqlServerName = '${envConfig.environmentResourcePrefix}-sql'
 
+// Environment: Service Bus
+// var serviceBusGroupName = '${envConfig.environmentResourcePrefix}-bus'
+// var serviceBusName = '${envConfig.environmentResourcePrefix}-bus'
+
 // Environment: Container Apps
 var envGroupName = '${envConfig.environmentResourcePrefix}-env'
-var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
 var appEnvName = '${envConfig.environmentResourcePrefix}-env'
 
 // Service
@@ -58,6 +65,7 @@ var sqlMigrationFile = '${config.platformResourcePrefix}-${serviceName}-${buildN
 
 var platformGroup = resourceGroup(platformGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
+//var serviceBusGroup = resourceGroup(serviceBusGroupName)
 
 
 ///////////////////////////////////
@@ -84,7 +92,7 @@ module svcIdentity 'service-identity.bicep' = {
 
 // Allow the identity to access the platform container registry.
 // This must be done before we can create the actual container app, as the deployment would fail otherwise.
-module svcPlatform 'service-platform.bicep' = {
+module svcPlatform 'platform.bicep' = {
   name: 'svc-platform-${now}'
   scope: platformGroup
   dependsOn: [
@@ -98,7 +106,7 @@ module svcPlatform 'service-platform.bicep' = {
   }
 }
 
-module svcSql 'service-sql.bicep' = if (serviceDefaults.sqlDatabaseEnabled) {
+module svcSql 'sql.bicep' = if (serviceDefaults.sqlDatabaseEnabled) {
   name: 'svc-sql-${now}'
   scope: sqlGroup
   params: {
@@ -123,7 +131,21 @@ module svcSql 'service-sql.bicep' = if (serviceDefaults.sqlDatabaseEnabled) {
   }
 }
 
-module svcAppGrpc 'service-app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
+// module svcServiceBus 'servicebus.bicep' = if (serviceDefaults.serviceBus.enabled) {
+//   name: 'svc-bus-${now}'
+//   scope: serviceBusGroup
+//   params: {
+//     location: config.location
+//     environment: environment
+//     serviceName: serviceName
+
+//     // Resource names
+//     serviceBusGroupName: serviceBusGroupName
+//     serviceBusName: serviceBusName
+//   }
+// }
+
+module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
   name: 'svc-app-grpc-${now}'
   scope: svcGroup
   dependsOn: [
@@ -144,6 +166,7 @@ module svcAppGrpc 'service-app-grpc.bicep' = if (serviceDefaults.appType == 'grp
     appEnvName: appEnvName
     sqlGroupName: sqlGroupName
     sqlServerName: sqlServerName
+    monitoringGroupName: monitoringGroupName
     appInsightsName: appInsightsName
     svcUserName: svcUserName
     appName: appName
@@ -151,7 +174,7 @@ module svcAppGrpc 'service-app-grpc.bicep' = if (serviceDefaults.appType == 'grp
   }
 }
 
-module svcAppHttp 'service-app-http.bicep' = if (serviceDefaults.appType == 'http') {
+module svcAppHttp 'app-http.bicep' = if (serviceDefaults.appType == 'http') {
   name: 'svc-app-http-${now}'
   scope: svcGroup
   dependsOn: [
@@ -172,6 +195,7 @@ module svcAppHttp 'service-app-http.bicep' = if (serviceDefaults.appType == 'htt
     appEnvName: appEnvName
     sqlGroupName: sqlGroupName
     sqlServerName: sqlServerName
+    monitoringGroupName: monitoringGroupName
     appInsightsName: appInsightsName
     svcUserName: svcUserName
     appName: appName

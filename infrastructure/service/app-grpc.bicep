@@ -14,6 +14,7 @@ param envGroupName string
 param appEnvName string
 param sqlGroupName string
 param sqlServerName string
+param monitoringGroupName string
 param appInsightsName string
 param svcUserName string
 param appName string
@@ -34,6 +35,7 @@ var serviceConfig = envConfig.services[serviceName]
 
 var platformGroup = resourceGroup(platformGroupName)
 var envGroup = resourceGroup(envGroupName)
+var monitoringGroup = resourceGroup(monitoringGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
@@ -48,7 +50,7 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: appInsightsName
-  scope: envGroup
+  scope: monitoringGroup
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {

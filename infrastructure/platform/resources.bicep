@@ -39,11 +39,12 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   }
 }
 
+@description('A blob container that will be used to store any SQL migration scripts for all services')
 resource sqlMigrationContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
   name: '${storage.name}/default/${sqlMigrationContainerName}'
 }
 
-// Allows GitHub to upload artifacts to the storage account
+@description('Allows GitHub to upload artifacts to the storage account')
 resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid('githubStorageContributor', storage.id, githubServicePrincipalId)
   scope: storage
@@ -54,6 +55,7 @@ resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' 
   }
 }
 
+@description('The container registry will store all container images for all services')
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   name: containerRegistryName
   location: location
@@ -66,6 +68,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' =
   }
 }
 
+@description('One global log analytics workspace is used to simplify the operations and querying')
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: logsName
   location: location

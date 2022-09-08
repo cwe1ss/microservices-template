@@ -144,16 +144,7 @@ $acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "
 $environments = $config.environments | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name }
 
 $githubIdentityMsGraphPermissions = @(
-    "Group.Read.All"
-
-    # TODO REMOVE what's no longer necessary
-    #"Application.Read.All",
-
-    # Allow adding members to groups.
-    # Important: To add members to a role-assignable group, the calling user or app must also be assigned the RoleManagement.ReadWrite.Directory permission.
-    # https://docs.microsoft.com/en-us/graph/api/group-post-members?view=graph-rest-1.0&tabs=http#permissions
-    #"GroupMember.ReadWrite.All"
-    #"RoleManagement.ReadWrite.Directory"
+    "Group.Read.All" # Required to get the SQL Admins AAD group in `deploy-environment.ps1`
 )
 
 # https://docs.microsoft.com/en-us/azure/azure-sql/database/authentication-azure-ad-user-assigned-managed-identity?view=azuresql#permissions

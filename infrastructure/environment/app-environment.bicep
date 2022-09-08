@@ -12,6 +12,7 @@ param vnetName string
 param appsSubnetName string
 param serviceBusGroupName string
 param serviceBusName string
+param monitoringGroupName string
 param appInsightsName string
 param appEnvName string
 
@@ -21,6 +22,7 @@ param appEnvName string
 
 var platformGroup = resourceGroup(platformGroupName)
 var networkGroup = resourceGroup(networkGroupName)
+var monitoringGroup = resourceGroup(monitoringGroupName)
 var serviceBusGroup = resourceGroup(serviceBusGroupName)
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
@@ -43,20 +45,14 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview
   scope: serviceBusGroup
 }
 
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: appInsightsName
+  scope: monitoringGroup
+}
+
 
 ///////////////////////////////////
 // New resources
-
-resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: appInsightsName
-  location: location
-  tags: tags
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logs.id
-  }
-}
 
 resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
   name: appEnvName

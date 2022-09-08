@@ -23,23 +23,32 @@ var tags = {
 ///////////////////////////////////
 // Resource names
 
+// Platform
 var platformGroupName = '${config.platformResourcePrefix}-platform'
 var logsName = '${config.platformResourcePrefix}-logs'
 
+// Network
 var networkGroupName = '${envConfig.environmentResourcePrefix}-network'
 var vnetName = '${envConfig.environmentResourcePrefix}-vnet'
 var appsSubnetName = 'apps'
 
+// Monitoring
+var monitoringGroupName = '${envConfig.environmentResourcePrefix}-monitoring'
+var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
+var dashboardName = '${envConfig.environmentResourcePrefix}-dashboard'
+
+// SQL
 var sqlGroupName = '${envConfig.environmentResourcePrefix}-sql'
 var sqlServerAdminUserName = '${envConfig.environmentResourcePrefix}-sql-admin'
 var sqlServerName = '${envConfig.environmentResourcePrefix}-sql'
 
-var envGroupName = '${envConfig.environmentResourcePrefix}-env'
-var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
-var appEnvName = '${envConfig.environmentResourcePrefix}-env'
-
+// Service Bus
 var serviceBusGroupName = '${envConfig.environmentResourcePrefix}-bus'
 var serviceBusName = '${envConfig.environmentResourcePrefix}-bus'
+
+// Container Apps Environment
+var envGroupName = '${envConfig.environmentResourcePrefix}-env'
+var appEnvName = '${envConfig.environmentResourcePrefix}-env'
 
 
 ///////////////////////////////////
@@ -51,13 +60,19 @@ resource networkGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
+resource monitoringkGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: monitoringGroupName
+  location: config.location
+  tags: tags
+}
+
 resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: serviceBusGroupName
   location: config.location
   tags: tags
 }
 
-resource envGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource appsGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: envGroupName
   location: config.location
   tags: tags
@@ -69,7 +84,7 @@ resource sqlGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-module networkResources 'environment-network.bicep' = {
+module networkResources 'network.bicep' = {
   name: 'env-network-${now}'
   scope: networkGroup
   params: {
@@ -83,7 +98,24 @@ module networkResources 'environment-network.bicep' = {
   }
 }
 
-module sqlResources 'environment-sql.bicep' = {
+module monitoringResources 'monitoring.bicep' = {
+  name: 'env-${now}'
+  scope: monitoringkGroup
+  params: {
+    location: config.location
+    environment: environment
+    tags: tags
+
+    // Resource names
+    platformGroupName: platformGroupName
+    logsName: logsName
+    appInsightsName: appInsightsName
+    dashboardName: dashboardName
+  }
+}
+
+
+module sqlResources 'sql.bicep' = {
   name: 'env-sql-${now}'
   scope: sqlGroup
   dependsOn: [
@@ -104,7 +136,7 @@ module sqlResources 'environment-sql.bicep' = {
   }
 }
 
-module serviceBusResources 'environment-servicebus.bicep' = {
+module serviceBusResources 'servicebus.bicep' = {
   name: 'env-bus-${now}'
   scope: serviceBusGroup
   params: {
@@ -116,11 +148,12 @@ module serviceBusResources 'environment-servicebus.bicep' = {
   }
 }
 
-module envResources 'environment-resources.bicep' = {
+module appsResources 'app-environment.bicep' = {
   name: 'env-${now}'
-  scope: envGroup
+  scope: appsGroup
   dependsOn: [
     networkResources
+    monitoringResources
     serviceBusResources
   ]
   params: {
@@ -135,6 +168,7 @@ module envResources 'environment-resources.bicep' = {
     appsSubnetName: appsSubnetName
     serviceBusGroupName: serviceBusGroupName
     serviceBusName: serviceBusName
+    monitoringGroupName: monitoringGroupName
     appInsightsName: appInsightsName
     appEnvName: appEnvName
   }

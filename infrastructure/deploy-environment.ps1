@@ -37,7 +37,7 @@ if (!$sqlAdminAdGroup) { throw "AAD group '$sqlAdminAdGroupName' not found. Did 
 New-AzSubscriptionDeployment `
     -Location $config.location `
     -Name ("env-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\environment\environment.bicep `
+    -TemplateFile .\environment\main.bicep `
     -TemplateParameterObject @{
         environment = $Environment
         sqlAdminAdGroupId = $sqlAdminAdGroup.Id

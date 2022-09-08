@@ -33,7 +33,7 @@ $config = Get-Content .\config.json | ConvertFrom-Json
 New-AzSubscriptionDeployment `
     -Location $config.location `
     -Name ("svc-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\service\service.bicep `
+    -TemplateFile .\service\main.bicep `
     -TemplateParameterObject @{
         environment = $Environment
         serviceName = $ServiceName

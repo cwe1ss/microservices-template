@@ -36,7 +36,7 @@ resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing 
 ///////////////////////////////////
 // New resources
 
-module platformResources 'platform-resources.bicep' = {
+module platformResources 'resources.bicep' = {
   name: 'platform-${now}'
   scope: platformGroup
   params: {

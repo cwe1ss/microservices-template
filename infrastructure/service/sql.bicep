@@ -88,7 +88,7 @@ resource deploySqlUserScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
     azPowerShellVersion: '8.2.0'
     retentionInterval: 'P1D'
     cleanupPreference: 'OnSuccess'
-    scriptContent: loadTextContent('service-sql-user.ps1')
+    scriptContent: loadTextContent('sql-user.ps1')
     arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${database.name} -UserName ${svcUser.name}'
     timeout: 'PT10M'
   }
@@ -119,7 +119,7 @@ resource deploySqlMigrationScript 'Microsoft.Resources/deploymentScripts@2020-10
     azPowerShellVersion: '8.2.0'
     retentionInterval: 'P1D'
     cleanupPreference: 'OnSuccess'
-    scriptContent: loadTextContent('service-sql-migration.ps1')
+    scriptContent: loadTextContent('sql-migration.ps1')
     arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${database.name} -SqlMigrationBlobUrl \\"${sqlMigrationBlobUrl}\\"'
     timeout: 'PT10M'
   }
