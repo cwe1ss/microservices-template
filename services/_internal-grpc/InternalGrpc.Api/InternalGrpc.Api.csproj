@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapr.AspNetCore" Version="1.8.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.47.0" />
     <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.47.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
@@ -21,9 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\..\..\proto\_internal-grpc-sql-bus.proto" GrpcServices="Client">
-      <Link>Protos\_internal-grpc-sql-bus.proto</Link>
-    </Protobuf>
     <Protobuf Include="..\..\..\proto\_internal-grpc.proto" GrpcServices="Server">
       <Link>Protos\_internal-grpc.proto</Link>
     </Protobuf>

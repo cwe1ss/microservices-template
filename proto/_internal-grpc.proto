@@ -1,42 +1,35 @@
 syntax = "proto3";
 
-option csharp_namespace = "Orders.Api";
+option csharp_namespace = "InternalGrpc.Api";
 
 import "google/api/annotations.proto";
-import "types.proto";
 
-service Orders {
-  rpc ListOrders (ListOrdersRequest) returns (ListOrdersResponse) {
+service InternalGrpcService {
+  rpc ListEntities (ListEntitiesRequest) returns (ListEntitiesResponse) {
     option (google.api.http) = {
-      get: "/v1/orders"
+      get: "/v1/entitites"
     };
   };
-  rpc CreateOrder (CreateOrderRequest) returns (OrderDto) {
+  rpc CreateEntity (CreateEntityRequest) returns (InternalGrpcEntityDto) {
     option (google.api.http) = {
-      post: "/v1/orders"
-      body: "order"
+      post: "/v1/entities"
+      body: "entity"
     };
   }
 }
 
-message CreateOrderRequest {
-  OrderDto order = 1;
+message CreateEntityRequest {
+  InternalGrpcEntityDto entity = 1;
 }
 
-message ListOrdersRequest {
+message ListEntitiesRequest {
 }
 
-message ListOrdersResponse {
-  repeated OrderDto orders = 1;
+message ListEntitiesResponse {
+  repeated InternalGrpcEntityDto entities = 1;
 }
 
-message OrderDto {
-  string order_id = 1;
-  Customer customer = 2;
-  shared.types.DecimalValue total_amount = 3;
-
-  message Customer {
-    string customer_id = 1;
-    string full_name = 2;
-  }
+message InternalGrpcEntityDto {
+  string entity_id = 1;
+  string display_name = 2;
 }
