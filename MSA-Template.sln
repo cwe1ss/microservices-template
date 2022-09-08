@@ -6,38 +6,15 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-grpc", "_internal-grpc", "{25B76532-40F3-4284-871B-A7B0E8AD25BF}"
+	ProjectSection(SolutionItems) = preProject
+		services\_internal-grpc\README.md = services\_internal-grpc\README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalGrpc.Api", "services\_internal-grpc\InternalGrpc.Api\InternalGrpc.Api.csproj", "{53388159-633C-4FA4-B308-C5D262D83F11}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "proto", "proto", "{BCC48E1E-5991-4896-8A25-4B289DFE9DB6}"
-	ProjectSection(SolutionItems) = preProject
-		proto\types.proto = proto\types.proto
-		proto\_internal-grpc-sql-bus.proto = proto\_internal-grpc-sql-bus.proto
-		proto\_internal-grpc.proto = proto\_internal-grpc.proto
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "google", "google", "{8384016D-C1E8-4E29-BD12-E6C9E089F912}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{A89B459F-F992-4543-B95A-7885DAC6CB97}"
-	ProjectSection(SolutionItems) = preProject
-		proto\google\api\annotations.proto = proto\google\api\annotations.proto
-		proto\google\api\http.proto = proto\google\api\http.proto
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{FF648FB9-64D9-47ED-B625-16E01F54DDD6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "shared\Shared\Shared.csproj", "{1A29C5C0-6FC4-43A2-BEBE-054D51562797}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}"
-	ProjectSection(SolutionItems) = preProject
-		infrastructure\build-service.ps1 = infrastructure\build-service.ps1
-		infrastructure\config.json = infrastructure\config.json
-		infrastructure\deploy-environment.ps1 = infrastructure\deploy-environment.ps1
-		infrastructure\deploy-platform.ps1 = infrastructure\deploy-platform.ps1
-		infrastructure\deploy-service.ps1 = infrastructure\deploy-service.ps1
-		infrastructure\init-platform.ps1 = infrastructure\init-platform.ps1
-		infrastructure\README.md = infrastructure\README.md
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E84EB295-5A86-4941-A33B-CDF73C4F7020}"
 	ProjectSection(SolutionItems) = preProject
@@ -50,58 +27,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{F77B1E11-7E64-4B50-A943-541C3B06B848}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{ED8B77E3-4DC3-413D-A5C3-BC3648A036C4}"
-	ProjectSection(SolutionItems) = preProject
-		.github\workflows\environment.yml = .github\workflows\environment.yml
-		.github\workflows\platform.yml = .github\workflows\platform.yml
-		.github\workflows\service-customers.yml = .github\workflows\service-customers.yml
-		.github\workflows\service-internal-http-bus.yml = .github\workflows\service-internal-http-bus.yml
-		.github\workflows\service-orders.yml = .github\workflows\service-orders.yml
-		.github\workflows\_environment-deploy.yml = .github\workflows\_environment-deploy.yml
-		.github\workflows\_service-build.yml = .github\workflows\_service-build.yml
-		.github\workflows\_service-deploy.yml = .github\workflows\_service-deploy.yml
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-http-bus", "_internal-http-bus", "{A578A299-6EC4-441D-970A-FD794E6AB9E7}"
 	ProjectSection(SolutionItems) = preProject
 		services\_internal-http-bus\README.md = services\_internal-http-bus\README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalHttpBus.Api", "services\_internal-http-bus\InternalHttpBus.Api\InternalHttpBus.Api.csproj", "{B72C0307-0215-48AB-80CB-2B0EA1139E67}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "platform", "platform", "{2ED2B334-2239-4895-89E3-EC905290F81A}"
-	ProjectSection(SolutionItems) = preProject
-		infrastructure\platform\platform-resources.bicep = infrastructure\platform\platform-resources.bicep
-		infrastructure\platform\platform.bicep = infrastructure\platform\platform.bicep
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_includes", "_includes", "{BE81219E-C5F4-453B-B22F-C9347532F5CE}"
-	ProjectSection(SolutionItems) = preProject
-		infrastructure\_includes\helpers.ps1 = infrastructure\_includes\helpers.ps1
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "environment", "environment", "{F1652340-7A13-4851-87F7-13BAED6D8FC2}"
-	ProjectSection(SolutionItems) = preProject
-		infrastructure\environment\environment-network.bicep = infrastructure\environment\environment-network.bicep
-		infrastructure\environment\environment-resources.bicep = infrastructure\environment\environment-resources.bicep
-		infrastructure\environment\environment-servicebus.bicep = infrastructure\environment\environment-servicebus.bicep
-		infrastructure\environment\environment-sql.bicep = infrastructure\environment\environment-sql.bicep
-		infrastructure\environment\environment.bicep = infrastructure\environment\environment.bicep
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service", "service", "{78B929A4-7A08-4BDA-A553-C663F894CD22}"
-	ProjectSection(SolutionItems) = preProject
-		infrastructure\service\service-app-grpc.bicep = infrastructure\service\service-app-grpc.bicep
-		infrastructure\service\service-app-http.bicep = infrastructure\service\service-app-http.bicep
-		infrastructure\service\service-identity.bicep = infrastructure\service\service-identity.bicep
-		infrastructure\service\service-platform.bicep = infrastructure\service\service-platform.bicep
-		infrastructure\service\service-sql-migration.ps1 = infrastructure\service\service-sql-migration.ps1
-		infrastructure\service\service-sql-user.ps1 = infrastructure\service\service-sql-user.ps1
-		infrastructure\service\service-sql.bicep = infrastructure\service\service-sql.bicep
-		infrastructure\service\service.bicep = infrastructure\service\service.bicep
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalGrpcSqlBus.Api", "services\_internal-grpc-sql-bus\InternalGrpcSqlBus.Api\InternalGrpcSqlBus.Api.csproj", "{B8484ED6-EC22-41C4-AC4E-1E64CE63E761}"
 EndProject
@@ -136,16 +67,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{25B76532-40F3-4284-871B-A7B0E8AD25BF} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
 		{53388159-633C-4FA4-B308-C5D262D83F11} = {25B76532-40F3-4284-871B-A7B0E8AD25BF}
-		{8384016D-C1E8-4E29-BD12-E6C9E089F912} = {BCC48E1E-5991-4896-8A25-4B289DFE9DB6}
-		{A89B459F-F992-4543-B95A-7885DAC6CB97} = {8384016D-C1E8-4E29-BD12-E6C9E089F912}
 		{1A29C5C0-6FC4-43A2-BEBE-054D51562797} = {FF648FB9-64D9-47ED-B625-16E01F54DDD6}
-		{ED8B77E3-4DC3-413D-A5C3-BC3648A036C4} = {F77B1E11-7E64-4B50-A943-541C3B06B848}
 		{A578A299-6EC4-441D-970A-FD794E6AB9E7} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
 		{B72C0307-0215-48AB-80CB-2B0EA1139E67} = {A578A299-6EC4-441D-970A-FD794E6AB9E7}
-		{2ED2B334-2239-4895-89E3-EC905290F81A} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
-		{BE81219E-C5F4-453B-B22F-C9347532F5CE} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
-		{F1652340-7A13-4851-87F7-13BAED6D8FC2} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
-		{78B929A4-7A08-4BDA-A553-C663F894CD22} = {26DB55F9-3337-49AF-A480-2B7C2EAAE7AB}
 		{B8484ED6-EC22-41C4-AC4E-1E64CE63E761} = {24003D62-0728-4F67-908C-5DC121318EF7}
 		{24003D62-0728-4F67-908C-5DC121318EF7} = {84DBDC7F-5C56-4FFC-95D4-1E8BEAA6B451}
 	EndGlobalSection
