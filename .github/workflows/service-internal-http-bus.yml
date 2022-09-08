@@ -32,5 +32,5 @@ jobs:
   #   uses: ./.github/workflows/_service-deploy.yml
   #   secrets: inherit
   #   with:
-  #     service: _internal-http-bus
+  #     service: internal-http-bus
   #     environment: production
