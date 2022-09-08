@@ -106,7 +106,9 @@ module svcPlatform 'platform.bicep' = {
   }
 }
 
-module svcSql 'sql.bicep' = if (serviceDefaults.sqlDatabaseEnabled) {
+var sqlDatabaseEnabled = contains(serviceDefaults, 'sqlDatabaseEnabled') ? serviceDefaults.sqlDatabaseEnabled : false
+
+module svcSql 'sql.bicep' = if (sqlDatabaseEnabled) {
   name: 'svc-sql-${now}'
   scope: sqlGroup
   params: {
@@ -176,6 +178,35 @@ module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
 
 module svcAppHttp 'app-http.bicep' = if (serviceDefaults.appType == 'http') {
   name: 'svc-app-http-${now}'
+  scope: svcGroup
+  dependsOn: [
+    svcPlatform
+    svcSql
+  ]
+  params: {
+    location: config.location
+    environment: environment
+    serviceName: serviceName
+    buildNumber: buildNumber
+    tags: tags
+
+    // Resource names
+    platformGroupName: platformGroupName
+    containerRegistryName: containerRegistryName
+    envGroupName: envGroupName
+    appEnvName: appEnvName
+    sqlGroupName: sqlGroupName
+    sqlServerName: sqlServerName
+    monitoringGroupName: monitoringGroupName
+    appInsightsName: appInsightsName
+    svcUserName: svcUserName
+    appName: appName
+    sqlDatabaseName: sqlDatabaseName
+  }
+}
+
+module svcAppPublic 'app-public.bicep' = if (serviceDefaults.appType == 'public') {
+  name: 'svc-app-public-${now}'
   scope: svcGroup
   dependsOn: [
     svcPlatform

@@ -72,7 +72,9 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 // Configuration values
 
 var fullImageName = '${containerRegistry.properties.loginServer}/${config.platformResourcePrefix}-${serviceName}:${buildNumber}'
-var sqlConnectionString = serviceDefaults.sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${database.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
+
+var sqlDatabaseEnabled = contains(serviceDefaults, 'sqlDatabaseEnabled') ? serviceDefaults.sqlDatabaseEnabled : false
+var sqlConnectionString = sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${database.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
 
 
 ///////////////////////////////////
@@ -120,8 +122,9 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
           image: fullImageName
           name: 'app'
           resources: {
-            cpu: serviceConfig.app.cpu
-            memory: serviceConfig.app.memory
+            // TODO: Bicep expects an int even though a string is required. Remove any() if that ever changes.
+            cpu: any(contains(serviceConfig, 'app') && contains(serviceConfig.app, 'cpu') ? '${serviceConfig.app.cpu}' : '0.25')
+            memory: contains(serviceConfig, 'app') && contains(serviceConfig.app, 'memory') ? '${serviceConfig.app.memory}' : '0.5Gi'
           }
           probes: [
             {
@@ -192,8 +195,20 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
         }
       ]
       scale: {
-        minReplicas: serviceConfig.app.minReplicas
-        maxReplicas: serviceConfig.app.maxReplicas
+        minReplicas: contains(serviceConfig, 'app') && contains(serviceConfig.app, 'minReplicas') ? serviceConfig.app.minReplicas : 0
+        maxReplicas: contains(serviceConfig, 'app') && contains(serviceConfig.app, 'maxReplicas') ? serviceConfig.app.maxReplicas : 10 // Azure default value
+        rules: [
+          {
+            name: 'http-rule'
+            http: {
+              metadata: {
+                // https://docs.microsoft.com/en-us/azure/container-apps/scale-app#http
+                // Value must be a string, otherwise it fails with error "ContainerAppInvalidSchema"
+                concurrentRequests: contains(serviceConfig, 'app') && contains(serviceConfig.app, 'concurrentRequests') ? '${serviceConfig.app.concurrentRequests}' : '10' // Azure default value
+              }
+            }
+          }
+        ]
       }
     }
   }
