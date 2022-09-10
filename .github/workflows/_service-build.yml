@@ -50,11 +50,9 @@ jobs:
       with:
         inlineScript: |
           Set-Location ./infrastructure
-          ./build-service.ps1 -ServiceName "${{ inputs.serviceName }}" `
-            -ServicePath "${{ inputs.servicePath }}" `
-            -HostProjectName "${{ inputs.hostProjectName }}" `
+          ./build-service.ps1 -ServiceName "${{ inputs.serviceName }}" -ServicePath "${{ inputs.servicePath }}" -HostProjectName "${{ inputs.hostProjectName }}" `
             -BuildNumber "${{ github.run_number }}" `
             -RegistryServer "${{ secrets.REGISTRY_SERVER }}" `
-            -UploadArtifacts "$${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}"
+            -UploadArtifacts $${{ (github.ref == 'refs/heads/main' && github.event_name != 'pull_request') }}
         azPSVersion: "8.2.0"
 
