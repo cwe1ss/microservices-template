@@ -1,13 +1,31 @@
+using Azure.Identity;
 using Dapr.Client;
 using InternalGrpc.Api;
 using InternalGrpcSqlBus.Api;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Azure
+var azureCredential = new DefaultAzureCredential();
+
 // ASP.NET Core
 builder.Services.AddRazorPages();
+
+// ASP.NET Core Data Protection (to support e.g. anti-forgery with multiple instances)
+var dataProtectionBuilder = builder.Services.AddDataProtection();
+if (!builder.Environment.IsDevelopment())
+{
+    dataProtectionBuilder.PersistKeysToAzureBlobStorage(
+        blobUri: new Uri(builder.Configuration["DataProtectionBlobUri"] ?? throw new InvalidOperationException("Config value 'DataProtectionBlobUri' not set")),
+        tokenCredential: azureCredential);
+
+    dataProtectionBuilder.ProtectKeysWithAzureKeyVault(
+        keyIdentifier: new Uri(builder.Configuration["DataProtectionKeyUri"] ?? throw new InvalidOperationException("Config value 'DataProtectionKeyUri' not set")),
+        tokenCredential: azureCredential);
+}
 
 // Application Insights
 builder.Services.AddCustomAppInsights();

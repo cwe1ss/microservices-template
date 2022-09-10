@@ -3,6 +3,8 @@ param environment string
 param serviceName string
 param buildNumber string
 param tags object
+param dataProtectionKeyUri string
+param dataProtectionBlobUri string
 
 
 ///////////////////////////////////
@@ -157,6 +159,13 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
               value: serviceName
             }
             {
+              // The Azure.Identity SDK needs the "ClientId" for the user-assigned identity, even if there is just one:
+              // https://github.com/Azure/azure-sdk-for-net/issues/11400#issuecomment-620179175
+              // If we don't set this, the authentication fails with the following error: https://github.com/Azure/azure-sdk-for-net/issues/13564
+              name: 'AZURE_CLIENT_ID'
+              value: svcUser.properties.clientId
+            }
+            {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: appInsights.properties.ConnectionString
             }
@@ -182,6 +191,16 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
               // For troubleshooting purposes, we do however output app start/shutdown events.
               name: 'Logging__Console__LogLevel__Microsoft.Hosting.Lifetime'
               value: 'Information'
+            }
+            {
+              // Used to store ASP.NET Core DataProtection keys
+              name: 'ASPNETCORE_DataProtectionBlobUri'
+              value: dataProtectionBlobUri
+            }
+            {
+              // Used to encrypt ASP.NET Core DataProtection keys
+              name: 'ASPNETCORE_DataProtectionKeyUri'
+              value: dataProtectionKeyUri
             }
           ]
         }

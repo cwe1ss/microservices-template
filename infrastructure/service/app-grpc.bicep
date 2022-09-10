@@ -157,6 +157,13 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
               value: serviceName
             }
             {
+              // The Azure.Identity SDK needs the "ClientId" for the user-assigned identity, even if there is just one:
+              // https://github.com/Azure/azure-sdk-for-net/issues/11400#issuecomment-620179175
+              // If we don't set this, the authentication fails with the following error: https://github.com/Azure/azure-sdk-for-net/issues/13564
+              name: 'AZURE_CLIENT_ID'
+              value: svcUser.properties.clientId
+            }
+            {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: appInsights.properties.ConnectionString
             }

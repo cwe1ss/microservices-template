@@ -31,6 +31,11 @@ var containerRegistryName = replace('${config.platformResourcePrefix}-registry',
 var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
 var sqlMigrationContainerName = 'sql-migration'
 
+// Environment: Network
+var networkGroupName = '${envConfig.environmentResourcePrefix}-network'
+var vnetName = '${envConfig.environmentResourcePrefix}-vnet'
+var appsSubnetName = 'apps'
+
 // Environment: Monitoring
 var monitoringGroupName = '${envConfig.environmentResourcePrefix}-monitoring'
 var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
@@ -52,6 +57,14 @@ var appEnvName = '${envConfig.environmentResourcePrefix}-env'
 var svcGroupName = '${envConfig.environmentResourcePrefix}-svc-${serviceName}'
 var svcUserName = '${envConfig.environmentResourcePrefix}-${serviceName}'
 var appName = take('${envConfig.environmentResourcePrefix}-${serviceName}', 32 /* max allowed length */)
+
+// Service: Storage
+var svcStorageAccountName = take(replace('${envConfig.environmentResourcePrefix}-${serviceName}', '-', ''), 24 /* max allowed length */)
+var svcStorageDataProtectionContainerName = 'data-protection'
+
+// Service: Key Vault
+var svcVaultName = take(replace('${envConfig.environmentResourcePrefix}-${serviceName}', '-', ''), 24 /* max allowed length */)
+var svcVaultDataProtectionKeyName = 'data-protection'
 
 // Service: SQL
 var sqlDatabaseName = '${envConfig.environmentResourcePrefix}-${serviceName}'
@@ -106,6 +119,48 @@ module svcPlatform 'platform.bicep' = {
   }
 }
 
+module svcStorage 'storage.bicep' = {
+  name: 'svc-storage-${now}'
+  scope: svcGroup
+  dependsOn: [
+    svcIdentity
+  ]
+  params: {
+    location: config.location
+    tags: tags
+
+    // Resource names
+    networkGroupName: networkGroupName
+    vnetName: vnetName
+    appsSubnetName: appsSubnetName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+    svcStorageAccountName: svcStorageAccountName
+    svcStorageDataProtectionContainerName: svcStorageDataProtectionContainerName
+  }
+}
+
+module svcVault 'keyvault.bicep' = {
+  name: 'svc-vault-${now}'
+  scope: svcGroup
+  dependsOn: [
+    svcIdentity
+  ]
+  params: {
+    location: config.location
+    tags: tags
+
+    // Resource names
+    networkGroupName: networkGroupName
+    vnetName: vnetName
+    appsSubnetName: appsSubnetName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+    svcVaultName: svcVaultName
+    svcVaultDataProtectionKeyName: svcVaultDataProtectionKeyName
+  }
+}
+
 var sqlDatabaseEnabled = contains(serviceDefaults, 'sqlDatabaseEnabled') ? serviceDefaults.sqlDatabaseEnabled : false
 
 module svcSql 'sql.bicep' = if (sqlDatabaseEnabled) {
@@ -152,6 +207,7 @@ module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
   scope: svcGroup
   dependsOn: [
     svcPlatform
+    svcVault
     svcSql
   ]
   params: {
@@ -181,6 +237,7 @@ module svcAppHttp 'app-http.bicep' = if (serviceDefaults.appType == 'http') {
   scope: svcGroup
   dependsOn: [
     svcPlatform
+    svcVault
     svcSql
   ]
   params: {
@@ -210,6 +267,7 @@ module svcAppPublic 'app-public.bicep' = if (serviceDefaults.appType == 'public'
   scope: svcGroup
   dependsOn: [
     svcPlatform
+    svcVault
     svcSql
   ]
   params: {
@@ -218,6 +276,8 @@ module svcAppPublic 'app-public.bicep' = if (serviceDefaults.appType == 'public'
     serviceName: serviceName
     buildNumber: buildNumber
     tags: tags
+    dataProtectionKeyUri: svcVault.outputs.dataProtectionKeyUri
+    dataProtectionBlobUri: svcStorage.outputs.dataProtectionBlobUri
 
     // Resource names
     platformGroupName: platformGroupName
