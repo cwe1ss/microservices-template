@@ -52,6 +52,6 @@ jobs:
       with:
         inlineScript: |
           Set-Location ./infrastructure
-          ./build-service.ps1 -ServiceName "${{ inputs.serviceName }}"" -ServicePath "${{ inputs.servicePath }}"" -HostProjectName "${{ inputs.hostProjectName }}"" -BuildNumber "${{ github.run_number }}"" -RegistryServer "${{ secrets.REGISTRY_SERVER }}"" -UploadArtifacts $env:UPLOAD_ARTIFACTS
+          ./build-service.ps1 -ServiceName "${{ inputs.serviceName }}" -ServicePath "${{ inputs.servicePath }}" -HostProjectName "${{ inputs.hostProjectName }}" -BuildNumber "${{ github.run_number }}" -RegistryServer "${{ secrets.REGISTRY_SERVER }}" -UploadArtifacts $env:UPLOAD_ARTIFACTS
         azPSVersion: "8.2.0"
 
