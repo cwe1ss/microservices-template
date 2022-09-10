@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.47.0" />
-    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.47.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.48.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Microsoft.AspNetCore.Grpc.HttpApi" Version="0.1.0-alpha.21317.5" />
     <PackageReference Include="Microsoft.AspNetCore.Grpc.Swagger" Version="0.1.0-alpha.21317.5" />
