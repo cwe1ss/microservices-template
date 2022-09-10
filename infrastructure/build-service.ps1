@@ -17,7 +17,7 @@ Param (
     [string]$RegistryServer,
 
     [Parameter(Mandatory=$false)]
-    [Switch]$UploadArtifacts
+    [bool]$UploadArtifacts
 )
 
 #$ServiceName = "internal-http-bus"
@@ -25,6 +25,7 @@ Param (
 #$HostProjectName = "InternalHttpBus.Api"
 #$BuildNumber = "1"
 #$RegistryServer = "labmsaregistry.azurecr.io"
+#$UploadArtifacts = $false
 
 $ErrorActionPreference = "Stop"
 

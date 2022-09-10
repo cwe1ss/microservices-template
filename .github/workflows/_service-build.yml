@@ -21,6 +21,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: azure/login@v1
+      if: github.event_name != 'pull_request'
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -28,6 +29,7 @@ jobs:
         enable-AzPSSession: true
 
     - name: Docker Login to ACR
+      if: github.event_name != 'pull_request'
       run: |
         set -euo pipefail
         access_token=$(az account get-access-token --query accessToken -o tsv)
@@ -43,6 +45,6 @@ jobs:
       with:
         inlineScript: |
           Set-Location ./infrastructure
-          ./build-service.ps1 -ServiceName ${{ inputs.serviceName }} -ServicePath ${{ inputs.servicePath }} -HostProjectName ${{ inputs.hostProjectName }} -BuildNumber ${{ github.run_number }} -RegistryServer ${{ secrets.REGISTRY_SERVER }} -UploadArtifacts
+          ./build-service.ps1 -ServiceName ${{ inputs.serviceName }} -ServicePath ${{ inputs.servicePath }} -HostProjectName ${{ inputs.hostProjectName }} -BuildNumber ${{ github.run_number }} -RegistryServer ${{ secrets.REGISTRY_SERVER }} -UploadArtifacts ${{ (github.event_name != 'pull_request') && '$true' || '$false' }}
         azPSVersion: "8.2.0"
 
