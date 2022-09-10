@@ -11,7 +11,7 @@ public static class DaprHelpers
     {
         return new CloudEvent<T>(message)
         {
-            Type = nameof(T)
+            Type = typeof(T).Name
         };
     }
 }
