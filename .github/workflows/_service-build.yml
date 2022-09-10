@@ -20,6 +20,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - run: echo '${{ github.event_name }}'
+
     - uses: azure/login@v1
       if: github.event_name != 'pull_request'
       with:
