@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Show GitHub context for debugging
+    - name: Show GitHub context for debugging   # TODO: Remove this step
       run: |
         echo 'event_name: ${{ github.event_name }}'
         echo 'ref: ${{ github.ref }}'
