@@ -1,12 +1,9 @@
 using System.Collections;
-using System.Globalization;
 using Dapr.Client;
-using Grpc.Net.ClientFactory;
 using InternalGrpc.Api;
 using InternalGrpcSqlBus.Api;
 using InternalGrpcSqlBus.Api.Domain;
 using Microsoft.EntityFrameworkCore;
-using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,53 +68,4 @@ app.MapCustomHealthCheckEndpoints();
 
 app.MapGet("/", () => "Hello from 'internal-grpc-sql-bus'").ExcludeFromDescription();
 
-app.MapPost("/publish-event1", async (DaprClient dapr) =>
-{
-    // We must manually construct the cloud event because the .NET SDK doesn't change the default "type" (com.dapr.event.sent)
-    var evt = DaprHelpers.CreateCloudEvent(new MyEvent1
-    {
-        Text1 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
-    });
-    await dapr.PublishEventAsync("pubsub", "test-topic", evt);
-    return Results.Ok();
-});
-
-app.MapPost("/publish-event2", async (DaprClient dapr) =>
-{
-    // We must manually construct the cloud event because the .NET SDK doesn't change the default "type" (com.dapr.event.sent)
-    var evt = DaprHelpers.CreateCloudEvent(new MyEvent2
-    {
-        Text2 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
-    });
-    await dapr.PublishEventAsync("pubsub", "test-topic", evt);
-    return Results.Ok();
-});
-
-app.MapPost("/publish-event3", async (DaprClient dapr) =>
-{
-    // We must manually construct the cloud event because the .NET SDK doesn't change the default "type" (com.dapr.event.sent)
-    var evt = DaprHelpers.CreateCloudEvent(new MyEvent3
-    {
-        Text3 = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
-    });
-    await dapr.PublishEventAsync("pubsub", "test-topic", evt);
-    return Results.Ok();
-});
-
 app.Run();
-
-
-record MyEvent1
-{
-    public string Text1 { get; set; } = string.Empty;
-}
-
-record MyEvent2
-{
-    public string Text2 { get; set; } = string.Empty;
-}
-
-record MyEvent3
-{
-    public string Text3 { get; set; } = string.Empty;
-}

@@ -18,6 +18,14 @@ var internalGrpcSqlBusInvoker = DaprClient.CreateInvocationInvoker("internal-grp
 builder.Services.AddTransient(_ => new InternalGrpcEntities.InternalGrpcEntitiesClient(internalGrpcInvoker));
 builder.Services.AddTransient(_ => new Customers.CustomersClient(internalGrpcSqlBusInvoker));
 
+// HTTP Clients
+var baseUrl = (Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost") + ":" + (Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3500");
+builder.Services.AddHttpClient("internal-http-bus", (httpClient) =>
+{
+    httpClient.BaseAddress = new Uri(baseUrl);
+    httpClient.DefaultRequestHeaders.Add("dapr-app-id", "internal-http-bus");
+});
+
 // Health checks
 builder.Services.AddHealthChecks();
 

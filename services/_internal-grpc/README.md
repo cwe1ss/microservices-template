@@ -1,1 +1,1 @@
-A simple internal gRPC server. Since it doesn't have any dependencies, it does not even use Dapr.
+A simple internal gRPC server. Since it doesn't depend on any external components, it does not even use Dapr.

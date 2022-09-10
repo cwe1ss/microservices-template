@@ -78,7 +78,8 @@ public class CustomersService : Customers.CustomersBase
 
         // Publish an event via Dapr pub/sub.
         // NOTE: To be safe, this would either require some kind of transactional outbox or to be called in a retry loop.
-
+        //
+        // We must manually construct the cloud event because the .NET SDK doesn't change the default "type" (com.dapr.event.sent)
         var evt = DaprHelpers.CreateCloudEvent(new CustomerCreatedEvent
         {
             CustomerId = customer.CustomerId,

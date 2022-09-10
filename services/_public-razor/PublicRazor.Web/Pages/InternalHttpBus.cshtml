@@ -1,0 +1,23 @@
+﻿@page
+@model PublicRazor.Web.Pages.InternalHttpBusModel
+@{
+}
+
+<h2>Customers received by <b>internal-http-bus</b></h2>
+<p>'internal-http-bus' subscribes to CustomerCreated-events from 'internal-grpc-sql-bus' and offers an HTTP endpoint to display the received customer ids.</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Customer ID</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var customerId in Model.CustomerIds)
+    {
+        <tr>
+            <td>@customerId</td>
+        </tr>
+    }
+    </tbody>
+</table>
