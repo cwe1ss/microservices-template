@@ -13,7 +13,7 @@ Param (
     [Parameter(Mandatory=$true)]
     [string]$BuildNumber,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$false)]
     [string]$RegistryServer,
 
     [Parameter(Mandatory=$false)]
@@ -96,7 +96,12 @@ Exec { dotnet publish "$projectFolder" -c Release --os linux --arch x64 -p:Publi
 ############################
 ""
 "Tagging docker image with Azure Container Registry"
-Exec { docker tag "$($containerImageName):$BuildNumber" "$RegistryServer/$($containerImageName):$BuildNumber" }
+
+if ($RegistryServer) {
+    Exec { docker tag "$($containerImageName):$BuildNumber" "$RegistryServer/$($containerImageName):$BuildNumber" }
+} else {
+    ".. SKIPPED (Parameter `$RegistryServer not set)"
+}
 
 
 ############################
