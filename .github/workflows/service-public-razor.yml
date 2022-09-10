@@ -1,10 +1,10 @@
-name: '_Public/Web'
+name: '_Public/Razor'
 
 on:
   workflow_dispatch:
   push:
     paths:
-    - services/_public-web/**
+    - services/_public-razor/**
 
 permissions:
   id-token: write
@@ -15,16 +15,16 @@ jobs:
     uses: ./.github/workflows/_service-build.yml
     secrets: inherit
     with:
-      serviceName: public-web
-      servicePath: services/_public-web
-      hostProjectName: PublicWeb
+      serviceName: public-razor
+      servicePath: services/_public-razor
+      hostProjectName: PublicRazor.Web
 
   deploy-development:
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
     secrets: inherit
     with:
-      service: public-web
+      service: public-razor
       environment: development
 
   # deploy-production:
@@ -32,5 +32,5 @@ jobs:
   #   uses: ./.github/workflows/_service-deploy.yml
   #   secrets: inherit
   #   with:
-  #     service: public-web
+  #     service: public-razor
   #     environment: production

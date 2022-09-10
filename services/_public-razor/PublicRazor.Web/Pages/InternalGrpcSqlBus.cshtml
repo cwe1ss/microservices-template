@@ -1,0 +1,33 @@
+﻿@page
+@model PublicRazor.Web.Pages.InternalGrpcSqlBusModel
+@{
+}
+
+<h2>Customers from <b>internal-grpc-sql-bus</b></h2>
+<p>Data is persisted in a SQL database!</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Entity ID</th>
+        <th>Display Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var customer in Model.Customers)
+    {
+        <tr>
+            <td>@customer.CustomerId</td>
+            <td>@customer.FullName</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<hr/>
+<h2>Create a new customer</h2>
+<form method="post">
+    Full name: <input asp-for="NewCustomerFullName" />
+    <input type="submit" />
+</form>
+

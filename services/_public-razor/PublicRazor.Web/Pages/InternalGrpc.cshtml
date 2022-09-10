@@ -1,0 +1,33 @@
+﻿@page
+@model PublicRazor.Web.Pages.InternalGrpcModel
+@{
+}
+
+<h2>Entities from <b>internal-grpc</b></h2>
+<p>Note that 'internal-grpc' persists data to in-memory only, so entities might not be returned if multiple instances are running or if they have been shut down.</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Entity ID</th>
+        <th>Display Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var entity in Model.Entities)
+    {
+        <tr>
+            <td>@entity.EntityId</td>
+            <td>@entity.DisplayName</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<hr/>
+<h2>Create a new entity</h2>
+<form method="post">
+    Display name: <input asp-for="NewEntityDisplayName" />
+    <input type="submit" />
+</form>
+

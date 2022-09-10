@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicWeb", "PublicWeb\PublicWeb.csproj", "{30608E6A-9B12-42E4-9B6B-074C4BA7D4F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicRazor.Web", "PublicRazor.Web\PublicRazor.Web.csproj", "{30608E6A-9B12-42E4-9B6B-074C4BA7D4F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "..\..\shared\Shared\Shared.csproj", "{D565BB3D-F73B-45A5-BEA8-B4DF9AFF938F}"
 EndProject

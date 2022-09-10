@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Web</title>
+</head>
+<body>
+<header>
+    <h1>Public/Razor Pages</h1>
+    <p>
+        <ul>
+            <li><a asp-page="/InternalGrpc">internal-grpc</a> (a simple gRPC server that holds data in-memory only)</li>
+            <li><a asp-page="/InternalGrpcSqlBus">internal-grpc-sql-bus</a> (a gRPC server that persists data in an Azure SQL database and publishes events to Azure Service Bus)</li>
+        </ul>
+    </p>
+    <hr/>
+</header>
+
+<main>
+    @RenderBody()
+</main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

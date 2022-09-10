@@ -41,9 +41,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_internal-grpc-sql-bus", "_
 		services\_internal-grpc-sql-bus\README.md = services\_internal-grpc-sql-bus\README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_public-web", "_public-web", "{ACD65BE0-F674-4E03-B2BF-37478C577C08}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_public-razor", "_public-razor", "{ACD65BE0-F674-4E03-B2BF-37478C577C08}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicWeb", "services\_public-web\PublicWeb\PublicWeb.csproj", "{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicRazor.Web", "services\_public-razor\PublicRazor.Web\PublicRazor.Web.csproj", "{DDA1D41A-B3C3-441D-9CB6-FBD6D98A35D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

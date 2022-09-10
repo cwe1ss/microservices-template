@@ -5,10 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.Tools" Version="2.48.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
     <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.1.8" />
   </ItemGroup>
 
@@ -17,6 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Protobuf Include="..\..\..\proto\_internal-grpc-sql-bus.proto" GrpcServices="Client">
+      <Link>Protos\_internal-grpc-sql-bus.proto</Link>
+    </Protobuf>
     <Protobuf Include="..\..\..\proto\_internal-grpc.proto" GrpcServices="Client">
       <Link>Protos\_internal-grpc.proto</Link>
     </Protobuf>

@@ -60,6 +60,8 @@ The template follows the **monorepo**-pattern by keeping all services in one Git
 
 CI/CD is done via **GitHub Actions**, which allows you to deploy all parts of the system with separate workflows.
 
+The repository is also integrated with [automatic dependency updates via GitHub Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates). Dependabot will automatically create pull requests whenever a dependency is updated (currently configured for NuGet only).
+
 ### Azure Managed Identity for GitHub Actions
 
 GitHub Actions uses a user-assigned managed identity to authenticate with Azure. The authentication leverages [federated credentials](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure) which means that there are no secrets stored in your GitHub repository!
