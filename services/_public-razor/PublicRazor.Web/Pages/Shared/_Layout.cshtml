@@ -11,8 +11,9 @@
     <h1>Public/Razor Pages</h1>
     <p>
         <ul>
-            <li><a asp-page="/InternalGrpc">internal-grpc</a> (a simple gRPC server that holds data in-memory only)</li>
-            <li><a asp-page="/InternalGrpcSqlBus">internal-grpc-sql-bus</a> (a gRPC server that persists data in an Azure SQL database and publishes events to Azure Service Bus)</li>
+            <li><a asp-page="/InternalGrpc">internal-grpc</a> (a simple gRPC API that holds data in-memory only)</li>
+            <li><a asp-page="/InternalGrpcSqlBus">internal-grpc-sql-bus</a> (a gRPC API that persists data in an Azure SQL database and publishes events to Azure Service Bus)</li>
+            <li><a asp-page="/InternalHttpBus">internal-http-bus</a> (a HTTP API that receives events from Azure Service Bus, stores them in-memory and publishes an HTTP endpoint with details about the events)</li>
         </ul>
     </p>
     <hr/>

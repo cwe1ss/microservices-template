@@ -46,7 +46,7 @@ app.MapPost("/receive-customer-created", [Topic("pubsub", "customer-created", $"
     return Results.Ok("Customer received");
 });
 
-app.MapPost("/receive-fallback", [Topic("pubsub", "test-topic")] ([FromBody] CloudEvent evt, ILogger<Program> logger) =>
+app.MapPost("/receive-fallback", [Topic("pubsub", "customer-created")] ([FromBody] CloudEvent evt, ILogger<Program> logger) =>
 {
     logger.LogWarning("Fallback event received: {evt}", evt);
 
