@@ -103,7 +103,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
         enabled: true
       }
       ingress: {
-        external: contains(serviceConfig.app, 'ingressExternal') ? serviceConfig.ingressExternal : false
+        external: contains(serviceConfig, 'ingressExternal') ? serviceConfig.ingressExternal : false
         targetPort: 80
         transport: 'auto'
       }
