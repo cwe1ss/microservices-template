@@ -19,8 +19,7 @@
     // * sqlDatabaseEnabled: Whether the service needs its own Azure SQL Database     (optional, defaults to false)
 
     "internal-grpc": {
-      "appType": "grpc",
-      "sqlDatabaseEnabled": false
+      "appType": "grpc"
     },
     "internal-grpc-sql-bus": {
       "appType": "grpc",
@@ -29,8 +28,7 @@
     },
     "internal-http-bus": {
       "appType": "http",
-      "serviceBusEnabled": true,
-      "sqlDatabaseEnabled": false
+      "serviceBusEnabled": true
     },
     "public-razor": {
       "appType": "public"
