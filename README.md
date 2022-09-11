@@ -262,7 +262,22 @@ The workflow is split into multiple stages:
 
 ## Add a new service
 
-TODO
+To add a new service you can either copy one of the built-in service templates in `./services/_*` or you can start from scratch.
+
+* Copy and paste the desired service template in `./services`.
+* Rename the service folder to your desired service name (remove the underscore, use only lowercase characters)
+* Rename files and folders in the service directory (solution file, project folder, project files)
+* Update paths in solution files (in service folder and in the global solution file)
+* Update namespaces in the C# files
+* Modify the code to fit your requirements
+* Ensure that the service `*.sln` and the global `*.sln` compile.
+* Update `./infrastructure/config.json` and add the service to the global `services`-section and to each environment in the `environments`-section.
+* Copy and paste the corresponding GitHub workflow file in `./.github/workflows`
+* Rename it to match `service-{your-service-name}.yml`
+* Update the workflow-file and replace the name and each occurence of a service name or path
+* Push the code to GitHub
+* Run the environments workflow `./github/workflows/environments.yml` (displayed as `2. Environments`) to update any shared dependencies (Dashboard, PubSub-component)
+* Run the service workflow and deploy the service to the desired environments.
 
 ## Add a new environment
 
@@ -288,3 +303,14 @@ If you want to delete all resources that have been created by this project, you 
 * Delete all secrets from your GitHub repository
 * Delete all environments from your GitHub repository
 * Delete any GitHub Actions workflow runs
+
+# Open TODOs
+
+* Custom domains and certificates are not yet supported for public services. I'm currently waiting for managed certificates which are on the team's roadmap.
+  * The custom domains and certificates currently either have to be added manually after deployment, or they have to be incorporated into the Bicep files by yourself.
+* The Dapr pubsub-component currently uses a SAS-based connection string since the Dapr sidecar can't yet use the managed identity.
+* The pubsub-component currently requires `Manage` permissions to automatically create topics and subscriptions. It might be better to use `disableEntityManagement` and create/update topics & subscriptions during deployment. This would make config.json more complex though, since developers would have to enter topics and subscriptions there and keep them current with the actual code.
+* There is no good local development story yet.
+  * You can try [Project Type](https://github.com/dotnet/tye) but I've had issues with the Dapr integration
+* It might be important to support referencing existing platform resources (Azure Container Registry, Log Analytics) for better integration with existing Azure infrastructure.
+* It might be important to support different Azure subscriptions per environment because the Container Apps limits currently are quite strict (e.g. only 4 app environments per subscription)

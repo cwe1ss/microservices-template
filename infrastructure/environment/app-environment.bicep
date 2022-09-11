@@ -92,7 +92,7 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
   }
 }
 
-// TODO Remove this?
+// TODO This is one of the few places where we currently need a connection string that doesn't use managed identities.
 resource pubsubComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-03-01' = {
   name: 'pubsub'
   parent: appEnv
