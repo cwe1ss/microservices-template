@@ -139,6 +139,7 @@ if ($isGlobalAdmin) {
 
 $config = Get-Content .\config.json | ConvertFrom-Json
 
+# Naming conventions
 $acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "")
 
 $environments = $config.environments | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name }

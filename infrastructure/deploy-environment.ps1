@@ -20,7 +20,6 @@ $config = Get-Content .\config.json | ConvertFrom-Json
 $envConfig = $config.environments | Select-Object -ExpandProperty $Environment
 
 # Naming conventions
-
 $sqlAdminAdGroupName = "$($envConfig.environmentResourcePrefix)-sql-admins"
 
 

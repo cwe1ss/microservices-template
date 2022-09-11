@@ -1,18 +1,35 @@
 {
+  // All resources will be deployed into this Azure region.
+  // You can get a list of all available region names via the PowerShell command `Get-AzLocation | Sort Location | Select DisplayName,Location`
   "location": "westeurope",
+
+  // Every resource in the 'platform'-group will use this name prefix.
+  // Note that some resources do not allow "-". In that case, the "-" will be removed.
+  // Keep this as short as possible, since some resource types have very short naming restrictions (e.g. 24 characters for storage accounts)
   "platformResourcePrefix": "lab-msa",
 
+  // Defines the environment-independent settings for each service.
   "services": {
+    // TEMPLATE_ADD_SERVICE: Each new service MUST be added here.
+    //
+    // Possible settings for each service:
+    // * appType: "grpc" | "http" | "public"  (required)
+    // * serviceBusEnabled: Whether the service needs to access Azure Service Bus.    (optional, defaults to false)
+    //   - The Dapr pubsub-component in the app environment will be scoped th these services.
+    // * sqlDatabaseEnabled: Whether the service needs its own Azure SQL Database     (optional, defaults to false)
+
     "internal-grpc": {
       "appType": "grpc",
       "sqlDatabaseEnabled": false
     },
     "internal-grpc-sql-bus": {
       "appType": "grpc",
+      "serviceBusEnabled": true,
       "sqlDatabaseEnabled": true
     },
     "internal-http-bus": {
       "appType": "http",
+      "serviceBusEnabled": true,
       "sqlDatabaseEnabled": false
     },
     "public-razor": {
@@ -21,12 +38,35 @@
   },
 
   "environments": {
+    // TEMPLATE_ADD_ENVIRONMENT: Each new environment MUST be added here.
+
     "development": {
+      // Every resource in the environment will use this name prefix.
+      // Note that some resources do not allow "-". In that case, the "-" will be removed.
+      // Keep this as short as possible, since some resource types have very short naming restrictions (e.g. 24 characters for storage accounts)
       "environmentResourcePrefix": "lab-msa-dev",
+
+      // Address prefix for the VNET. The container apps environment will be deployed into this VNET.
+      // Do not overlap this with any of your existing IP ranges if you plan to peer the VNET with your existing infrastructure.
       "vnetAddressPrefix": "10.130.0.0/16",
+
+      // The IP range for the container Apps environment. Must be part of the 'vnetAddressPrefix'.
       "appsSubnetAddressPrefix": "10.130.0.0/21",
 
+      // The list of services that should be deployed into this environment.
+      // (You do not have to deploy every service into every environment)
       "services": {
+        // TEMPLATE_ADD_SERVICE: Each service MAY be added to any environment it should be deployed to.
+        //
+        // Possible settings for each service:
+        // * app.cpu/app.memor: Must match a pre-defined combination. See https://docs.microsoft.com/en-us/azure/container-apps/containers#configuration
+        // * app.cpu: "0.25" | "0.5" | "0.75" | "1.0" | "1.25" | "1.5" | "1.75" | "2.0"                 (optional, defaults to "0.25")
+        // * app.memory: "0.5Gi" | "1.0Gi" | "1.5Gi" | "2.0Gi" | "2.5Gi" | "3.0Gi" | "3.5Gi" | "4.0Gi"  (optional, defaults to "0.5Gi")
+        // * app.minReplicas: Minimum number of container replicas that should always be running.       (optional, defaults to 0)
+        // * app.maxReplicas: Maximum number of container replicas.                                     (optional, defaults to 10)
+        // * app.concurrentRequests: A scale-out will happen when more concurrent requests occur        (optional, defaults to 10)
+        // * ingressExternal: Whether the service should have a public endpoint.                        (optional, defaults to false)
+
         "internal-grpc": {
           "app": {
             "cpu": "0.5",
@@ -63,6 +103,7 @@
         }
       }
     },
+
     "production": {
       "environmentResourcePrefix": "lab-msa-prod"
     }

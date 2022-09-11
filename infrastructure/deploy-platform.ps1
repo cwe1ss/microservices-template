@@ -9,6 +9,7 @@ $ErrorActionPreference = "Stop"
 
 $config = Get-Content .\config.json | ConvertFrom-Json
 
+# Naming conventions
 $githubAppName = "$($config.platformResourcePrefix)-github"
 
 

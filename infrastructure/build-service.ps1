@@ -38,6 +38,7 @@ $ErrorActionPreference = "Stop"
 $config = Get-Content .\config.json | ConvertFrom-Json
 $serviceDefaults = $config.services | Select-Object -ExpandProperty $ServiceName
 
+# Naming conventions
 $platformGroupName = "$($config.platformResourcePrefix)-platform"
 $storageAccountName = "$($config.platformResourcePrefix)sa".Replace("-", "")
 $sqlMigrationContainerName = 'sql-migration'
@@ -46,9 +47,6 @@ $containerImageName = "$($config.platformResourcePrefix)-$serviceName"
 
 $solutionFolder = (Get-Item (Join-Path "../" $ServicePath)).FullName
 $projectFolder = (Get-Item (Join-Path $solutionFolder $HostProjectName)).FullName
-
-Get-Item $solutionFolder | Out-Null
-Get-Item $projectFolder | Out-Null
 
 
 ############################
