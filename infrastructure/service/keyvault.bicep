@@ -65,8 +65,9 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enabledForDiskEncryption: false
     enabledForTemplateDeployment: false
     enableRbacAuthorization: true
-    enablePurgeProtection: true
+    enablePurgeProtection: false
     enableSoftDelete: true
+    softDeleteRetentionInDays: 30
     publicNetworkAccess: 'enabled'   // TODO disable public network access
     networkAcls: {
       bypass: 'None'
