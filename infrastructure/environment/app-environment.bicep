@@ -1,3 +1,10 @@
+// Deploys the "Container Apps Environment".
+// The "container app" for each service will be deployed into its own resource group by the service.
+//
+// The following resources will be deployed:
+// * An "Azure Container Apps environment", used to store all service apps.
+// * A Dapr "pubsub"-component for Azure Service Bus.
+
 param location string
 param tags object
 
@@ -15,6 +22,16 @@ param serviceBusName string
 param monitoringGroupName string
 param appInsightsName string
 param appEnvName string
+
+
+///////////////////////////////////
+// Configuration
+
+var config = loadJsonContent('./../config.json')
+
+var servicesWithServiceBusEnabled = map(filter(items(config.services), svc => contains(svc.value, 'serviceBusEnabled') && svc.value.serviceBusEnabled == true), svc => svc.key)
+
+output servicesWithServiceBusEnabled array = servicesWithServiceBusEnabled
 
 
 ///////////////////////////////////
@@ -95,5 +112,6 @@ resource pubsubComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-
         secretRef: 'pubsub-connection-string'
       }
     ]
+    scopes: servicesWithServiceBusEnabled
   }
 }
