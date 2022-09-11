@@ -55,6 +55,8 @@ Since these parts have a different lifecycle and might be managed by different p
 
 For this template, the **platform** contains the following resources that are shared by all environments and their services:
 
+![Azure platform resources](docs/azure-platform.png)
+
 ## GitHub repository / GitHub Actions
 The code for the microservices and the code for the deployment scripts is stored in a GitHub repository.
 
@@ -66,32 +68,32 @@ The repository is also integrated with [automatic dependency updates via GitHub 
 
 ## Azure Managed Identity for GitHub Actions
 
-GitHub Actions uses a user-assigned managed identity to authenticate with Azure. The authentication leverages [federated credentials](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure) which means that there are no secrets stored in your GitHub repository!
+GitHub Actions uses a user-assigned managed identity called `{platform}-github` to authenticate with Azure. The authentication leverages [federated credentials](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure) which means that there are no secrets stored in your GitHub repository!
 
 Note that this is the newest way to integrate GitHub with Azure and "federated credentials" for managed identities are currently not even displayed in the Azure Portal. You have to use "Export template" to see them.
 
 The alternative would have been to use a custom Azure AD application and service principal, but this would have moved more logic into Azure AD which can not be deployed via ARM/Bicep and they wouldn't be deleted if you delete the Azure resource groups. Creating applications also requires different permissions than creating managed identities.
-
-## Azure Container Registry
-
-Services are built using Docker and container images are stored in an Azure container registry.
-
-As no environment-specific logic should be included in a container image, we do not use an environment-specific registry.
-
-All services are given RBAC-based "AcrPull"-access to the container registry.
 
 ## Azure Log Analytics Workspace
 
 Microsoft recommends to start with a single workspace since this reduces the complexity of managing multiple workspaces and in querying data from them
 (https://docs.microsoft.com/en-us/azure/azure-monitor/logs/workspace-design).
 
-This template therefore uses one Log Analytics workspace that's shared by all services and environments.
+This template therefore uses one Log Analytics workspace called `{platform}-logs` that's shared by all services and environments.
 
 Each environment however uses its own "Application Insights"-instance (which are backed by the shared Log Analytics workspace)
 
+## Azure Container Registry
+
+Services are built using Docker and container images are stored in one global Azure container registry called `{platform}registry` (dashes are not allowed for container registries).
+
+As no environment-specific logic should be included in a container image, we do not use an environment-specific registry.
+
+All services are given RBAC-based "AcrPull"-access to the container registry.
+
 ## Azure Storage Account
 
-There is one global Azure Storage account that can be used for data that's needed by all environments and services.
+There is one global Azure Storage account called `{platform}sa` (dashes aren't allowed) that can be used for data that's needed by all environments and services.
 
 We currently use it to store the SQL migration scripts for services that use Entity Framework Core.
 
@@ -99,17 +101,21 @@ We currently use it to store the SQL migration scripts for services that use Ent
 
 An environment in our template consists of the following resources:
 
+![Azure environment resources](docs/azure-environment.png)
+
 ## Azure Virtual Network
 
-The Azure Container Apps environment is deployed into a custom VNET to allow you to configure Network Security Groups and to connect the VNET with your existing infrastructure.
+The Azure Container Apps environment is deployed into a custom VNET called `{env}-vnet` to allow you to configure Network Security Groups and to connect the VNET with your existing infrastructure.
 
 You can use VNET peering to connect the VNET to your hub if you use a [Hub-spoke network topology](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli)
+
+The VNET uses its own `{env}-network` resource group since it might require additional manual resources or RBAC permissions. It also might need to stay alive even when an entire environment should be deleted.
 
 ## Azure Container Apps environment
 
 To minimize the operations efforts, we use Azure Container Apps for hosting the microservices system.
 
-The Azure Container Apps environment is created in a `{env}-env`-resource group and is connected to the previously mentioned VNET.
+The Azure Container Apps environment is called `{env}-env` and is created in a `{env}-env`-resource group. The environment is connected to the previously mentioned VNET.
 
 The environment contains a Dapr "pubsub" component that allows services to use Azure Service Bus.
 
@@ -119,53 +125,61 @@ This template supports Azure SQL Database as the main data storage solution. Azu
 
 Azure SQL Database requires a logical "SQL Server"-resource, which will be shared by all databases. This allows you to enable "Microsoft Defender for SQL" and only pay for one sql server instance.
 
-Unfortunately, the databases and the logical server need to be in the same resource group. This means that service deployments have to add their database to the shared `{env}-sql` resource group.
+The SQL Server is called `{env}-sql` and is deployed into a `{env}-sql` resource group.
+
+The SQL server is configured to allow **Azure AD authentication only**. The server will use an Azure AD group called `{env}-sql-admins` as the "Azure Active Directory admin". You can therefore add multiple users to this AAD group if you want additional admins.
+
+The server is also assigned a user-assigned managed identity called `{env}-sql-admin` which is also added to the admins-group. It is used for authenticating incoming Azure AD authentications, for applying any SQL migrations scripts, and for adding the service-identities as users to the SQL databases.
+
+Unfortunately, the databases and the logical server need to be in the same resource group. This means that service deployments will add their database and deployment scripts to the shared `{env}-sql` resource group.
 
 ## Azure Service Bus namespace
 
 This template uses Azure Service Bus for asynchronous communication.
 
-A "Service Bus namespace" is shared by all services and placed in its own `{env}-bus` resource group.
+A "Service Bus namespace" called `{env}-bus` is shared by all services and placed in its own `{env}-bus` resource group.
 
 Topics and subscriptions are managed by the Dapr "pubsub"-component. Services can use this component to automatically create topics and subscriptions.
 
 ## Azure Application Insights
 
-An environment-specific Application Insights resource is created in a `{env}-monitoring`-resource group that stores its data in the global Log Analytics workspace, so monitoring for an environment can be done via both places.
+An environment-specific Application Insights resource called `{env}-appinsights` is created in a `{env}-monitoring`-resource group. The Application Insights resource stores its data in the global Log Analytics workspace, so monitoring for an environment can be done via both places.
 
 Having an Application Insights resource per environment allows you to get an environment-specific Application Map and allows for environment-specific alert rules, etc.
 
 ## Azure Dashboard
 
-A simple environment-specific dashboard is created that allows you to quickly get an overview about the resources in your environment.
+A simple environment-specific dashboard called `{env}-dashboard` is created in the `{env}-monitoring` resource group. The dashboard allows you to quickly get an overview about the resources in your environment.
 
-You can extend this dashboard by modifying the dashboard, exporting it to JSON and transforming it into the `./infrastructure/environment/monitoring.bicp`-file.
+You can extend this dashboard by modifying the dashboard, exporting it to JSON and incorporating it it into the `./infrastructure/environment/monitoring.bicp`-file.
 
 # Services
 
 Each service in our template consists of the following resources:
 
+![Azure service resources](docs/azure-service.png)
+
 ## Azure managed identity
 
-A user-assigned identity is created for each service. This identity will be used to access any of its Azure dependencies, like its SQL database or its Azure Key Vault.
+A user-assigned identity `{env}-{service}` is created for each service. This identity will be used to access any of its Azure dependencies, like its SQL database or its Azure Key Vault.
 
 The identity will also be assigned the "AcrPull"-role on the global Azure Container Registry, so that Container Apps can pull the image without using a legacy registry password.
 
 ## Azure Key Vault
 
-Each service is given its own Azure Key Vault.
+Each service is given its own Azure Key Vault called `{env}{servic}` (dashes are not allowed for Key Vault names).
 
 The Key Vault is currently used to encrypt/decrypt the "ASP.NET Core Data Protection"-keys but it can also be used for additional custom keys/secrets/certificates.
 
 ## Azure Storage Account
 
-Each service is given its own Azure Storage account to store service-specific blobs & files.
+Each service is given its own Azure Storage account called `{env}{service}` (dashes are not allowed for Storage Account names) to store service-specific blobs & files.
 
 The storage account is currently used to store the "ASP.NET Core Data Protection" keys. This is necessary to support Data Protection for apps that use multiple instances.
 
 ## Azure Container Apps app
 
-The app itself is hosted in an Azure Container App. The app will be placed in the service resource group, but it's connected to the environment-specific "Azure Container App environment".
+The app itself is hosted in an Azure Container App. The app is called `{env}{service}` (truncated to 24 characters) and is connected to the environment-specific "Azure Container App environment".
 
 We support different kinds of services (`./infrastructure/config.json`) that result in differently configured "Container Apps" (e.g. internal grpc, internal http, public endpoint)
 
