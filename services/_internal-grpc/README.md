@@ -1,1 +1,3 @@
-A simple internal gRPC server. Since it doesn't depend on any external components, it does not even use Dapr.
+A simple internal gRPC server that:
+* exposes a gRPC service for listing/creating "entitites" (will be used by "internal-grpc-sql-bus" and "public-razor").
+* does not have any external dependencies, so it does not even use Dapr.

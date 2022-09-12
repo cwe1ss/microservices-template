@@ -167,7 +167,7 @@ The identity will also be assigned the "AcrPull"-role on the global Azure Contai
 
 ## Azure Key Vault
 
-Each service is given its own Azure Key Vault called `{env}{servic}` (dashes are not allowed for Key Vault names).
+Each service is given its own Azure Key Vault called `{env}{service}` (dashes are not allowed for Key Vault names).
 
 The Key Vault is currently used to encrypt/decrypt the "ASP.NET Core Data Protection"-keys but it can also be used for additional custom keys/secrets/certificates.
 
@@ -280,7 +280,14 @@ The workflow is split into multiple stages:
 
 ## Add a new service
 
-To add a new service you can either copy one of the built-in service templates in `./services/_*` or you can start from scratch.
+The template contains the following service templates, located in `./services` (service templates start with an underscore):
+
+* **internal-grpc:** An internal gRPC server that does not use any external dependencies (no SQL database, no Azure Service Bus)
+* **internal-grpc-sql-bus:** An internal gRPC server that stores data in Azure SQL Database and uses Azure Service Bus to publish events
+* **internal-http-bus:** An internal HTTP API that subscribes to events from "internal-grpc-sql-bus" and exposes information about them in a HTTP endpoint
+* **public-razor:** A public ASP.NET Core Razor Pages website that communicates with the internal services.
+
+To add a new service you can either copy one of the built-in service templates in `./services` or you can start from scratch.
 
 * Copy and paste the desired service template in `./services`.
 * Rename the service folder to your desired service name (remove the underscore, use only lowercase characters)
