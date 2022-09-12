@@ -18,16 +18,20 @@ The template uses the following technologies:
 
 ### Highlights:
 
-* **(Almost) no secrets**
-  * Wherever possible, authentication is done via Azure AD and managed identities. This includes GitHub Actions & Azure SQL Database access.
 * **Script for connecting GitHub with Azure**
   * With one script, all the necessary resources are created in your GitHub repository and in your Azure account to allow you to deploy from GitHub to Azure.
   * Authentication is done via an Azure AD managed identity and deployments are done via GitHub environments that allow you to set up protection rules (e.g. required reviewers, ...).
+* **Sample services for different use cases**
+  * An internal gRPC service without any external dependencies
+  * An internal gRPC service with Azure SQL Database, Azure Service Bus, and service-to-service communication
+  * An internal HTTP service with Azure Service Bus
+  * A public Razor Pages website that communicates with the internal services
 * **Fully automated SQL migrations during deployment**
   * The service's identity is automatically added to the SQL database with db_datareader/db_datawriter permissions.
   * EF Core Migrations are automatically applied during deployment by an admin identity with elevated privileges.
-* **Sample services for different use cases**
-  * gRPC, HTTP APIs, SQL DB, Publish/Subscribe
+  * This means you can deploy a SQL-based service and immediately use it without any manual steps.
+* **(Almost) no passwords/secrets**
+  * Wherever possible, authentication is done via Azure AD, managed identities, and [federated credentials](https://docs.microsoft.com/en-us/graph/api/resources/federatedidentitycredentials-overview). This includes GitHub Actions & access to Azure SQL Database.
 
 # Overview
 
