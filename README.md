@@ -331,4 +331,4 @@ If you want to delete all resources that have been created by this project, you 
 * There is no good local development story yet.
   * You can try [Project Type](https://github.com/dotnet/tye) but I've had issues with the Dapr integration
 * It might be important to support referencing existing platform resources (Azure Container Registry, Log Analytics) for better integration with existing Azure infrastructure.
-* It might be important to support different Azure subscriptions per environment because the Container Apps limits currently are quite strict (e.g. only 4 app environments per subscription)
+* It might be important to support different Azure subscriptions per environment because the Container Apps limits currently are quite strict (e.g. only 5 app environments per subscription)
