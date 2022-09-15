@@ -10,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // Swagger
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Application Insights
@@ -25,7 +24,6 @@ builder.Services.AddGrpc(options =>
     options.EnableDetailedErrors = true;
 });
 builder.Services.AddGrpcReflection();
-builder.Services.AddGrpcHttpApi();
 builder.Services.AddGrpcSwagger();
 
 // gRPC Clients
