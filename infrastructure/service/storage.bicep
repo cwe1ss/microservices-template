@@ -51,11 +51,13 @@ resource svcStorageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   tags: tags
   kind: 'StorageV2'
   sku: {
-    name: 'Standard_LRS'
+    name: 'Standard_ZRS'
   }
   properties: {
     accessTier: 'Hot'
     minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    allowBlobPublicAccess: false
     networkAcls: {
       defaultAction: 'Deny'
       bypass: 'None'
@@ -64,6 +66,17 @@ resource svcStorageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
           id: networkSubnetApps.id
         }
       ]
+    }
+  }
+
+  resource blobServices 'blobServices' = {
+    name: 'default'
+    properties: {
+      deleteRetentionPolicy: {
+        enabled: true
+        allowPermanentDelete: true
+        days: 7
+      }
     }
   }
 }
