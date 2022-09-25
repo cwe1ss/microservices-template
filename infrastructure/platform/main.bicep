@@ -1,6 +1,9 @@
 targetScope = 'subscription'
 
 param now string = utcNow()
+param deployGitHubIdentity bool
+param githubRepoNameWithOwner string = ''
+param githubDefaultBranchName string = ''
 
 
 ///////////////////////////////////
@@ -21,24 +24,38 @@ var githubIdentityName = replace(names.githubIdentityName, '{platform}', config.
 var platformGroupName = replace(names.platformGroupName, '{platform}', config.platformAbbreviation)
 var platformContainerRegistryName = replace(replace(names.platformContainerRegistryName, '{platform}', config.platformAbbreviation), '-', '')
 var platformLogsName = replace(names.platformLogsName, '{platform}', config.platformAbbreviation)
-var platformStorageAccountName = replace(names.platformStorageAccountName, '{platform}', config.platformAbbreviation)
-
-
-///////////////////////////////////
-// Existing resources
-
-@description('The platform resource group - must be created by using the `init-platform.ps1`-script before an automated platform-deployment can be run.')
-resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-  name: platformGroupName
-}
+var platformStorageAccountName = toLower(replace(replace(names.platformStorageAccountName, '{platform}', config.platformAbbreviation), '-', ''))
 
 
 ///////////////////////////////////
 // New resources
 
+resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: platformGroupName
+  location: config.location
+  tags: tags
+}
+
+@description('The managed identity that will be used by GitHub to deploy Azure resources')
+module githubIdentity 'github-identity.bicep' = if (deployGitHubIdentity) {
+  name: 'platform-github-${now}'
+  params: {
+    tags: tags
+    githubRepoNameWithOwner: githubRepoNameWithOwner
+    githubDefaultBranchName: githubDefaultBranchName
+
+    // Resource names
+    githubIdentityName: githubIdentityName
+    platformGroupName: platformGroup.name
+  }
+}
+
 module platformResources 'resources.bicep' = {
   name: 'platform-${now}'
   scope: platformGroup
+  dependsOn: [
+    githubIdentity
+  ]
   params: {
     location: config.location
     tags: tags
@@ -51,3 +68,8 @@ module platformResources 'resources.bicep' = {
     sqlMigrationContainerName: names.platformSqlMigrationStorageContainerName
   }
 }
+
+
+output githubIdentityClientId string = deployGitHubIdentity ? githubIdentity.outputs.githubIdentityClientId : ''
+output githubIdentityPrincipalId string = deployGitHubIdentity ? githubIdentity.outputs.githubIdentityPrincipalId : ''
+output platformContainerRegistryUrl string = platformResources.outputs.platformContainerRegistryUrl

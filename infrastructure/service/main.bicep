@@ -29,7 +29,7 @@ var tags = {
 // Platform
 var platformGroupName = replace(names.platformGroupName, '{platform}', config.platformAbbreviation)
 var platformContainerRegistryName = replace(replace(names.platformContainerRegistryName, '{platform}', config.platformAbbreviation), '-', '')
-var platformStorageAccountName = replace(names.platformStorageAccountName, '{platform}', config.platformAbbreviation)
+var platformStorageAccountName = toLower(replace(replace(names.platformStorageAccountName, '{platform}', config.platformAbbreviation), '-', ''))
 
 // Environment: Network
 var networkGroupName = replace(names.networkGroupName, '{environment}', envConfig.environmentAbbreviation)

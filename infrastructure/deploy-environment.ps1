@@ -21,7 +21,7 @@ $config = Get-Content .\config.json | ConvertFrom-Json
 $envConfig = $config.environments | Select-Object -ExpandProperty $Environment
 
 # Naming conventions
-$sqlAdminAdGroupName = $($names.sqlAdminAdGroupName).Replace("{environment", $envConfig.environmentAbbreviation)
+$sqlAdminAdGroupName = $($names.sqlAdminAdGroupName).Replace("{environment}", $envConfig.environmentAbbreviation)
 
 
 ############################
@@ -41,6 +41,5 @@ New-AzSubscriptionDeployment `
     -TemplateParameterObject @{
         environment = $Environment
         sqlAdminAdGroupId = $sqlAdminAdGroup.Id
-        sqlAdminAdGroupName = $sqlAdminAdGroup.DisplayName
     } `
     -Verbose | Out-Null

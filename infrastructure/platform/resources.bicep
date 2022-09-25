@@ -29,29 +29,42 @@ resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleD
 ///////////////////////////////////
 // New resources
 
-resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource platformStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: platformStorageAccountName
   location: location
   tags: tags
   kind: 'StorageV2'
   sku: {
-    name: 'Standard_LRS'
+    name: 'Standard_ZRS'
   }
   properties: {
     accessTier: 'Hot'
     minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    allowBlobPublicAccess: false
+  }
+
+  resource blobServices 'blobServices' = {
+    name: 'default'
+    properties: {
+      deleteRetentionPolicy: {
+        enabled: true
+        allowPermanentDelete: true
+        days: 7
+      }
+    }
   }
 }
 
 @description('A blob container that will be used to store any SQL migration scripts for all services')
 resource sqlMigrationContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: '${storage.name}/default/${sqlMigrationContainerName}'
+  name: '${platformStorageAccount.name}/default/${sqlMigrationContainerName}'
 }
 
 @description('Allows GitHub to upload artifacts to the storage account')
 resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid('githubStorageContributor', storage.id, githubIdentity.id)
-  scope: storage
+  name: guid('githubStorageContributor', platformStorageAccount.id, githubIdentity.id)
+  scope: platformStorageAccount
   properties: {
     roleDefinitionId: storageBlobDataContributorRoleDefinition.id
     principalId: githubIdentity.properties.principalId
@@ -60,7 +73,7 @@ resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' 
 }
 
 @description('The container registry will store all container images for all services')
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
+resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   name: platformContainerRegistryName
   location: location
   tags: tags
@@ -73,7 +86,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' =
 }
 
 @description('One global log analytics workspace is used to simplify the operations and querying')
-resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: platformLogsName
   location: location
   tags: tags
@@ -84,3 +97,5 @@ resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
     }
   }
 }
+
+output platformContainerRegistryUrl string = platformContainerRegistry.properties.loginServer

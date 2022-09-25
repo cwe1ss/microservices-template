@@ -7,6 +7,7 @@ param environment string
 ///////////////////////////////////
 // Configuration
 
+var names = loadJsonContent('./../names.json')
 var config = loadJsonContent('./../config.json')
 var envConfig = config.environments[environment]
 
@@ -19,8 +20,8 @@ var tags = {
 ///////////////////////////////////
 // Resource names
 
-var sqlGroupName = '${envConfig.environmentAbbreviation}-sql'
-var sqlServerAdminUserName = '${envConfig.environmentAbbreviation}-sql-admin'
+var sqlGroupName = replace(names.sqlGroupName, '{environment}', envConfig.environmentAbbreviation)
+var sqlServerAdminUserName = replace(names.sqlServerAdminName, '{environment}', envConfig.environmentAbbreviation)
 
 
 ///////////////////////////////////
@@ -35,7 +36,7 @@ resource sqlGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 @description('The managed identity that will be used by the SQL server')
 module sqlIdentity 'sql-identity-resources.bicep' = {
-  name: 'init-sql-${now}'
+  name: 'sql-${now}'
   scope: sqlGroup
   params: {
     location: config.location

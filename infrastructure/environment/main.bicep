@@ -4,7 +4,6 @@ targetScope = 'subscription'
 
 param now string = utcNow()
 param environment string
-param sqlAdminAdGroupName string
 param sqlAdminAdGroupId string
 
 
@@ -41,6 +40,7 @@ var monitoringDashboardName = replace(names.monitoringDashboardName, '{environme
 var sqlGroupName = replace(names.sqlGroupName, '{environment}', envConfig.environmentAbbreviation)
 var sqlServerAdminUserName = replace(names.sqlServerAdminName, '{environment}', envConfig.environmentAbbreviation)
 var sqlServerName = replace(names.sqlServerName, '{environment}', envConfig.environmentAbbreviation)
+var sqlAdminAdGroupName = replace(names.sqlAdminAdGroupName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Service Bus
 var serviceBusGroupName = replace(names.serviceBusGroupName, '{environment}', envConfig.environmentAbbreviation)
@@ -127,7 +127,6 @@ module sqlResources 'sql.bicep' = {
     location: config.location
     tags: tags
     sqlAdminAdGroupId: sqlAdminAdGroupId
-    sqlAdminAdGroupName: sqlAdminAdGroupName
 
     // Resource names
     networkGroupName: networkGroupName
@@ -135,6 +134,7 @@ module sqlResources 'sql.bicep' = {
     networkSubnetAppsName: names.networkSubnetAppsName
     sqlServerName: sqlServerName
     sqlServerAdminUserName: sqlServerAdminUserName
+    sqlAdminAdGroupName: sqlAdminAdGroupName
   }
 }
 

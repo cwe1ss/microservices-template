@@ -4,22 +4,25 @@
   // {environment}
   // {service}
   // {buildNumber}
+  //
+  // Common abbreviation examples:
+  // https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
-  "githubIdentityName": "{platform}-github",
+  "githubIdentityName": "{platform}-github-id",
 
   "platformGroupName": "{platform}-platform",
-  "platformContainerRegistryName": "{platform}registry",
-  "platformLogsName": "{platform}-logs",
-  "platformStorageAccountName": "{platform}sa",
+  "platformContainerRegistryName": "{platform}cr",
+  "platformLogsName": "{platform}-log",
+  "platformStorageAccountName": "{platform}st",
 
   "platformSqlMigrationStorageContainerName": "sql-migration",
 
   "networkGroupName": "{environment}-network",
   "networkVnetName": "{environment}-vnet",
-  "networkSubnetAppsName": "apps",
+  "networkSubnetAppsName": "apps-snet",
 
   "monitoringGroupName": "{environment}-monitoring",
-  "monitoringAppInsightsName": "{environment}-appinsights",
+  "monitoringAppInsightsName": "{environment}-appi",
   "monitoringDashboardName": "{environment}-dashboard",
 
   "serviceBusGroupName": "{environment}-bus",
@@ -27,20 +30,20 @@
 
   "sqlGroupName": "{environment}-sql",
   "sqlServerName": "{environment}-sql",
-  "sqlServerAdminName": "{environment}-sql-admin",
+  "sqlServerAdminName": "{environment}-sql-admin-id",
   "sqlAdminAdGroupName": "{environment}-sql-admins",
 
   "appEnvironmentGroupName": "{environment}-env",
   "appEnvironmentName": "{environment}-env",
 
   "svcGroupName": "{environment}-svc-{service}",
-  "svcUserName": "{environment}-{service}",
+  "svcUserName": "{environment}-{service}-id",
   "svcAppName": "{environment}-{service}",
-  "svcKeyVaultName": "{environment}{service}",
-  "svcStorageAccountName": "{environment}{service}",
-  "svcSqlDatabaseName": "{environment}-{service}",
-  "svcSqlDeployUserScriptName": "{environment}-{service}-deploy-user",
-  "svcSqlDeployMigrationScriptName": "{environment}-{service}-deploy-migration",
+  "svcKeyVaultName": "{environment}{service}kv",
+  "svcStorageAccountName": "{environment}{service}st",
+  "svcSqlDatabaseName": "{environment}-{service}-sqldb",
+  "svcSqlDeployUserScriptName": "{environment}-{service}-sqldb-user-script",
+  "svcSqlDeployMigrationScriptName": "{environment}-{service}-sqldb-migration-script",
 
   "svcDataProtectionStorageContainerName": "data-protection",
   "svcDataProtectionKeyName": "data-protection",

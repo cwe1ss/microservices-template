@@ -18,5 +18,6 @@ New-AzSubscriptionDeployment `
     -Name ("platform-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
     -TemplateFile .\platform\main.bicep `
     -TemplateParameterObject @{
+        deployGitHubIdentity = $false
     } `
     -Verbose | Out-Null

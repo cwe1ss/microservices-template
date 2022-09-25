@@ -3,7 +3,6 @@
 
 param location string
 param tags object
-param sqlAdminAdGroupName string
 param sqlAdminAdGroupId string
 
 
@@ -15,6 +14,7 @@ param networkVnetName string
 param networkSubnetAppsName string
 param sqlServerAdminUserName string
 param sqlServerName string
+param sqlAdminAdGroupName string
 
 
 ///////////////////////////////////

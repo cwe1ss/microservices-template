@@ -1,26 +1,13 @@
 targetScope = 'subscription'
 
 param now string = utcNow()
-
+param tags object
 param githubRepoNameWithOwner string
 param githubDefaultBranchName string
 
-
-///////////////////////////////////
-// Configuration
-
-var config = loadJsonContent('./../config.json')
-
-var tags = {
-  product: config.platformAbbreviation
-}
-
-
-///////////////////////////////////
 // Resource names
-
-var platformGroupName = '${config.platformAbbreviation}-platform'
-var githubIdentityName = '${config.platformAbbreviation}-github'
+param platformGroupName string
+param githubIdentityName string
 
 
 ///////////////////////////////////
@@ -38,23 +25,20 @@ resource userAccessAdministratorRoleDefinition 'Microsoft.Authorization/roleDefi
   name: '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
 }
 
+resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  name: platformGroupName
+}
+
 
 ///////////////////////////////////
 // New resources
 
-@description('The platform group contains environment-independent resources')
-resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: platformGroupName
-  location: config.location
-  tags: tags
-}
-
 @description('The managed identity that will be used by GitHub to deploy Azure resources')
 module githubIdentity 'github-identity-resources.bicep' = {
-  name: 'init-gh-${now}'
+  name: 'platform-github-${now}'
   scope: platformGroup
   params: {
-    location: config.location
+    location: platformGroup.location
     tags: tags
     githubRepoNameWithOwner: githubRepoNameWithOwner
     githubDefaultBranchName: githubDefaultBranchName

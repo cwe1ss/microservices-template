@@ -1,24 +1,29 @@
 [CmdletBinding()]
 Param ()
 
-"This script will set up the connection between your current GitHub repository and your current Azure account to allow for automated deployments."
+"This script will set up the initial resources in your Azure Account and in your GitHub repository to allow for automated deployments."
 ""
 "IMPORTANT: You must be a 'Global Administrator' in your Azure tenant and you must have admin rights in your GitHub repository to execute this script!"
 ""
 "Changes to your Azure account:"
 ""
-"* A managed identity '{platform}-github' will be created"
+"* The shared platform resources will be created"
+"  - A platform resource group '{platform}-platform'"
+"  - A platform storage account '{platform}st'"
+"  - A platform container registry '{platform}cr'"
+""
+"* A managed identity '{platform}-github-id' will be created in the platform resource group"
 "  - The identity will be used by GitHub Actions to deploy resources to Azure"
 "  - The identity will be given 'Contributor' and 'User Access Administrator' roles in your current Azure subscription"
 "  - The identity will be given the AAD permission 'Group.Read.All'"
 ""
-"* A managed identity '{env}-sql-admin' will be created per environment (as configured in 'config.json')"
+"* A managed identity '{env}-sql-admin-id' will be created per environment (as configured in 'config.json')"
 "  - The identity will later be used by the SQL server to allow for Azure AD-based authentication"
 "  - The identity will be given the AAD permissions 'Application.Read.All', 'GroupMember.Read.All', 'User.Read.All'"
 ""
 "* An AAD group '{env}-sql-admins' will be created per environment (as configured in 'config.json')"
 "  - This group will later be set as the SQL server admin to allow for AAD based management of SQL admins"
-"  - The '{env}-sql-admin' identity will be added to the group as the first member"
+"  - The '{env}-sql-admin-id' identity will be added to the group as the first member"
 "  - You can add additional admins to this group later"
 ""
 "Changes to your GitHub repository:"
@@ -27,7 +32,7 @@ Param ()
 "  - You will be set as a required reviewer to prevent unindentional deployments"
 "  - You can manually change the protection rules later (Changes will NOT be overwritten if you call this script again afterwards)"
 ""
-"* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given Azure AD application)"
+"* Your GitHub repository will be configured with the necessary secrets (to authenticate as the given managed identity)"
 ""
 "NOTE: It is safe to run this script multiple times (e.g. when you add an environment)."
 ""
@@ -137,11 +142,8 @@ if ($isGlobalAdmin) {
 ""
 "Loading config"
 
+$names = Get-Content .\names.json | ConvertFrom-Json
 $config = Get-Content .\config.json | ConvertFrom-Json
-
-# Naming conventions
-$acrName = "$($config.platformAbbreviation)registry.azurecr.io".Replace("-", "")
-
 $environments = $config.environments | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name }
 
 $githubIdentityMsGraphPermissions = @(
@@ -160,32 +162,33 @@ Write-Success "Config loaded"
 
 ############################
 ""
-"---------------"
-"GitHub identity"
-"---------------"
+"------------------------"
+"Azure platform resources"
+"------------------------"
 ""
-"Creating Azure resources for GitHub identity (this may take a minute)"
+"Creating Azure platform resources (this may take a minute)"
 
-$deployment = New-AzSubscriptionDeployment `
+$platformDeployment = New-AzSubscriptionDeployment `
     -Location $config.location `
-    -Name ("init-gh-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-    -TemplateFile .\init\github-identity.bicep `
+    -Name ("init-platform-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
+    -TemplateFile .\platform\main.bicep `
     -TemplateParameterObject @{
-        githubRepoNameWithOwner = $($ghRepo.nameWithOwner)
+        deployGitHubIdentity = $true
+        githubRepoNameWithOwner = $ghRepo.nameWithOwner
         githubDefaultBranchName = $ghRepo.defaultBranchRef.name
     }
 
-Write-Success "GitHub identity resources deployed"
+Write-Success "Azure platform resources deployed"
 
 # AAD replicates data so future queries might not immediately recognize the newly created object
 $githubIdentity = $null
 for ($i=1; $i -le 12; $i++) {
-    $githubIdentity = Get-AzADServicePrincipal -ObjectId $deployment.Outputs.githubIdentityPrincipalId.Value -ErrorAction Ignore
+    $githubIdentity = Get-AzADServicePrincipal -ObjectId $platformDeployment.Outputs.githubIdentityPrincipalId.Value -ErrorAction Ignore
     if ($githubIdentity) {
-        if ($i -gt 1) { Write-Success "Identity found in Azure AD API" }
+        if ($i -gt 1) { Write-Success "GitHub identity found in Azure AD API" }
         break
     } else {
-        "  Identity not yet available in Azure AD API. Waiting for 10 seconds"
+        "  GitHub identity not yet available in Azure AD API. Waiting for 10 seconds"
         Start-Sleep -Seconds 10
     }
 }
@@ -236,8 +239,7 @@ foreach ($environment in $environments) {
     #$environment = "development"
 
     $envConfig = $config.environments | Select-Object -ExpandProperty $environment
-
-    $sqlAdminAdGroupName = "$($envConfig.environmentAbbreviation)-sql-admins"
+    $sqlAdminAdGroupName = $($names.sqlAdminAdGroupName).Replace("{environment}", $envConfig.environmentAbbreviation)
 
     ############################
     ""
@@ -255,10 +257,10 @@ foreach ($environment in $environments) {
     ""
     "Environment '$environment': Creating SQL identity (this may take a minute)"
 
-    $deployment = New-AzSubscriptionDeployment `
+    $sqlDeployment = New-AzSubscriptionDeployment `
         -Location $config.location `
         -Name ("init-sql-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
-        -TemplateFile .\init\sql-identity.bicep `
+        -TemplateFile .\environment\sql-identity.bicep `
         -TemplateParameterObject @{
             environment = $environment
         }
@@ -268,7 +270,7 @@ foreach ($environment in $environments) {
     # AAD replicates data so future queries might not immediately recognize the newly created object
     $sqlIdentity = $null
     for ($i=1; $i -le 12; $i++) {
-        $sqlIdentity = Get-AzADServicePrincipal -ObjectId $deployment.Outputs.sqlIdentityPrincipalId.Value -ErrorAction Ignore
+        $sqlIdentity = Get-AzADServicePrincipal -ObjectId $sqlDeployment.Outputs.sqlIdentityPrincipalId.Value -ErrorAction Ignore
         if ($sqlIdentity) {
             if ($i -gt 1) { Write-Success "Identity found in AAD API" }
             break
@@ -371,8 +373,8 @@ Exec { gh secret set "AZURE_CLIENT_ID" -b $githubIdentity.AppId }
 Exec { gh secret set "AZURE_SUBSCRIPTION_ID" -b $((Get-AzContext).Subscription.Id) }
 Exec { gh secret set "AZURE_TENANT_ID" -b $((Get-AzContext).Subscription.TenantId) }
 
-Exec { gh secret set "REGISTRY_SERVER" -b $acrName }
+Exec { gh secret set "REGISTRY_SERVER" -b $platformDeployment.Outputs.platformContainerRegistryUrl.Value }
 
 
 ""
-"Script finished. Push your code to your GitHub repository and use GitHub Actions to deploy the 'Platform'-resources next."
+"Script finished. Push your code to your GitHub repository and use GitHub Actions to deploy the 'Environment'-resources next."

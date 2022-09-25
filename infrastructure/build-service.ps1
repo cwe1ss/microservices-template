@@ -14,9 +14,6 @@ Param (
     [string]$BuildNumber,
 
     [Parameter(Mandatory=$false)]
-    [string]$RegistryServer,
-
-    [Parameter(Mandatory=$false)]
     [bool]$UploadArtifacts
 )
 
@@ -24,7 +21,6 @@ Param (
 #$ServicePath = "services/_internal-http-bus"
 #$HostProjectName = "InternalHttpBus.Api"
 #$BuildNumber = "1"
-#$RegistryServer = "labmsaregistry.azurecr.io"
 #$UploadArtifacts = $false
 
 $ErrorActionPreference = "Stop"
@@ -35,15 +31,19 @@ $ErrorActionPreference = "Stop"
 ""
 "Loading config"
 
+$names = Get-Content .\names.json | ConvertFrom-Json
 $config = Get-Content .\config.json | ConvertFrom-Json
 $serviceDefaults = $config.services | Select-Object -ExpandProperty $ServiceName
 
 # Naming conventions
-$platformGroupName = "$($config.platformAbbreviation)-platform"
-$storageAccountName = "$($config.platformAbbreviation)sa".Replace("-", "")
-$sqlMigrationContainerName = 'sql-migration'
-$containerImageName = "$($config.platformAbbreviation)-$serviceName"
+$platformGroupName = $($names.platformGroupName).Replace("{platform}", $config.platformAbbreviation)
+$platformContainerRegistryName = $($names.platformContainerRegistryName).Replace("{platform}", $config.platformAbbreviation).Replace("-", "")
+$platformStorageAccountName = $($names.platformStorageAccountName).Replace("{platform}", $config.platformAbbreviation).Replace("-", "").ToLower()
+$platformSqlMigrationStorageContainerName = $names.platformSqlMigrationStorageContainerName
+$svcArtifactContainerImageName = $($names.svcArtifactContainerImageName).Replace("{platform}", $config.platformAbbreviation).Replace("{service}", $serviceName)
+$svcArtifactSqlMigrationFile = $($names.svcArtifactSqlMigrationFile).Replace("{platform}", $config.platformAbbreviation).Replace("{service}", $serviceName).Replace("{buildNumber}", $BuildNumber)
 
+$registryServer = $platformContainerRegistryName + '.azurecr.io'
 
 $solutionFolder = (Get-Item (Join-Path "../" $ServicePath)).FullName
 $projectFolder = (Get-Item (Join-Path $solutionFolder $HostProjectName)).FullName
@@ -88,17 +88,17 @@ if ($serviceDefaults.sqlDatabaseEnabled) {
 ############################
 ""
 "Creating docker image"
-Exec { dotnet publish "$projectFolder" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=$containerImageName -p:ContainerImageTag=$BuildNumber }
+Exec { dotnet publish "$projectFolder" -c Release --os linux --arch x64 -p:PublishProfile=DefaultContainer -p:ContainerImageName=$svcArtifactContainerImageName -p:ContainerImageTag=$BuildNumber }
 
 
 ############################
 ""
 "Tagging docker image with Azure Container Registry"
 
-if ($RegistryServer) {
-    Exec { docker tag "$($containerImageName):$BuildNumber" "$RegistryServer/$($containerImageName):$BuildNumber" }
+if ($UploadArtifacts) {
+    Exec { docker tag "$($svcArtifactContainerImageName):$BuildNumber" "$registryServer/$($svcArtifactContainerImageName):$BuildNumber" }
 } else {
-    ".. SKIPPED (Parameter `$RegistryServer not set)"
+    ".. SKIPPED (UploadArtifacts=false)"
 }
 
 
@@ -111,9 +111,9 @@ if (!$serviceDefaults.sqlDatabaseEnabled) {
 } elseif (!$UploadArtifacts) {
     ".. SKIPPED (UploadArtifacts=false)"
 } else {
-    Get-AzStorageAccount -ResourceGroupName $platformGroupName -Name $storageAccountName `
-        | Get-AzStorageContainer -Container $sqlMigrationContainerName `
-        | Set-AzStorageBlobContent -File "../artifacts/migration.sql" -Blob "$containerImageName-$BuildNumber.sql" -Force `
+    Get-AzStorageAccount -ResourceGroupName $platformGroupName -Name $platformStorageAccountName `
+        | Get-AzStorageContainer -Container $platformSqlMigrationStorageContainerName `
+        | Set-AzStorageBlobContent -File "../artifacts/migration.sql" -Blob $svcArtifactSqlMigrationFile -Force `
         | Out-Null
 }
 
@@ -122,8 +122,8 @@ if (!$serviceDefaults.sqlDatabaseEnabled) {
 ""
 "Pushing docker image to Azure Container Registry"
 
-if (!$UploadArtifacts) {
-    ".. SKIPPED (UploadArtifacts=false)"
+if ($UploadArtifacts) {
+    Exec { docker push "$registryServer/$($svcArtifactContainerImageName):$BuildNumber" }
 } else {
-    Exec { docker push "$RegistryServer/$($containerImageName):$BuildNumber" }
+    ".. SKIPPED (UploadArtifacts=false)"
 }
