@@ -3,10 +3,10 @@
   // You can get a list of all available region names via the PowerShell command `Get-AzLocation | Sort Location | Select DisplayName,Location`
   "location": "westeurope",
 
-  // Every resource in the 'platform'-group will use this name prefix.
+  // TEMPLATE_MUST_CHANGE: Every resource name in the 'platform'-group will use this abbreviation (see names.json).
   // Note that some resources do not allow "-". In that case, the "-" will be removed.
   // Keep this as short as possible, since some resource types have very short naming restrictions (e.g. 24 characters for storage accounts)
-  "platformResourcePrefix": "lab-msa",
+  "platformAbbreviation": "dm-px",
 
   // Defines the environment-independent settings for each service.
   "services": {
@@ -39,10 +39,10 @@
     // TEMPLATE_ADD_ENVIRONMENT: Each new environment MUST be added here.
 
     "development": {
-      // Every resource in the environment will use this name prefix.
+      // TEMPLATE_MUST_CHANGE: Every resource in the environment will use this abbreviation (see names.json).
       // Note that some resources do not allow "-". In that case, the "-" will be removed.
       // Keep this as short as possible, since some resource types have very short naming restrictions (e.g. 24 characters for storage accounts)
-      "environmentResourcePrefix": "lab-msa-dev",
+      "environmentAbbreviation": "dm-px-dev",
 
       // Address prefix for the VNET. The container apps environment will be deployed into this VNET.
       // Do not overlap this with any of your existing IP ranges if you plan to peer the VNET with your existing infrastructure.
@@ -103,7 +103,8 @@
     },
 
     "production": {
-      "environmentResourcePrefix": "lab-msa-prod"
+      // TEMPLATE_MUST_CHANGE: Every resource in the environment will use this name prefix.
+      "environmentAbbreviation": "dm-px-prd"
     }
   }
 }

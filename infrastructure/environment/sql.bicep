@@ -11,8 +11,8 @@ param sqlAdminAdGroupId string
 // Resource names
 
 param networkGroupName string
-param vnetName string
-param appsSubnetName string
+param networkVnetName string
+param networkSubnetAppsName string
 param sqlServerAdminUserName string
 param sqlServerName string
 
@@ -22,14 +22,14 @@ param sqlServerName string
 
 var networkGroup = resourceGroup(networkGroupName)
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
-  name: vnetName
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+  name: networkVnetName
   scope: networkGroup
 }
 
-resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: appsSubnetName
-  parent: vnet
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+  name: networkSubnetAppsName
+  parent: networkVnet
 }
 
 @description('The SQL identity must have been created beforehand via the init script.')
@@ -68,11 +68,11 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
 
 @description('Allows apps from the Container Apps-subnet to access the SQL server')
 resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {
-  name: appsSubnetName
+  name: networkSubnetAppsName
   parent: sqlServer
   properties: {
     ignoreMissingVnetServiceEndpoint: false
-    virtualNetworkSubnetId: appsSubnet.id
+    virtualNetworkSubnetId: networkSubnetApps.id
   }
 }
 

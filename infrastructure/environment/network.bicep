@@ -6,8 +6,8 @@ param tags object
 ///////////////////////////////////
 // Resource names
 
-param vnetName string
-param appsSubnetName string
+param networkVnetName string
+param networkSubnetAppsName string
 
 
 ///////////////////////////////////
@@ -21,7 +21,7 @@ var envConfig = config.environments[environment]
 // New resources
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
-  name: vnetName
+  name: networkVnetName
   location: location
   tags: tags
   properties: {
@@ -32,7 +32,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
     }
     subnets: [
       {
-        name: appsSubnetName
+        name: networkSubnetAppsName
         properties: {
           addressPrefix: envConfig.appsSubnetAddressPrefix
           serviceEndpoints: [

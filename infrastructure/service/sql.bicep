@@ -10,7 +10,7 @@ param tags object
 // Resource names
 
 param platformGroupName string
-param storageAccountName string
+param platformStorageAccountName string
 param sqlMigrationContainerName string
 param sqlMigrationFile string
 param sqlServerName string
@@ -36,8 +36,8 @@ var serviceConfig = envConfig.services[serviceName]
 var platformGroup = resourceGroup(platformGroupName)
 var svcGroup = resourceGroup(svcGroupName)
 
-resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
-  name: storageAccountName
+resource platformStorage 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
+  name: platformStorageAccountName
   scope: platformGroup
 }
 
@@ -58,7 +58,7 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 ///////////////////////////////////
 // New resources
 
-resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   name: sqlDatabaseName
   parent: sqlServer
   location: location
@@ -72,7 +72,7 @@ resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   }
 }
 
-resource deploySqlUserScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource sqlDeployUserScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: sqlDeployUserScriptName
   location: location
   tags: tags
@@ -89,19 +89,19 @@ resource deploySqlUserScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
     retentionInterval: 'P1D'
     cleanupPreference: 'OnSuccess'
     scriptContent: loadTextContent('sql-user.ps1')
-    arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${database.name} -UserName ${svcUser.name}'
+    arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${sqlDatabase.name} -UserName ${svcUser.name}'
     timeout: 'PT10M'
   }
 }
 
-var containerSas = storage.listServiceSAS(storage.apiVersion, {
-  canonicalizedResource: '/blob/${storage.name}/${sqlMigrationContainerName}/${sqlMigrationFile}'
+var containerSas = platformStorage.listServiceSAS(platformStorage.apiVersion, {
+  canonicalizedResource: '/blob/${platformStorage.name}/${sqlMigrationContainerName}/${sqlMigrationFile}'
   signedProtocol: 'https'
   signedResource: 'b'
   signedPermission: 'r'
   signedExpiry: dateTimeAdd(now, 'PT1H')
 })
-var sqlMigrationBlobUrl = '${storage.properties.primaryEndpoints.blob}${sqlMigrationContainerName}/${sqlMigrationFile}?${containerSas.serviceSasToken}'
+var sqlMigrationBlobUrl = '${platformStorage.properties.primaryEndpoints.blob}${sqlMigrationContainerName}/${sqlMigrationFile}?${containerSas.serviceSasToken}'
 
 resource deploySqlMigrationScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: sqlDeployMigrationScriptName
@@ -120,7 +120,7 @@ resource deploySqlMigrationScript 'Microsoft.Resources/deploymentScripts@2020-10
     retentionInterval: 'P1D'
     cleanupPreference: 'OnSuccess'
     scriptContent: loadTextContent('sql-migration.ps1')
-    arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${database.name} -SqlMigrationBlobUrl \\"${sqlMigrationBlobUrl}\\"'
+    arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${sqlDatabase.name} -SqlMigrationBlobUrl \\"${sqlMigrationBlobUrl}\\"'
     timeout: 'PT10M'
   }
 }

@@ -6,8 +6,8 @@ param tags object
 // Resource names
 
 param networkGroupName string
-param vnetName string
-param appsSubnetName string
+param networkVnetName string
+param networkSubnetAppsName string
 param svcGroupName string
 param svcUserName string
 param svcVaultName string
@@ -20,14 +20,14 @@ param svcVaultDataProtectionKeyName string
 var networkGroup = resourceGroup(networkGroupName)
 var svcGroup = resourceGroup(svcGroupName)
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
-  name: vnetName
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+  name: networkVnetName
   scope: networkGroup
 }
 
-resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: appsSubnetName
-  parent: vnet
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+  name: networkSubnetAppsName
+  parent: networkVnet
 }
 
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
@@ -73,7 +73,7 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
       bypass: 'None'
       virtualNetworkRules: [
         {
-          id: appsSubnet.id
+          id: networkSubnetApps.id
         }
       ]
     }

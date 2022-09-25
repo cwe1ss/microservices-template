@@ -12,15 +12,15 @@ param githubDefaultBranchName string
 var config = loadJsonContent('./../config.json')
 
 var tags = {
-  product: config.platformResourcePrefix
+  product: config.platformAbbreviation
 }
 
 
 ///////////////////////////////////
 // Resource names
 
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var githubIdentityName = '${config.platformResourcePrefix}-github'
+var platformGroupName = '${config.platformAbbreviation}-platform'
+var githubIdentityName = '${config.platformAbbreviation}-github'
 
 
 ///////////////////////////////////

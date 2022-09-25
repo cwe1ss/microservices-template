@@ -13,14 +13,14 @@ param tags object
 // Resource names
 
 param platformGroupName string
-param logsName string
+param platformLogsName string
 param networkGroupName string
-param vnetName string
-param appsSubnetName string
+param networkVnetName string
+param networkSubnetAppsName string
 param serviceBusGroupName string
-param serviceBusName string
+param serviceBusNamespaceName string
 param monitoringGroupName string
-param appInsightsName string
+param monitoringAppInsightsName string
 param appEnvName string
 
 
@@ -42,28 +42,28 @@ var networkGroup = resourceGroup(networkGroupName)
 var monitoringGroup = resourceGroup(monitoringGroupName)
 var serviceBusGroup = resourceGroup(serviceBusGroupName)
 
-resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
-  name: logsName
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: platformLogsName
   scope: platformGroup
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
-  name: vnetName
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+  name: networkVnetName
   scope: networkGroup
 }
 
-resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: appsSubnetName
-  parent: vnet
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+  name: networkSubnetAppsName
+  parent: networkVnet
 }
 
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
-  name: serviceBusName
+  name: serviceBusNamespaceName
   scope: serviceBusGroup
 }
 
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: appInsightsName
+resource monitoringAppInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: monitoringAppInsightsName
   scope: monitoringGroup
 }
 
@@ -79,15 +79,15 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
-        customerId: logs.properties.customerId
-        sharedKey: logs.listKeys().primarySharedKey
+        customerId: platformLogs.properties.customerId
+        sharedKey: platformLogs.listKeys().primarySharedKey
       }
     }
-    daprAIConnectionString: appInsights.properties.ConnectionString
-    daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
+    daprAIConnectionString: monitoringAppInsights.properties.ConnectionString
+    daprAIInstrumentationKey: monitoringAppInsights.properties.InstrumentationKey
     vnetConfiguration: {
       internal: false
-      infrastructureSubnetId: appsSubnet.id
+      infrastructureSubnetId: networkSubnetApps.id
     }
   }
 }

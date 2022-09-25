@@ -11,12 +11,13 @@ param sqlAdminAdGroupId string
 ///////////////////////////////////
 // Configuration
 
+var names = loadJsonContent('./../names.json')
 var config = loadJsonContent('./../config.json')
 var envConfig = config.environments[environment]
 
 var tags = {
-  product: config.platformResourcePrefix
-  environment: envConfig.environmentResourcePrefix
+  product: config.platformAbbreviation
+  environment: envConfig.environmentAbbreviation
 }
 
 
@@ -24,31 +25,30 @@ var tags = {
 // Resource names
 
 // Platform
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var logsName = '${config.platformResourcePrefix}-logs'
+var platformGroupName = replace(names.platformGroupName, '{platform}', config.platformAbbreviation)
+var platformLogsName = replace(names.platformLogsName, '{platform}', config.platformAbbreviation)
 
-// Network
-var networkGroupName = '${envConfig.environmentResourcePrefix}-network'
-var vnetName = '${envConfig.environmentResourcePrefix}-vnet'
-var appsSubnetName = 'apps'
+// Environment: Network
+var networkGroupName = replace(names.networkGroupName, '{environment}', envConfig.environmentAbbreviation)
+var networkVnetName = replace(names.networkVnetName, '{environment}', envConfig.environmentAbbreviation)
 
-// Monitoring
-var monitoringGroupName = '${envConfig.environmentResourcePrefix}-monitoring'
-var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
-var dashboardName = '${envConfig.environmentResourcePrefix}-dashboard'
+// Environment: Monitoring
+var monitoringGroupName = replace(names.monitoringGroupName, '{environment}', envConfig.environmentAbbreviation)
+var monitoringAppInsightsName = replace(names.monitoringAppInsightsName, '{environment}', envConfig.environmentAbbreviation)
+var monitoringDashboardName = replace(names.monitoringDashboardName, '{environment}', envConfig.environmentAbbreviation)
 
-// SQL
-var sqlGroupName = '${envConfig.environmentResourcePrefix}-sql'
-var sqlServerAdminUserName = '${envConfig.environmentResourcePrefix}-sql-admin'
-var sqlServerName = '${envConfig.environmentResourcePrefix}-sql'
+// Environment: SQL
+var sqlGroupName = replace(names.sqlGroupName, '{environment}', envConfig.environmentAbbreviation)
+var sqlServerAdminUserName = replace(names.sqlServerAdminName, '{environment}', envConfig.environmentAbbreviation)
+var sqlServerName = replace(names.sqlServerName, '{environment}', envConfig.environmentAbbreviation)
 
-// Service Bus
-var serviceBusGroupName = '${envConfig.environmentResourcePrefix}-bus'
-var serviceBusName = '${envConfig.environmentResourcePrefix}-bus'
+// Environment: Service Bus
+var serviceBusGroupName = replace(names.serviceBusGroupName, '{environment}', envConfig.environmentAbbreviation)
+var serviceBusNamespaceName = replace(names.serviceBusNamespaceName, '{environment}', envConfig.environmentAbbreviation)
 
-// Container Apps Environment
-var envGroupName = '${envConfig.environmentResourcePrefix}-env'
-var appEnvName = '${envConfig.environmentResourcePrefix}-env'
+// Environment: Container Apps Environment
+var appEnvironmentGroupName = replace(names.appEnvironmentGroupName, '{environment}', envConfig.environmentAbbreviation)
+var appEnvironmentName = replace(names.appEnvironmentName, '{environment}', envConfig.environmentAbbreviation)
 
 
 ///////////////////////////////////
@@ -60,7 +60,7 @@ resource networkGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-resource monitoringkGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource monitoringGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: monitoringGroupName
   location: config.location
   tags: tags
@@ -72,8 +72,8 @@ resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-resource appsGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: envGroupName
+resource appEnvGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: appEnvironmentGroupName
   location: config.location
   tags: tags
 }
@@ -93,14 +93,14 @@ module networkResources 'network.bicep' = {
     tags: tags
 
     // Resource names
-    vnetName: vnetName
-    appsSubnetName: appsSubnetName
+    networkVnetName: networkVnetName
+    networkSubnetAppsName: names.networkSubnetAppsName
   }
 }
 
 module monitoringResources 'monitoring.bicep' = {
   name: 'env-${now}'
-  scope: monitoringkGroup
+  scope: monitoringGroup
   params: {
     location: config.location
     environment: environment
@@ -108,9 +108,11 @@ module monitoringResources 'monitoring.bicep' = {
 
     // Resource names
     platformGroupName: platformGroupName
-    logsName: logsName
-    appInsightsName: appInsightsName
-    dashboardName: dashboardName
+    platformLogsName: platformLogsName
+    monitoringAppInsightsName: monitoringAppInsightsName
+    monitoringDashboardName: monitoringDashboardName
+    serviceBusGroupName: serviceBusGroupName
+    serviceBusNamespaceName: serviceBusNamespaceName
   }
 }
 
@@ -129,8 +131,8 @@ module sqlResources 'sql.bicep' = {
 
     // Resource names
     networkGroupName: networkGroupName
-    vnetName: vnetName
-    appsSubnetName: appsSubnetName
+    networkVnetName: networkVnetName
+    networkSubnetAppsName: names.networkSubnetAppsName
     sqlServerName: sqlServerName
     sqlServerAdminUserName: sqlServerAdminUserName
   }
@@ -144,13 +146,13 @@ module serviceBusResources 'servicebus.bicep' = {
     tags: tags
 
     // Resource names
-    serviceBusName: serviceBusName
+    serviceBusNamespaceName: serviceBusNamespaceName
   }
 }
 
 module appsResources 'app-environment.bicep' = {
   name: 'env-${now}'
-  scope: appsGroup
+  scope: appEnvGroup
   dependsOn: [
     networkResources
     monitoringResources
@@ -162,14 +164,14 @@ module appsResources 'app-environment.bicep' = {
 
     // Resource names
     platformGroupName: platformGroupName
-    logsName: logsName
+    platformLogsName: platformLogsName
     networkGroupName: networkGroupName
-    vnetName: vnetName
-    appsSubnetName: appsSubnetName
+    networkVnetName: networkVnetName
+    networkSubnetAppsName: names.networkSubnetAppsName
     serviceBusGroupName: serviceBusGroupName
-    serviceBusName: serviceBusName
+    serviceBusNamespaceName: serviceBusNamespaceName
     monitoringGroupName: monitoringGroupName
-    appInsightsName: appInsightsName
-    appEnvName: appEnvName
+    monitoringAppInsightsName: monitoringAppInsightsName
+    appEnvName: appEnvironmentName
   }
 }

@@ -11,16 +11,16 @@ var config = loadJsonContent('./../config.json')
 var envConfig = config.environments[environment]
 
 var tags = {
-  product: config.platformResourcePrefix
-  environment: envConfig.environmentResourcePrefix
+  product: config.platformAbbreviation
+  environment: envConfig.environmentAbbreviation
 }
 
 
 ///////////////////////////////////
 // Resource names
 
-var sqlGroupName = '${envConfig.environmentResourcePrefix}-sql'
-var sqlServerAdminUserName = '${envConfig.environmentResourcePrefix}-sql-admin'
+var sqlGroupName = '${envConfig.environmentAbbreviation}-sql'
+var sqlServerAdminUserName = '${envConfig.environmentAbbreviation}-sql-admin'
 
 
 ///////////////////////////////////

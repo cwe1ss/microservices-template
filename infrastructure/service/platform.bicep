@@ -1,7 +1,7 @@
 ///////////////////////////////////
 // Resource names
 
-param containerRegistryName string
+param platformContainerRegistryName string
 param svcGroupName string
 param svcUserName string
 
@@ -11,8 +11,8 @@ param svcUserName string
 
 var svcGroup = resourceGroup(svcGroupName)
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
-  name: containerRegistryName
+resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
+  name: platformContainerRegistryName
 }
 
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
@@ -37,7 +37,7 @@ resource acrPullRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-
 // Allows the service to pull images from the Azure Container Registry
 resource svcUserAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid('acrPull', svcUser.id)
-  scope: containerRegistry
+  scope: platformContainerRegistry
   properties: {
     roleDefinitionId: acrPullRoleDefinition.id
     principalId: svcUser.properties.principalId

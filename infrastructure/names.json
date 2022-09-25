@@ -1,0 +1,50 @@
+{
+  // Parameters:
+  // {platform}
+  // {environment}
+  // {service}
+  // {buildNumber}
+
+  "githubIdentityName": "{platform}-github",
+
+  "platformGroupName": "{platform}-platform",
+  "platformContainerRegistryName": "{platform}registry",
+  "platformLogsName": "{platform}-logs",
+  "platformStorageAccountName": "{platform}sa",
+
+  "platformSqlMigrationStorageContainerName": "sql-migration",
+
+  "networkGroupName": "{environment}-network",
+  "networkVnetName": "{environment}-vnet",
+  "networkSubnetAppsName": "apps",
+
+  "monitoringGroupName": "{environment}-monitoring",
+  "monitoringAppInsightsName": "{environment}-appinsights",
+  "monitoringDashboardName": "{environment}-dashboard",
+
+  "serviceBusGroupName": "{environment}-bus",
+  "serviceBusNamespaceName": "{environment}-bus",
+
+  "sqlGroupName": "{environment}-sql",
+  "sqlServerName": "{environment}-sql",
+  "sqlServerAdminName": "{environment}-sql-admin",
+  "sqlAdminAdGroupName": "{environment}-sql-admins",
+
+  "appEnvironmentGroupName": "{environment}-env",
+  "appEnvironmentName": "{environment}-env",
+
+  "svcGroupName": "{environment}-svc-{service}",
+  "svcUserName": "{environment}-{service}",
+  "svcAppName": "{environment}-{service}",
+  "svcKeyVaultName": "{environment}{service}",
+  "svcStorageAccountName": "{environment}{service}",
+  "svcSqlDatabaseName": "{environment}-{service}",
+  "svcSqlDeployUserScriptName": "{environment}-{service}-deploy-user",
+  "svcSqlDeployMigrationScriptName": "{environment}-{service}-deploy-migration",
+
+  "svcDataProtectionStorageContainerName": "data-protection",
+  "svcDataProtectionKeyName": "data-protection",
+
+  "svcArtifactContainerImageName": "{platform}-{service}",
+  "svcArtifactSqlMigrationFile": "{platform}-{service}-{buildNumber}.sql"
+}

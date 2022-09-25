@@ -11,13 +11,14 @@ param buildNumber string
 ///////////////////////////////////
 // Configuration
 
+var names = loadJsonContent('./../names.json')
 var config = loadJsonContent('./../config.json')
 var envConfig = config.environments[environment]
 var serviceDefaults = config.services[serviceName]
 
 var tags = {
-  product: config.platformResourcePrefix
-  environment: envConfig.environmentResourcePrefix
+  product: config.platformAbbreviation
+  environment: envConfig.environmentAbbreviation
   service: serviceName
 }
 
@@ -26,51 +27,50 @@ var tags = {
 // Resource names
 
 // Platform
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var containerRegistryName = replace('${config.platformResourcePrefix}-registry', '-', '')
-var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
-var sqlMigrationContainerName = 'sql-migration'
+var platformGroupName = replace(names.platformGroupName, '{platform}', config.platformAbbreviation)
+var platformContainerRegistryName = replace(replace(names.platformContainerRegistryName, '{platform}', config.platformAbbreviation), '-', '')
+var platformStorageAccountName = replace(names.platformStorageAccountName, '{platform}', config.platformAbbreviation)
 
 // Environment: Network
-var networkGroupName = '${envConfig.environmentResourcePrefix}-network'
-var vnetName = '${envConfig.environmentResourcePrefix}-vnet'
-var appsSubnetName = 'apps'
+var networkGroupName = replace(names.networkGroupName, '{environment}', envConfig.environmentAbbreviation)
+var networkVnetName = replace(names.networkVnetName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Monitoring
-var monitoringGroupName = '${envConfig.environmentResourcePrefix}-monitoring'
-var appInsightsName = '${envConfig.environmentResourcePrefix}-appinsights'
+var monitoringGroupName = replace(names.monitoringGroupName, '{environment}', envConfig.environmentAbbreviation)
+var monitoringAppInsightsName = replace(names.monitoringAppInsightsName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: SQL
-var sqlGroupName = '${envConfig.environmentResourcePrefix}-sql'
-var sqlServerAdminUserName = '${envConfig.environmentResourcePrefix}-sql-admin'
-var sqlServerName = '${envConfig.environmentResourcePrefix}-sql'
+var sqlGroupName = replace(names.sqlGroupName, '{environment}', envConfig.environmentAbbreviation)
+var sqlServerAdminUserName = replace(names.sqlServerAdminName, '{environment}', envConfig.environmentAbbreviation)
+var sqlServerName = replace(names.sqlServerName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Service Bus
-// var serviceBusGroupName = '${envConfig.environmentResourcePrefix}-bus'
-// var serviceBusName = '${envConfig.environmentResourcePrefix}-bus'
+//var serviceBusGroupName = replace(names.serviceBusGroupName, '{environment}', envConfig.environmentAbbreviation)
+//var serviceBusNamespaceName = replace(names.serviceBusNamespaceName, '{environment}', envConfig.environmentAbbreviation)
 
-// Environment: Container Apps
-var envGroupName = '${envConfig.environmentResourcePrefix}-env'
-var appEnvName = '${envConfig.environmentResourcePrefix}-env'
+// Environment: Container Apps Environment
+var appEnvironmentGroupName = replace(names.appEnvironmentGroupName, '{environment}', envConfig.environmentAbbreviation)
+var appEnvironmentName = replace(names.appEnvironmentName, '{environment}', envConfig.environmentAbbreviation)
 
 // Service
-var svcGroupName = '${envConfig.environmentResourcePrefix}-svc-${serviceName}'
-var svcUserName = '${envConfig.environmentResourcePrefix}-${serviceName}'
-var appName = take('${envConfig.environmentResourcePrefix}-${serviceName}', 32 /* max allowed length */)
+var svcGroupName = replace(replace(names.svcGroupName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
+var svcUserName = replace(replace(names.svcUserName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
+var svcAppName = take(replace(replace(names.svcAppName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName), 32 /* max allowed length */)
 
 // Service: Storage
-var svcStorageAccountName = take(replace('${envConfig.environmentResourcePrefix}-${serviceName}', '-', ''), 24 /* max allowed length */)
-var svcStorageDataProtectionContainerName = 'data-protection'
+var svcStorageAccountName = take(replace(replace(replace(names.svcStorageAccountName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName), '-', ''), 24 /* max allowed length */)
 
 // Service: Key Vault
-var svcVaultName = take(replace('${envConfig.environmentResourcePrefix}-${serviceName}', '-', ''), 24 /* max allowed length */)
-var svcVaultDataProtectionKeyName = 'data-protection'
+var svcKeyVaultName = take(replace(replace(replace(names.svcKeyVaultName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName), '-', ''), 24 /* max allowed length */)
 
 // Service: SQL
-var sqlDatabaseName = '${envConfig.environmentResourcePrefix}-${serviceName}'
-var sqlDeployUserScriptName = '${sqlDatabaseName}-deploy-user'
-var sqlDeployMigrationScriptName = '${sqlDatabaseName}-deploy-migration'
-var sqlMigrationFile = '${config.platformResourcePrefix}-${serviceName}-${buildNumber}.sql'
+var sqlDatabaseName = replace(replace(names.svcSqlDatabaseName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
+var sqlDeployUserScriptName = replace(replace(names.svcSqlDeployUserScriptName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
+var sqlDeployMigrationScriptName = replace(replace(names.svcSqlDeployMigrationScriptName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
+
+// Service: Build artifacts
+var svcArtifactContainerImageWithTag = '${replace(replace(names.svcArtifactContainerImageName, '{platform}', config.platformAbbreviation), '{service}', serviceName)}:${buildNumber}'
+var svcArtifactSqlMigrationFile = replace(replace(replace(names.svcArtifactSqlMigrationFile, '{platform}', config.platformAbbreviation), '{service}', serviceName), '{buildNumber}', buildNumber)
 
 
 ///////////////////////////////////
@@ -105,7 +105,7 @@ module svcIdentity 'service-identity.bicep' = {
 
 // Allow the identity to access the platform container registry.
 // This must be done before we can create the actual container app, as the deployment would fail otherwise.
-module svcPlatform 'platform.bicep' = {
+module platform 'platform.bicep' = {
   name: 'svc-platform-${now}'
   scope: platformGroup
   dependsOn: [
@@ -113,7 +113,7 @@ module svcPlatform 'platform.bicep' = {
   ]
   params: {
     // Resource names
-    containerRegistryName: containerRegistryName
+    platformContainerRegistryName: platformContainerRegistryName
     svcGroupName: svcGroupName
     svcUserName: svcUserName
   }
@@ -131,12 +131,12 @@ module svcStorage 'storage.bicep' = {
 
     // Resource names
     networkGroupName: networkGroupName
-    vnetName: vnetName
-    appsSubnetName: appsSubnetName
+    networkVnetName: networkVnetName
+    networkSubnetAppsName: names.networkSubnetAppsName
     svcGroupName: svcGroupName
     svcUserName: svcUserName
     svcStorageAccountName: svcStorageAccountName
-    svcStorageDataProtectionContainerName: svcStorageDataProtectionContainerName
+    svcStorageDataProtectionContainerName: names.svcDataProtectionStorageContainerName
   }
 }
 
@@ -152,12 +152,12 @@ module svcVault 'keyvault.bicep' = {
 
     // Resource names
     networkGroupName: networkGroupName
-    vnetName: vnetName
-    appsSubnetName: appsSubnetName
+    networkVnetName: networkVnetName
+    networkSubnetAppsName: names.networkSubnetAppsName
     svcGroupName: svcGroupName
     svcUserName: svcUserName
-    svcVaultName: svcVaultName
-    svcVaultDataProtectionKeyName: svcVaultDataProtectionKeyName
+    svcVaultName: svcKeyVaultName
+    svcVaultDataProtectionKeyName: names.svcDataProtectionKeyName
   }
 }
 
@@ -175,9 +175,9 @@ module svcSql 'sql.bicep' = if (sqlDatabaseEnabled) {
 
     // Resource names
     platformGroupName: platformGroupName
-    storageAccountName: storageAccountName
-    sqlMigrationContainerName: sqlMigrationContainerName
-    sqlMigrationFile: sqlMigrationFile
+    platformStorageAccountName: platformStorageAccountName
+    sqlMigrationContainerName: names.platformSqlMigrationStorageContainerName
+    sqlMigrationFile: svcArtifactSqlMigrationFile
     sqlServerName: sqlServerName
     sqlServerAdminUserName: sqlServerAdminUserName
     sqlDatabaseName: sqlDatabaseName
@@ -206,7 +206,7 @@ module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
   name: 'svc-app-grpc-${now}'
   scope: svcGroup
   dependsOn: [
-    svcPlatform
+    platform
     svcVault
     svcSql
   ]
@@ -214,21 +214,21 @@ module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
     location: config.location
     environment: environment
     serviceName: serviceName
-    buildNumber: buildNumber
     tags: tags
 
     // Resource names
     platformGroupName: platformGroupName
-    containerRegistryName: containerRegistryName
-    envGroupName: envGroupName
-    appEnvName: appEnvName
+    platformContainerRegistryName: platformContainerRegistryName
+    appEnvGroupName: appEnvironmentGroupName
+    appEnvName: appEnvironmentName
     sqlGroupName: sqlGroupName
     sqlServerName: sqlServerName
-    monitoringGroupName: monitoringGroupName
-    appInsightsName: appInsightsName
-    svcUserName: svcUserName
-    appName: appName
     sqlDatabaseName: sqlDatabaseName
+    monitoringGroupName: monitoringGroupName
+    monitoringAppInsightsName: monitoringAppInsightsName
+    svcUserName: svcUserName
+    svcAppName: svcAppName
+    svcArtifactContainerImageWithTag: svcArtifactContainerImageWithTag
   }
 }
 
@@ -236,7 +236,7 @@ module svcAppHttp 'app-http.bicep' = if (serviceDefaults.appType == 'http') {
   name: 'svc-app-http-${now}'
   scope: svcGroup
   dependsOn: [
-    svcPlatform
+    platform
     svcVault
     svcSql
   ]
@@ -244,21 +244,21 @@ module svcAppHttp 'app-http.bicep' = if (serviceDefaults.appType == 'http') {
     location: config.location
     environment: environment
     serviceName: serviceName
-    buildNumber: buildNumber
     tags: tags
 
     // Resource names
     platformGroupName: platformGroupName
-    containerRegistryName: containerRegistryName
-    envGroupName: envGroupName
-    appEnvName: appEnvName
+    platformContainerRegistryName: platformContainerRegistryName
+    appEnvGroupName: appEnvironmentGroupName
+    appEnvName: appEnvironmentName
     sqlGroupName: sqlGroupName
     sqlServerName: sqlServerName
-    monitoringGroupName: monitoringGroupName
-    appInsightsName: appInsightsName
-    svcUserName: svcUserName
-    appName: appName
     sqlDatabaseName: sqlDatabaseName
+    monitoringGroupName: monitoringGroupName
+    monitoringAppInsightsName: monitoringAppInsightsName
+    svcUserName: svcUserName
+    svcAppName: svcAppName
+    svcArtifactContainerImageWithTag: svcArtifactContainerImageWithTag
   }
 }
 
@@ -266,7 +266,7 @@ module svcAppPublic 'app-public.bicep' = if (serviceDefaults.appType == 'public'
   name: 'svc-app-public-${now}'
   scope: svcGroup
   dependsOn: [
-    svcPlatform
+    platform
     svcVault
     svcSql
   ]
@@ -274,22 +274,22 @@ module svcAppPublic 'app-public.bicep' = if (serviceDefaults.appType == 'public'
     location: config.location
     environment: environment
     serviceName: serviceName
-    buildNumber: buildNumber
     tags: tags
     dataProtectionKeyUri: svcVault.outputs.dataProtectionKeyUri
     dataProtectionBlobUri: svcStorage.outputs.dataProtectionBlobUri
 
     // Resource names
     platformGroupName: platformGroupName
-    containerRegistryName: containerRegistryName
-    envGroupName: envGroupName
-    appEnvName: appEnvName
+    platformContainerRegistryName: platformContainerRegistryName
+    appEnvGroupName: appEnvironmentGroupName
+    appEnvName: appEnvironmentName
     sqlGroupName: sqlGroupName
     sqlServerName: sqlServerName
-    monitoringGroupName: monitoringGroupName
-    appInsightsName: appInsightsName
-    svcUserName: svcUserName
-    appName: appName
     sqlDatabaseName: sqlDatabaseName
+    monitoringGroupName: monitoringGroupName
+    monitoringAppInsightsName: monitoringAppInsightsName
+    svcUserName: svcUserName
+    svcAppName: svcAppName
+    svcArtifactContainerImageWithTag: svcArtifactContainerImageWithTag
   }
 }

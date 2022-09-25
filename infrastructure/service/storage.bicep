@@ -6,8 +6,8 @@ param tags object
 // Resource names
 
 param networkGroupName string
-param vnetName string
-param appsSubnetName string
+param networkVnetName string
+param networkSubnetAppsName string
 param svcGroupName string
 param svcUserName string
 param svcStorageAccountName string
@@ -20,14 +20,14 @@ param svcStorageDataProtectionContainerName string
 var networkGroup = resourceGroup(networkGroupName)
 var svcGroup = resourceGroup(svcGroupName)
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
-  name: vnetName
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+  name: networkVnetName
   scope: networkGroup
 }
 
-resource appsSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
-  name: appsSubnetName
-  parent: vnet
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+  name: networkSubnetAppsName
+  parent: networkVnet
 }
 
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
@@ -45,7 +45,7 @@ resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleD
 ///////////////////////////////////
 // New resources
 
-resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+resource svcStorageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: svcStorageAccountName
   location: location
   tags: tags
@@ -61,7 +61,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
       bypass: 'None'
       virtualNetworkRules: [
         {
-          id: appsSubnet.id
+          id: networkSubnetApps.id
         }
       ]
     }
@@ -70,7 +70,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
 
 @description('A blob container that will be used to store the ASP.NET Core Data Protection keys')
 resource dataProtectionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: '${storage.name}/default/${svcStorageDataProtectionContainerName}'
+  name: '${svcStorageAccount.name}/default/${svcStorageDataProtectionContainerName}'
   properties: {
     publicAccess: 'None'
   }
@@ -78,8 +78,8 @@ resource dataProtectionContainer 'Microsoft.Storage/storageAccounts/blobServices
 
 @description('Allows the service user to manage the Data Protection keys and any other blobs the service might require')
 resource svcUserblobContributer 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid('svcUserBlobContributor', storage.id, svcUser.id)
-  scope: storage
+  name: guid('svcUserBlobContributor', svcStorageAccount.id, svcUser.id)
+  scope: svcStorageAccount
   properties: {
     roleDefinitionId: storageBlobDataContributorRoleDefinition.id
     principalId: svcUser.properties.principalId
@@ -88,5 +88,5 @@ resource svcUserblobContributer 'Microsoft.Authorization/roleAssignments@2022-04
 }
 
 
-output storageBlobPrimaryEndpoint string = storage.properties.primaryEndpoints.blob
-output dataProtectionBlobUri string = '${storage.properties.primaryEndpoints.blob}${svcStorageDataProtectionContainerName}/keys.xml'
+output storageBlobPrimaryEndpoint string = svcStorageAccount.properties.primaryEndpoints.blob
+output dataProtectionBlobUri string = '${svcStorageAccount.properties.primaryEndpoints.blob}${svcStorageDataProtectionContainerName}/keys.xml'

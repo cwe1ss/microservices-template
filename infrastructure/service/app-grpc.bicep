@@ -1,7 +1,6 @@
 param location string
 param environment string
 param serviceName string
-param buildNumber string
 param tags object
 
 
@@ -9,16 +8,17 @@ param tags object
 // Resource names
 
 param platformGroupName string
-param containerRegistryName string
-param envGroupName string
+param platformContainerRegistryName string
+param appEnvGroupName string
 param appEnvName string
 param sqlGroupName string
 param sqlServerName string
-param monitoringGroupName string
-param appInsightsName string
-param svcUserName string
-param appName string
 param sqlDatabaseName string
+param monitoringGroupName string
+param monitoringAppInsightsName string
+param svcUserName string
+param svcAppName string
+param svcArtifactContainerImageWithTag string
 
 
 ///////////////////////////////////
@@ -34,12 +34,12 @@ var serviceConfig = envConfig.services[serviceName]
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
-var envGroup = resourceGroup(envGroupName)
+var envGroup = resourceGroup(appEnvGroupName)
 var monitoringGroup = resourceGroup(monitoringGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
-  name: containerRegistryName
+resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
+  name: platformContainerRegistryName
   scope: platformGroup
 }
 
@@ -48,8 +48,8 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
   scope: envGroup
 }
 
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: appInsightsName
+resource monitoringAppInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: monitoringAppInsightsName
   scope: monitoringGroup
 }
 
@@ -58,7 +58,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
   scope: sqlGroup
 }
 
-resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' existing = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' existing = {
   name: sqlDatabaseName
   scope: sqlGroup
 }
@@ -71,10 +71,8 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 ///////////////////////////////////
 // Configuration values
 
-var fullImageName = '${containerRegistry.properties.loginServer}/${config.platformResourcePrefix}-${serviceName}:${buildNumber}'
-
 var sqlDatabaseEnabled = contains(serviceDefaults, 'sqlDatabaseEnabled') ? serviceDefaults.sqlDatabaseEnabled : false
-var sqlConnectionString = sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${database.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
+var sqlConnectionString = sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fullyQualifiedDomainName};Database=${sqlDatabase.name};User Id=${svcUser.properties.clientId};Authentication=Active Directory Managed Identity;Connect Timeout=60' : ''
 
 
 ///////////////////////////////////
@@ -84,7 +82,7 @@ var sqlConnectionString = sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fu
 // https://github.com/microsoft/azure-container-apps/issues/391
 
 resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
-  name: appName
+  name: svcAppName
   location: location
   tags: tags
   identity: {
@@ -109,7 +107,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
       }
       registries: [
         {
-          server: containerRegistry.properties.loginServer
+          server: platformContainerRegistry.properties.loginServer
           identity: svcUser.id
         }
       ]
@@ -119,7 +117,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
     template: {
       containers: [
         {
-          image: fullImageName
+          image: '${platformContainerRegistry.properties.loginServer}/${svcArtifactContainerImageWithTag}'
           name: 'app'
           resources: {
             // TODO: Bicep expects an int even though a string is required. Remove any() if that ever changes.
@@ -165,7 +163,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
             }
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-              value: appInsights.properties.ConnectionString
+              value: monitoringAppInsights.properties.ConnectionString
             }
             {
               // Will not actually be set if sqlConnectionString is empty

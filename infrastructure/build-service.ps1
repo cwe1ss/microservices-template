@@ -39,10 +39,10 @@ $config = Get-Content .\config.json | ConvertFrom-Json
 $serviceDefaults = $config.services | Select-Object -ExpandProperty $ServiceName
 
 # Naming conventions
-$platformGroupName = "$($config.platformResourcePrefix)-platform"
-$storageAccountName = "$($config.platformResourcePrefix)sa".Replace("-", "")
+$platformGroupName = "$($config.platformAbbreviation)-platform"
+$storageAccountName = "$($config.platformAbbreviation)sa".Replace("-", "")
 $sqlMigrationContainerName = 'sql-migration'
-$containerImageName = "$($config.platformResourcePrefix)-$serviceName"
+$containerImageName = "$($config.platformAbbreviation)-$serviceName"
 
 
 $solutionFolder = (Get-Item (Join-Path "../" $ServicePath)).FullName

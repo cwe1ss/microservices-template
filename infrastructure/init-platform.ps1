@@ -140,7 +140,7 @@ if ($isGlobalAdmin) {
 $config = Get-Content .\config.json | ConvertFrom-Json
 
 # Naming conventions
-$acrName = "$($config.platformResourcePrefix)registry.azurecr.io".Replace("-", "")
+$acrName = "$($config.platformAbbreviation)registry.azurecr.io".Replace("-", "")
 
 $environments = $config.environments | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name }
 
@@ -237,7 +237,7 @@ foreach ($environment in $environments) {
 
     $envConfig = $config.environments | Select-Object -ExpandProperty $environment
 
-    $sqlAdminAdGroupName = "$($envConfig.environmentResourcePrefix)-sql-admins"
+    $sqlAdminAdGroupName = "$($envConfig.environmentAbbreviation)-sql-admins"
 
     ############################
     ""

@@ -7,14 +7,17 @@ param tags object
 // Resource names
 
 param platformGroupName string
-param logsName string
-param appInsightsName string
-param dashboardName string
+param platformLogsName string
+param monitoringAppInsightsName string
+param monitoringDashboardName string
+param serviceBusGroupName string
+param serviceBusNamespaceName string
 
 
 ///////////////////////////////////
 // Configuration
 
+var names = loadJsonContent('./../names.json')
 var config = loadJsonContent('./../config.json')
 var envConfig = config.environments[environment]
 
@@ -24,8 +27,8 @@ var envConfig = config.environments[environment]
 
 var platformGroup = resourceGroup(platformGroupName)
 
-resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
-  name: logsName
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: platformLogsName
   scope: platformGroup
 }
 
@@ -35,21 +38,21 @@ resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
 
 @description('Application insights is targeted at a single environment so that you can properly use the application map etc, but data is stored in the global Log Analytics workspace.')
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: appInsightsName
+  name: monitoringAppInsightsName
   location: location
   tags: tags
   kind: 'web'
   properties: {
     Application_Type: 'web'
-    WorkspaceResourceId: logs.id
+    WorkspaceResourceId: platformLogs.id
   }
 }
 
 resource dashboard 'Microsoft.Portal/dashboards@2020-09-01-preview' = {
-  name: dashboardName
+  name: monitoringDashboardName
   location: location
   tags: {
-    'hidden-title': dashboardName
+    'hidden-title': monitoringDashboardName
   }
   properties: {
     lenses: [
@@ -134,7 +137,11 @@ resource dashboard 'Microsoft.Portal/dashboards@2020-09-01-preview' = {
                       }
                       metrics: [ for item in items(envConfig.services): {
                           resourceMetadata: {
-                            id: resourceId('${envConfig.environmentResourcePrefix}-svc-${item.key}', 'Microsoft.App/containerApps', take('${envConfig.environmentResourcePrefix}-${item.key}', 32))
+                            id: resourceId(
+                              replace(replace(names.svcGroupName, '{environment}', envConfig.environmentAbbreviation), '{service}', item.key),
+                              'Microsoft.App/containerApps',
+                              take(replace(replace(names.svcAppName, '{environment}', envConfig.environmentAbbreviation), '{service}', item.key), 32 /* max allowed length */)
+                            )
                           }
                           name: 'Replicas'
                           aggregationType: 3
@@ -171,7 +178,7 @@ resource dashboard 'Microsoft.Portal/dashboards@2020-09-01-preview' = {
                       metrics: [
                         {
                           resourceMetadata: {
-                            id: resourceId('${envConfig.environmentResourcePrefix}-bus', 'Microsoft.ServiceBus/namespaces', '${envConfig.environmentResourcePrefix}-bus')
+                            id: resourceId(serviceBusGroupName, 'Microsoft.ServiceBus/namespaces', serviceBusNamespaceName)
                           }
                           name: 'DeadletteredMessages'
                           aggregationType: 3

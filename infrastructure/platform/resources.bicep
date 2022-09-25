@@ -1,19 +1,23 @@
 param location string
-param githubServicePrincipalId string
 param tags object
 
 
 ///////////////////////////////////
 // Resource names
 
-param containerRegistryName string
-param logsName string
-param storageAccountName string
+param githubIdentityName string
+param platformContainerRegistryName string
+param platformLogsName string
+param platformStorageAccountName string
 param sqlMigrationContainerName string
 
 
 ///////////////////////////////////
 // Existing resources
+
+resource githubIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+  name: githubIdentityName
+}
 
 @description('This is the built-in Storage Blob Data Contributor role. See https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor ')
 resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
@@ -26,7 +30,7 @@ resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleD
 // New resources
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
-  name: storageAccountName
+  name: platformStorageAccountName
   location: location
   tags: tags
   kind: 'StorageV2'
@@ -46,18 +50,18 @@ resource sqlMigrationContainer 'Microsoft.Storage/storageAccounts/blobServices/c
 
 @description('Allows GitHub to upload artifacts to the storage account')
 resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid('githubStorageContributor', storage.id, githubServicePrincipalId)
+  name: guid('githubStorageContributor', storage.id, githubIdentity.id)
   scope: storage
   properties: {
     roleDefinitionId: storageBlobDataContributorRoleDefinition.id
-    principalId: githubServicePrincipalId
+    principalId: githubIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
 @description('The container registry will store all container images for all services')
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
-  name: containerRegistryName
+  name: platformContainerRegistryName
   location: location
   tags: tags
   sku: {
@@ -70,7 +74,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' =
 
 @description('One global log analytics workspace is used to simplify the operations and querying')
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
-  name: logsName
+  name: platformLogsName
   location: location
   tags: tags
   properties: {

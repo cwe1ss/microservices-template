@@ -9,16 +9,6 @@ $ErrorActionPreference = "Stop"
 
 $config = Get-Content .\config.json | ConvertFrom-Json
 
-# Naming conventions
-$githubAppName = "$($config.platformResourcePrefix)-github"
-
-
-############################
-"Loading Azure AD objects"
-
-$githubSp = Get-AzADServicePrincipal -DisplayName $githubAppName
-if (!$githubSp) { throw "Service principal '$githubAppName' not found. Did you run 'init-platform.ps1'?" }
-
 
 ############################
 "Deploying Azure resources"
@@ -28,6 +18,5 @@ New-AzSubscriptionDeployment `
     -Name ("platform-" + (Get-Date).ToString("yyyyMMddHHmmss")) `
     -TemplateFile .\platform\main.bicep `
     -TemplateParameterObject @{
-        githubServicePrincipalId = $githubSp.Id
     } `
     -Verbose | Out-Null

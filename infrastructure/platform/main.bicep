@@ -1,27 +1,27 @@
 targetScope = 'subscription'
 
 param now string = utcNow()
-param githubServicePrincipalId string
 
 
 ///////////////////////////////////
 // Configuration
 
+var names = loadJsonContent('./../names.json')
 var config = loadJsonContent('./../config.json')
 
 var tags = {
-  product: config.platformResourcePrefix
+  product: config.platformAbbreviation
 }
 
 
 ///////////////////////////////////
 // Resource names
 
-var platformGroupName = '${config.platformResourcePrefix}-platform'
-var containerRegistryName = replace('${config.platformResourcePrefix}-registry', '-', '')
-var logsName = '${config.platformResourcePrefix}-logs'
-var storageAccountName = replace('${config.platformResourcePrefix}sa', '-', '')
-var sqlMigrationContainerName = 'sql-migration'
+var githubIdentityName = replace(names.githubIdentityName, '{platform}', config.platformAbbreviation)
+var platformGroupName = replace(names.platformGroupName, '{platform}', config.platformAbbreviation)
+var platformContainerRegistryName = replace(replace(names.platformContainerRegistryName, '{platform}', config.platformAbbreviation), '-', '')
+var platformLogsName = replace(names.platformLogsName, '{platform}', config.platformAbbreviation)
+var platformStorageAccountName = replace(names.platformStorageAccountName, '{platform}', config.platformAbbreviation)
 
 
 ///////////////////////////////////
@@ -41,13 +41,13 @@ module platformResources 'resources.bicep' = {
   scope: platformGroup
   params: {
     location: config.location
-    githubServicePrincipalId: githubServicePrincipalId
     tags: tags
 
     // Resource names
-    containerRegistryName: containerRegistryName
-    logsName: logsName
-    storageAccountName: storageAccountName
-    sqlMigrationContainerName: sqlMigrationContainerName
+    githubIdentityName: githubIdentityName
+    platformContainerRegistryName: platformContainerRegistryName
+    platformLogsName: platformLogsName
+    platformStorageAccountName: platformStorageAccountName
+    sqlMigrationContainerName: names.platformSqlMigrationStorageContainerName
   }
 }

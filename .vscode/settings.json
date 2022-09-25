@@ -1,7 +1,8 @@
 {
     "files.associations": {
-        // Bicep can handle comments when loading ./infrastructure/config.json
-        // This allows us to add comments directly into the file without VSCode complaining about it.
-        "config.json": "jsonc"
+        // Bicep can handle comments when loading JSON files.
+        // This allows us to add comments directly into the files without VSCode complaining about it.
+        "config.json": "jsonc",
+        "names.json": "jsonc"
     }
 }

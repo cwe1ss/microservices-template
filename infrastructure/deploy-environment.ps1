@@ -16,11 +16,12 @@ $ErrorActionPreference = "Stop"
 ############################
 "Loading config"
 
+$names = Get-Content .\names.json | ConvertFrom-Json
 $config = Get-Content .\config.json | ConvertFrom-Json
 $envConfig = $config.environments | Select-Object -ExpandProperty $Environment
 
 # Naming conventions
-$sqlAdminAdGroupName = "$($envConfig.environmentResourcePrefix)-sql-admins"
+$sqlAdminAdGroupName = $($names.sqlAdminAdGroupName).Replace("{environment", $envConfig.environmentAbbreviation)
 
 
 ############################

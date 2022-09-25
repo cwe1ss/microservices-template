@@ -8,14 +8,14 @@ param tags object
 ///////////////////////////////////
 // Resource names
 
-param serviceBusName string
+param serviceBusNamespaceName string
 
 
 ///////////////////////////////////
 // New resources
 
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' = {
-  name: serviceBusName
+  name: serviceBusNamespaceName
   location: location
   tags: tags
   sku: {
