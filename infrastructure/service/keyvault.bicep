@@ -5,6 +5,8 @@ param tags object
 ///////////////////////////////////
 // Resource names
 
+param platformGroupName string
+param platformLogsName string
 param networkGroupName string
 param networkVnetName string
 param networkSubnetAppsName string
@@ -17,8 +19,14 @@ param svcVaultDataProtectionKeyName string
 ///////////////////////////////////
 // Existing resources
 
+var platformGroup = resourceGroup(platformGroupName)
 var networkGroup = resourceGroup(networkGroupName)
 var svcGroup = resourceGroup(svcGroupName)
+
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: platformLogsName
+  scope: platformGroup
+}
 
 resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   name: networkVnetName
@@ -76,6 +84,22 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
         }
       ]
     }
+  }
+}
+
+// https://learn.microsoft.com/en-us/azure/key-vault/key-vault-insights-overview
+// Persists all Key Vault logs for auditing and enables the logs-based visualizations for Key Vault Insights.
+resource vaultDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'logs'
+  scope: vault
+  properties: {
+    workspaceId: platformLogs.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
   }
 }
 

@@ -29,6 +29,7 @@ var tags = {
 // Platform
 var platformGroupName = replace(names.platformGroupName, '{platform}', config.platformAbbreviation)
 var platformContainerRegistryName = replace(replace(names.platformContainerRegistryName, '{platform}', config.platformAbbreviation), '-', '')
+var platformLogsName = replace(names.platformLogsName, '{platform}', config.platformAbbreviation)
 var platformStorageAccountName = toLower(replace(replace(names.platformStorageAccountName, '{platform}', config.platformAbbreviation), '-', ''))
 
 // Environment: Network
@@ -151,6 +152,8 @@ module svcVault 'keyvault.bicep' = {
     tags: tags
 
     // Resource names
+    platformGroupName: platformGroupName
+    platformLogsName: platformLogsName
     networkGroupName: networkGroupName
     networkVnetName: networkVnetName
     networkSubnetAppsName: names.networkSubnetAppsName
