@@ -4,10 +4,6 @@ param(
     [string] $SqlMigrationBlobUrl
 )
 
-#$ServerName = "lab-msa-dev-sql.database.windows.net"
-#$DatabaseName = "customers"
-#$SqlMigrationBlobUrl = ""
-
 $ErrorActionPreference = "Stop"
 
 ############################

@@ -327,10 +327,10 @@ To add a new service you can either copy one of the built-in service templates i
 
 If you want to delete all resources that have been created by this project, you must perform the following *manual* steps:
 
-* Delete the subscription role assignments for the GitHub identity (e.g. `lab-msa-github-id`)
-* Delete all Azure resource groups with the tag `product: (config.platformAbbreviation)` (e.g. `product: lab-msa`)
+* Delete the subscription role assignments for the GitHub identity (e.g. `dm-px-github-id`)
+* Delete all Azure resource groups with the tag `product: (config.platformAbbreviation)` (e.g. `product: dm-px`)
   * You should delete all service-groups first, environment-groups second, and platform-groups last.
-* Delete Azure AD groups that start with `(config.platformAbbreviation)-` (e.g. `lab-msa-dev-sql-admins`)
+* Delete Azure AD groups that start with `(config.platformAbbreviation)-` (e.g. `dm-px-dev-sql-admins`)
 * Delete all secrets from your GitHub repository
 * Delete all environments from your GitHub repository
 * Delete any GitHub Actions workflow runs

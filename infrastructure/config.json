@@ -72,8 +72,7 @@
             "minReplicas": 0,
             "maxReplicas": 1,
             "concurrentRequests": 15
-          },
-          "ingressExternal": true
+          }
         },
         "internal-grpc-sql-bus": {
           "app": {
@@ -89,13 +88,13 @@
           }
         },
         "internal-http-bus": {
+          "ingressExternal": false, // Setting this to true would publicly expose the internal service (e.g. for initial test purposes)
           "app": {
             "cpu": "0.5",
             "memory": "1.0Gi",
             "minReplicas": 0,
             "maxReplicas": 2
-          },
-          "ingressExternal": true
+          }
         },
         "public-razor": {
         }
@@ -103,7 +102,7 @@
     },
 
     "production": {
-      // TEMPLATE_MUST_CHANGE: Every resource in the environment will use this name prefix.
+      // TEMPLATE_MUST_CHANGE: Every resource in the environment will use this name abbreviation.
       "environmentAbbreviation": "dm-px-prd"
     }
   }
