@@ -12,6 +12,7 @@ jobs:
   deploy:
     strategy:
       matrix:
+        # TEMPLATE_ADD_ENVIRONMENT Any new environment must be added here to allow the deployment of environment resources via GitHub Actions
         environment: [ development, production ]
 
     runs-on: ubuntu-latest

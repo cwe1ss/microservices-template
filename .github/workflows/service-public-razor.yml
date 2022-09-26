@@ -11,6 +11,7 @@ permissions:
   contents: read
 
 jobs:
+
   build:
     uses: ./.github/workflows/_service-build.yml
     secrets: inherit
@@ -19,18 +20,15 @@ jobs:
       servicePath: services/_public-razor
       hostProjectName: PublicRazor.Web
 
-  deploy-development:
+  deploy:
+    strategy:
+      matrix:
+        # TEMPLATE_ADD_ENVIRONMENT Any new environment the service should be deployed into must be added here
+        environment: [ development, production ]
+
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
     secrets: inherit
     with:
       service: public-razor
-      environment: development
-
-  # deploy-production:
-  #   needs: build
-  #   uses: ./.github/workflows/_service-deploy.yml
-  #   secrets: inherit
-  #   with:
-  #     service: public-razor
-  #     environment: production
+      environment: ${{ matrix.environment }}

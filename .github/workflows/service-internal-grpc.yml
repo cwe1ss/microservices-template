@@ -24,7 +24,7 @@ jobs:
   deploy:
     strategy:
       matrix:
-        # TEMPLATE_ADD_ENVIRONMENT Any new environment must be added here to allow the service to be deployed into the environment
+        # TEMPLATE_ADD_ENVIRONMENT Any new environment the service should be deployed into must be added here
         environment: [ development, production ]
 
     needs: build
