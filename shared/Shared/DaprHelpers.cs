@@ -49,7 +49,7 @@ public static class DaprHelpers
 
             // Dapr Interceptor
             o.InterceptorRegistrations.Add(new InterceptorRegistration(InterceptorScope.Channel, _ => new InvocationInterceptor(appId, daprApiToken)));
-        }).EnableCallContextPropagation();
+        }).EnableCallContextPropagation(o => o.SuppressContextNotFoundErrors = true);
     }
 
     /// <summary>
