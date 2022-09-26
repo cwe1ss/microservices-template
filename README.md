@@ -72,7 +72,7 @@ The repository is also integrated with [automatic dependency updates via GitHub 
 
 ## Azure Managed Identity for GitHub Actions
 
-GitHub Actions uses a user-assigned managed identity called `{platform}-github` to authenticate with Azure. The authentication leverages [federated credentials](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure) which means that there are no secrets stored in your GitHub repository!
+GitHub Actions uses a user-assigned managed identity called `{platform}-github-id` to authenticate with Azure. The authentication leverages [federated credentials](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure) which means that there are no secrets stored in your GitHub repository!
 
 Note that this is the newest way to integrate GitHub with Azure and "federated credentials" for managed identities are currently not even displayed in the Azure Portal. You have to use "Export template" to see them.
 
@@ -83,13 +83,13 @@ The alternative would have been to use a custom Azure AD application and service
 Microsoft recommends to start with a single workspace since this reduces the complexity of managing multiple workspaces and in querying data from them
 (https://docs.microsoft.com/en-us/azure/azure-monitor/logs/workspace-design).
 
-This template therefore uses one Log Analytics workspace called `{platform}-logs` that's shared by all services and environments.
+This template therefore uses one Log Analytics workspace called `{platform}-log` that's shared by all services and environments.
 
 Each environment however uses its own "Application Insights"-instance (which are backed by the shared Log Analytics workspace)
 
 ## Azure Container Registry
 
-Services are built using Docker and container images are stored in one global Azure container registry called `{platform}registry` (dashes are not allowed for container registries).
+Services are built using Docker and container images are stored in one global Azure container registry called `{platform}cr` (dashes are not allowed for container registries).
 
 As no environment-specific logic should be included in a container image, we do not use an environment-specific registry.
 
@@ -97,7 +97,7 @@ All services are given RBAC-based "AcrPull"-access to the container registry.
 
 ## Azure Storage Account
 
-There is one global Azure Storage account called `{platform}sa` (dashes aren't allowed) that can be used for data that's needed by all environments and services.
+There is one global Azure Storage account called `{platform}st` (dashes aren't allowed) that can be used for data that's needed by all environments and services.
 
 We currently use it to store the SQL migration scripts for services that use Entity Framework Core.
 
@@ -109,17 +109,17 @@ An environment in our template consists of the following resources:
 
 ## Azure Virtual Network
 
-The Azure Container Apps environment is deployed into a custom VNET called `{env}-vnet` to allow you to configure Network Security Groups and to connect the VNET with your existing infrastructure.
+The Azure Container Apps environment is deployed into a custom VNET called `{environment}-vnet` to allow you to configure Network Security Groups and to connect the VNET with your existing infrastructure.
 
 You can use VNET peering to connect the VNET to your hub if you use a [Hub-spoke network topology](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli)
 
-The VNET uses its own `{env}-network` resource group since it might require additional manual resources or RBAC permissions. It also might need to stay alive even when an entire environment should be deleted.
+The VNET uses its own `{environment}-network` resource group since it might require additional manual resources or RBAC permissions. It also might need to stay alive even when an entire environment should be deleted.
 
 ## Azure Container Apps environment
 
 To minimize the operations efforts, we use Azure Container Apps for hosting the microservices system.
 
-The Azure Container Apps environment is called `{env}-env` and is created in a `{env}-env`-resource group. The environment is connected to the previously mentioned VNET.
+The Azure Container Apps environment is called `{environment}-env` and is created in a `{environment}-env`-resource group. The environment is connected to the previously mentioned VNET.
 
 The environment contains a Dapr "pubsub" component that allows services to use Azure Service Bus.
 
@@ -129,31 +129,31 @@ This template supports Azure SQL Database as the main data storage solution. Azu
 
 Azure SQL Database requires a logical "SQL Server"-resource, which will be shared by all databases. This allows you to enable "Microsoft Defender for SQL" and only pay for one sql server instance.
 
-The SQL Server is called `{env}-sql` and is deployed into a `{env}-sql` resource group.
+The SQL Server is called `{environment}-sql` and is deployed into a `{environment}-sql` resource group.
 
-The SQL server is configured to allow **Azure AD authentication only**. The server will use an Azure AD group called `{env}-sql-admins` as the "Azure Active Directory admin". You can therefore add multiple users to this AAD group if you want additional admins.
+The SQL server is configured to allow **Azure AD authentication only**. The server will use an Azure AD group called `{environment}-sql-admins` as the "Azure Active Directory admin". You can therefore add multiple users to this AAD group if you want additional admins.
 
-The server is also assigned a user-assigned managed identity called `{env}-sql-admin` which is also added to the admins-group. It is used for authenticating incoming Azure AD authentications, for applying any SQL migrations scripts, and for adding the service-identities as users to the SQL databases.
+The server is also assigned a user-assigned managed identity called `{environment}-sql-admin-id` which is also added to the admins-group. It is used for authenticating incoming Azure AD authentications, for applying any SQL migrations scripts, and for adding the service-identities as users to the SQL databases.
 
-Unfortunately, the databases and the logical server need to be in the same resource group. This means that service deployments will add their database and deployment scripts to the shared `{env}-sql` resource group.
+Unfortunately, the databases and the logical server need to be in the same resource group. This means that service deployments will add their database and deployment scripts to the shared `{environment}-sql` resource group.
 
 ## Azure Service Bus namespace
 
 This template uses Azure Service Bus for asynchronous communication.
 
-A "Service Bus namespace" called `{env}-bus` is shared by all services and placed in its own `{env}-bus` resource group.
+A "Service Bus namespace" called `{environment}-bus` is shared by all services and placed in its own `{environment}-bus` resource group.
 
 Topics and subscriptions are managed by the Dapr "pubsub"-component. Services can use this component to automatically create topics and subscriptions.
 
 ## Azure Application Insights
 
-An environment-specific Application Insights resource called `{env}-appinsights` is created in a `{env}-monitoring`-resource group. The Application Insights resource stores its data in the global Log Analytics workspace, so monitoring for an environment can be done via both places.
+An environment-specific Application Insights resource called `{environment}-appi` is created in a `{environment}-monitoring`-resource group. The Application Insights resource stores its data in the global Log Analytics workspace, so monitoring for an environment can be done via both places.
 
 Having an Application Insights resource per environment allows you to get an environment-specific Application Map and allows for environment-specific alert rules, etc.
 
 ## Azure Dashboard
 
-A simple environment-specific dashboard called `{env}-dashboard` is created in the `{env}-monitoring` resource group. The dashboard allows you to quickly get an overview about the resources in your environment.
+A simple environment-specific dashboard called `{environment}-dashboard` is created in the `{environment}-monitoring` resource group. The dashboard allows you to quickly get an overview about the resources in your environment.
 
 You can extend this dashboard by modifying the dashboard, exporting it to JSON and incorporating it it into the `./infrastructure/environment/monitoring.bicp`-file.
 
@@ -165,31 +165,31 @@ Each service in our template consists of the following resources:
 
 ## Azure managed identity
 
-A user-assigned identity `{env}-{service}` is created for each service. This identity will be used to access any of its Azure dependencies, like its SQL database or its Azure Key Vault.
+A user-assigned identity `{environment}-{service}-id` is created for each service. This identity will be used to access any of its Azure dependencies, like its SQL database or its Azure Key Vault.
 
 The identity will also be assigned the "AcrPull"-role on the global Azure Container Registry, so that Container Apps can pull the image without using a legacy registry password.
 
 ## Azure Key Vault
 
-Each service is given its own Azure Key Vault called `{env}{service}` (dashes are not allowed for Key Vault names).
+Each service is given its own Azure Key Vault called `{environment}{service}kv` (dashes are not allowed for Key Vault names).
 
 The Key Vault is currently used to encrypt/decrypt the "ASP.NET Core Data Protection"-keys but it can also be used for additional custom keys/secrets/certificates.
 
 ## Azure Storage Account
 
-Each service is given its own Azure Storage account called `{env}{service}` (dashes are not allowed for Storage Account names) to store service-specific blobs & files.
+Each service is given its own Azure Storage account called `{environment}{service}st` (dashes are not allowed for Storage Account names) to store service-specific blobs & files.
 
 The storage account is currently used to store the "ASP.NET Core Data Protection" keys. This is necessary to support Data Protection for apps that use multiple instances.
 
 ## Azure Container Apps app
 
-The app itself is hosted in an Azure Container App. The app is called `{env}{service}` (truncated to 24 characters) and is connected to the environment-specific "Azure Container App environment".
+The app itself is hosted in an Azure Container App. The app is called `{environment}{service}` (truncated to 24 characters) and is connected to the environment-specific "Azure Container App environment".
 
 We support different kinds of services (`./infrastructure/config.json`) that result in differently configured "Container Apps" (e.g. internal grpc, internal http, public endpoint)
 
 ## Optional: Azure SQL Database
 
-A service can opt-in to store data in a Azure SQL Database. If so, a service-specific SQL Database will be created in the environment-specific `{env}-sql`-resource group.
+A service can opt-in to store data in a Azure SQL Database. If so, a service-specific SQL Database will be created in the environment-specific `{environment}-sql`-resource group.
 
 The service-specific identity will be given `db_datareader` & `db_datawriter` rights in this database.
 
@@ -204,9 +204,9 @@ You can create your own microservices system from this template by following the
 * Download this repository
   * You should NOT fork it as you would then inherit its git history
 * Adjust the deployment configuration `./infrastructure/config.json`
+* Execute the initialization script locally `./infrastructure/init-platform.ps1`
 * Push your changes to a GitHub repository
-* Execute the platform initialization script locally `./infrastructure/init-platform.ps1`
-* Deploy the shared platform resources via GitHub Actions
+* Optional: Deploy the shared platform resources (again)
 * Deploy the shared environment resources via GitHub Actions
 * Deploy the sample services via GitHub Actions
 * Add your own services
@@ -218,7 +218,7 @@ All code to deploy the microservices system is stored in the `./.github` &  `./i
 
 The configuration for the entire system is stored in `./infrastructure/config.json` and contains the following important settings:
 
-* Resource prefixes for your platform-resources and environment-resources. All created resources will inherit these prefixes.
+* Resource abbreviations for your platform-resources and environment-resources. All created resources will inherit these abbreviations.
 * Azure Location
 * The list of available services with their service-independent settings.
 * The list of available environments, and for each environment:
@@ -231,7 +231,7 @@ The configuration for the entire system is stored in `./infrastructure/config.js
 
 To automate the deployment of Azure resources, the GitHub repository must be connected to the Azure subscription. As this connection requires elevated permissions and multiple steps, we provide the following script to automates them: `./infrastructure/init-platform.ps1`.
 
-The script will create an Azure AD managed identity that will be used by GitHub Actions to deploy resources to Azure. The credentials of this application will be stored as "secrets" in the GitHub repository.
+The script will deploy the shared Azure platform resources and it will create an Azure AD managed identity that will be used by GitHub Actions to deploy resources to Azure. The credentials of this identity will be stored as "secrets" in the GitHub repository.
 
 The script will also create the configured "environments" from `./infrastructure/config.json` in the GitHub repository to allow for environment-specific protection rules when deploying resources.
 
@@ -252,17 +252,19 @@ cd .\infrastructure\
 .\init-platform.ps1
 ```
 
-## Deploy the shared platform resources
+## Push your changes to a GitHub repository
 
-Once you have connected your GitHub repository with your Azure Account, you can start deploying any other resources via the provided GitHub workflows.
+Now that GitHub has been connected with Azure, you can push your changes to your GitHub repository.
 
-To deploy the platform resources, you have to use the GitHub workflow `.github/workflows/platform.yml` which will be displayed as `1. Platform` in the GitHub Actions UI.
+You should wait until now, because this push will trigger the build workflows for the services. If you had pushed the repository before running the initialization script, these workflows would have failed.
 
-This will create all platform resources that have been documented in the previous "Platform"-chapter.
+## Optional: Deploy the shared platform resources (again)
+
+The initialization script has already deployed the shared Azure platform resources. You can make sure that the connection between GitHub and Azure is correct by redeploying the platform resources with the GitHub workflow `.github/workflows/platform.yml`, which will be displayed as `1. Platform` in the GitHub Actions UI.
+
+You have to manually run this workflow whenever you change any of the platform resources in the Bicep files.
 
 ## Deploy the shared environment resources
-
-Since the environments depend on platform resources, you must wait for your platform deployment to finish.
 
 To deploy the shared environment resources, you have to use the GitHub workflow `.github/workflows/environments.yml` which will be displayed as `2. Environments` in the GitHub Actions UI.
 
@@ -325,7 +327,7 @@ To add a new service you can either copy one of the built-in service templates i
 
 If you want to delete all resources that have been created by this project, you must perform the following *manual* steps:
 
-* Delete the subscription role assignments for the GitHub identity (e.g. `lab-msa-github`)
+* Delete the subscription role assignments for the GitHub identity (e.g. `lab-msa-github-id`)
 * Delete all Azure resource groups with the tag `product: (config.platformAbbreviation)` (e.g. `product: lab-msa`)
   * You should delete all service-groups first, environment-groups second, and platform-groups last.
 * Delete Azure AD groups that start with `(config.platformAbbreviation)-` (e.g. `lab-msa-dev-sql-admins`)
