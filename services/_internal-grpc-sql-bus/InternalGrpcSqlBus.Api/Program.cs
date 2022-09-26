@@ -1,9 +1,8 @@
-using System.Collections;
-using Dapr.Client;
 using InternalGrpc.Api;
 using InternalGrpcSqlBus.Api;
 using InternalGrpcSqlBus.Api.Domain;
 using Microsoft.EntityFrameworkCore;
+using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +25,8 @@ builder.Services.AddGrpc(options =>
 builder.Services.AddGrpcReflection();
 builder.Services.AddGrpcSwagger();
 
-// gRPC Clients
-// TODO Can we make this work with .AddGrpcClient() ??
-var internalGrpcInvoker = DaprClient.CreateInvocationInvoker("internal-grpc"); // invoker should be singleton according to docs
-builder.Services.AddTransient(_ => new InternalGrpcEntities.InternalGrpcEntitiesClient(internalGrpcInvoker));
+// gRPC Clients (uses a custom extension method from Shared)
+builder.Services.AddDaprGrpcClient<InternalGrpcEntities.InternalGrpcEntitiesClient>("internal-grpc");
 
 // EF Core
 builder.Services.AddDbContext<CustomersDbContext>(options =>
@@ -42,11 +39,6 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<CustomersDbContext>();
 
 var app = builder.Build();
-
-foreach (DictionaryEntry environmentVariable in Environment.GetEnvironmentVariables())
-{
-    Console.WriteLine($"{environmentVariable.Key}: {environmentVariable.Value}");
-}
 
 
 // Configure the HTTP request pipeline.

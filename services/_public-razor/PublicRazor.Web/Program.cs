@@ -1,8 +1,8 @@
 using Azure.Identity;
-using Dapr.Client;
 using InternalGrpc.Api;
 using InternalGrpcSqlBus.Api;
 using Microsoft.AspNetCore.DataProtection;
+using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,19 +30,12 @@ if (!builder.Environment.IsDevelopment())
 // Application Insights
 builder.Services.AddCustomAppInsights();
 
-// gRPC Clients
-var internalGrpcInvoker = DaprClient.CreateInvocationInvoker("internal-grpc"); // invoker should be singleton according to docs
-var internalGrpcSqlBusInvoker = DaprClient.CreateInvocationInvoker("internal-grpc-sql-bus");
-builder.Services.AddTransient(_ => new InternalGrpcEntities.InternalGrpcEntitiesClient(internalGrpcInvoker));
-builder.Services.AddTransient(_ => new Customers.CustomersClient(internalGrpcSqlBusInvoker));
+// gRPC Clients (uses a custom extension method from Shared)
+builder.Services.AddDaprGrpcClient<InternalGrpcEntities.InternalGrpcEntitiesClient>("internal-grpc");
+builder.Services.AddDaprGrpcClient<Customers.CustomersClient>("internal-grpc-sql-bus");
 
-// HTTP Clients
-var baseUrl = (Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost") + ":" + (Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3500");
-builder.Services.AddHttpClient("internal-http-bus", (httpClient) =>
-{
-    httpClient.BaseAddress = new Uri(baseUrl);
-    httpClient.DefaultRequestHeaders.Add("dapr-app-id", "internal-http-bus");
-});
+// HTTP Clients (uses a custom extension method from Shared)
+builder.Services.AddDaprHttpClient("internal-http-bus");
 
 // Health checks
 builder.Services.AddHealthChecks();
@@ -54,7 +47,6 @@ var app = builder.Build();
 
 app.UseDeveloperExceptionPage();
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
