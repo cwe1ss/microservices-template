@@ -29,7 +29,7 @@ public static class DaprHelpers
 
     public static IHttpClientBuilder AddDaprHttpClient(this IServiceCollection services, string appId)
     {
-        services.TryAddSingleton<AppInsightsHttpMessageHandler>();
+        services.TryAddTransient<AppInsightsHttpMessageHandler>();
 
         var baseUrl = (Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost") + ":" + (Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3500");
 
