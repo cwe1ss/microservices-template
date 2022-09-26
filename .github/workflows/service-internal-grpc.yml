@@ -12,6 +12,7 @@ permissions:
   contents: read
 
 jobs:
+
   build:
     uses: ./.github/workflows/_service-build.yml
     secrets: inherit
@@ -20,18 +21,15 @@ jobs:
       servicePath: services/_internal-grpc
       hostProjectName: InternalGrpc.Api
 
-  deploy-development:
+  deploy:
+    strategy:
+      matrix:
+        # TEMPLATE_ADD_ENVIRONMENT Any new environment must be added here to allow the service to be deployed into the environment
+        environment: [ development, production ]
+
     needs: build
     uses: ./.github/workflows/_service-deploy.yml
     secrets: inherit
     with:
       service: internal-grpc
-      environment: development
-
-  # deploy-production:
-  #   needs: build
-  #   uses: ./.github/workflows/_service-deploy.yml
-  #   secrets: inherit
-  #   with:
-  #     service: internal-grpc
-  #     environment: production
+      environment: ${{ matrix.environment }}
