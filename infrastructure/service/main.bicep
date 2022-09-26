@@ -154,6 +154,7 @@ module svcVault 'keyvault.bicep' = {
     // Resource names
     platformGroupName: platformGroupName
     platformLogsName: platformLogsName
+    diagnosticSettingsName: names.diagnosticSettingsName
     networkGroupName: networkGroupName
     networkVnetName: networkVnetName
     networkSubnetAppsName: names.networkSubnetAppsName

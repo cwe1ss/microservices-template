@@ -49,5 +49,7 @@
   "svcDataProtectionKeyName": "data-protection",
 
   "svcArtifactContainerImageName": "{platform}-{service}",
-  "svcArtifactSqlMigrationFile": "{platform}-{service}-{buildNumber}.sql"
+  "svcArtifactSqlMigrationFile": "{platform}-{service}-{buildNumber}.sql",
+
+  "diagnosticSettingsName": "logs"
 }
