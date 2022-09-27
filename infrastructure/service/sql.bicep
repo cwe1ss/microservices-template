@@ -85,9 +85,12 @@ resource sqlDeployUserScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
   }
   properties: {
     forceUpdateTag: '0' // This script must only execute once, so we can always use the same update tag!
+    containerSettings: {
+      containerGroupName: sqlDeployUserScriptName
+    }
     azPowerShellVersion: '8.2.0'
     retentionInterval: 'P1D'
-    cleanupPreference: 'OnSuccess'
+    cleanupPreference: 'Always'
     scriptContent: loadTextContent('sql-user.ps1')
     arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${sqlDatabase.name} -UserName ${svcUser.name}'
     timeout: 'PT10M'
@@ -116,9 +119,12 @@ resource deploySqlMigrationScript 'Microsoft.Resources/deploymentScripts@2020-10
   }
   properties: {
     forceUpdateTag: buildNumber // The migration only needs to be applied once per build
+    containerSettings: {
+      containerGroupName: sqlDeployMigrationScriptName
+    }
     azPowerShellVersion: '8.2.0'
     retentionInterval: 'P1D'
-    cleanupPreference: 'OnSuccess'
+    cleanupPreference: 'Always'
     scriptContent: loadTextContent('sql-migration.ps1')
     arguments: '-ServerName ${sqlServer.properties.fullyQualifiedDomainName} -DatabaseName ${sqlDatabase.name} -SqlMigrationBlobUrl \\"${sqlMigrationBlobUrl}\\"'
     timeout: 'PT10M'
