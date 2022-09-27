@@ -89,7 +89,8 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 }
 
 // https://learn.microsoft.com/en-us/azure/key-vault/key-vault-insights-overview
-// Persists all Key Vault logs for auditing and enables the logs-based visualizations for Key Vault Insights.
+// https://azure.github.io/PSRule.Rules.Azure/en/rules/Azure.KeyVault.Logs/
+// Store audit logs and enables the logs-based visualizations for Key Vault Insights.
 resource vaultDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: diagnosticSettingsName
   scope: vault
@@ -97,7 +98,7 @@ resource vaultDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-
     workspaceId: platformLogs.id
     logs: [
       {
-        categoryGroup: 'allLogs'
+        category: 'AuditEvent'
         enabled: true
       }
     ]
