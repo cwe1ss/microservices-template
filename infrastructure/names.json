@@ -19,6 +19,7 @@
 
   "networkGroupName": "{environment}-network",
   "networkVnetName": "{environment}-vnet",
+  "networkNsgAppsName": "{environment}-apps-nsg",
   "networkSubnetAppsName": "apps-snet",
 
   "monitoringGroupName": "{environment}-monitoring",

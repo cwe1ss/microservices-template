@@ -103,7 +103,12 @@
 
     "production": {
       // TEMPLATE_MUST_CHANGE: Every resource in the environment will use this name abbreviation.
-      "environmentAbbreviation": "dm-px-prd"
+      "environmentAbbreviation": "dm-px-prd",
+      "vnetAddressPrefix": "10.131.0.0/16",
+      "appsSubnetAddressPrefix": "10.131.0.0/21",
+      "services": {
+        // TEMPLATE_ADD_SERVICE: Each service MAY be added to any environment it should be deployed to.
+      }
     }
   }
 }

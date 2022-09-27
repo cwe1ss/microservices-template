@@ -135,7 +135,7 @@ resource dashboard 'Microsoft.Portal/dashboards@2020-09-01-preview' = {
                       visualization: {
                         disablePinning: true
                       }
-                      metrics: [ for item in items(envConfig.services): {
+                      metrics: [ for item in (contains(envConfig, 'services') ? items(envConfig.services) : []): {
                           resourceMetadata: {
                             id: resourceId(
                               replace(replace(names.svcGroupName, '{environment}', envConfig.environmentAbbreviation), '{service}', item.key),

@@ -35,6 +35,7 @@ var platformStorageAccountName = toLower(replace(replace(names.platformStorageAc
 // Environment: Network
 var networkGroupName = replace(names.networkGroupName, '{environment}', envConfig.environmentAbbreviation)
 var networkVnetName = replace(names.networkVnetName, '{environment}', envConfig.environmentAbbreviation)
+var networkSubnetAppsName = replace(names.networkSubnetAppsName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Monitoring
 var monitoringGroupName = replace(names.monitoringGroupName, '{environment}', envConfig.environmentAbbreviation)
@@ -133,7 +134,7 @@ module svcStorage 'storage.bicep' = {
     // Resource names
     networkGroupName: networkGroupName
     networkVnetName: networkVnetName
-    networkSubnetAppsName: names.networkSubnetAppsName
+    networkSubnetAppsName: networkSubnetAppsName
     svcGroupName: svcGroupName
     svcUserName: svcUserName
     svcStorageAccountName: svcStorageAccountName
@@ -157,7 +158,7 @@ module svcVault 'keyvault.bicep' = {
     diagnosticSettingsName: names.diagnosticSettingsName
     networkGroupName: networkGroupName
     networkVnetName: networkVnetName
-    networkSubnetAppsName: names.networkSubnetAppsName
+    networkSubnetAppsName: networkSubnetAppsName
     svcGroupName: svcGroupName
     svcUserName: svcUserName
     svcVaultName: svcKeyVaultName

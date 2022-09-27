@@ -162,6 +162,7 @@ You can extend this dashboard by modifying the dashboard, exporting it to JSON a
 Each service in our template consists of the following resources:
 
 ![Azure service resources](docs/azure-service.png)
+(Screenshot based on the service `internal-grpc-sql-bus`, which uses an optional SQL database)
 
 ## Azure managed identity
 
@@ -171,13 +172,13 @@ The identity will also be assigned the "AcrPull"-role on the global Azure Contai
 
 ## Azure Key Vault
 
-Each service is given its own Azure Key Vault called `{environment}{service}kv` (dashes are not allowed for Key Vault names).
+Each service is given its own Azure Key Vault called `{environment}{service}kv` (truncated to 24 characters, dashes are not allowed for Key Vault names).
 
 The Key Vault is currently used to encrypt/decrypt the "ASP.NET Core Data Protection"-keys but it can also be used for additional custom keys/secrets/certificates.
 
 ## Azure Storage Account
 
-Each service is given its own Azure Storage account called `{environment}{service}st` (dashes are not allowed for Storage Account names) to store service-specific blobs & files.
+Each service is given its own Azure Storage account called `{environment}{service}st` (truncated to 24 characters, dashes are not allowed for Storage Account names) to store service-specific blobs & files.
 
 The storage account is currently used to store the "ASP.NET Core Data Protection" keys. This is necessary to support Data Protection for apps that use multiple instances.
 

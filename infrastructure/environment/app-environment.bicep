@@ -30,8 +30,7 @@ param appEnvName string
 var config = loadJsonContent('./../config.json')
 
 var servicesWithServiceBusEnabled = map(filter(items(config.services), svc => contains(svc.value, 'serviceBusEnabled') && svc.value.serviceBusEnabled == true), svc => svc.key)
-
-output servicesWithServiceBusEnabled array = servicesWithServiceBusEnabled
+//var servicesWithServiceBusEnabled = []
 
 
 ///////////////////////////////////

@@ -30,6 +30,8 @@ var platformLogsName = replace(names.platformLogsName, '{platform}', config.plat
 // Environment: Network
 var networkGroupName = replace(names.networkGroupName, '{environment}', envConfig.environmentAbbreviation)
 var networkVnetName = replace(names.networkVnetName, '{environment}', envConfig.environmentAbbreviation)
+var networkSubnetAppsName = replace(names.networkSubnetAppsName, '{environment}', envConfig.environmentAbbreviation)
+var networkNsgAppsName = replace(names.networkNsgAppsName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Monitoring
 var monitoringGroupName = replace(names.monitoringGroupName, '{environment}', envConfig.environmentAbbreviation)
@@ -93,8 +95,12 @@ module networkResources 'network.bicep' = {
     tags: tags
 
     // Resource names
+    platformGroupName: platformGroupName
+    platformLogsName: platformLogsName
+    diagnosticSettingsName: names.diagnosticSettingsName
     networkVnetName: networkVnetName
-    networkSubnetAppsName: names.networkSubnetAppsName
+    networkSubnetAppsName: networkSubnetAppsName
+    networkNsgAppsName: networkNsgAppsName
   }
 }
 
@@ -131,7 +137,7 @@ module sqlResources 'sql.bicep' = {
     // Resource names
     networkGroupName: networkGroupName
     networkVnetName: networkVnetName
-    networkSubnetAppsName: names.networkSubnetAppsName
+    networkSubnetAppsName: networkSubnetAppsName
     sqlServerName: sqlServerName
     sqlServerAdminUserName: sqlServerAdminUserName
     sqlAdminAdGroupName: sqlAdminAdGroupName
@@ -167,7 +173,7 @@ module appsResources 'app-environment.bicep' = {
     platformLogsName: platformLogsName
     networkGroupName: networkGroupName
     networkVnetName: networkVnetName
-    networkSubnetAppsName: names.networkSubnetAppsName
+    networkSubnetAppsName: networkSubnetAppsName
     serviceBusGroupName: serviceBusGroupName
     serviceBusNamespaceName: serviceBusNamespaceName
     monitoringGroupName: monitoringGroupName
