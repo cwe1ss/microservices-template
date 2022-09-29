@@ -28,6 +28,7 @@
 
   "serviceBusGroupName": "{environment}-bus",
   "serviceBusNamespaceName": "{environment}-bus",
+  "serviceBusDaprPubSubKeyName": "dapr-pubsub",
 
   "sqlGroupName": "{environment}-sql",
   "sqlServerName": "{environment}-sql",

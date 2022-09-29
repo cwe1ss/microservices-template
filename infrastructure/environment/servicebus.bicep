@@ -9,6 +9,7 @@ param tags object
 // Resource names
 
 param serviceBusNamespaceName string
+param serviceBusDaprPubSubKeyName string
 
 
 ///////////////////////////////////
@@ -25,5 +26,17 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview
   properties: {
     minimumTlsVersion: '1.2'
     publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource daprPubSubKey 'Microsoft.ServiceBus/namespaces/AuthorizationRules@2022-01-01-preview' = {
+  name: serviceBusDaprPubSubKeyName
+  parent: serviceBusNamespace
+  properties: {
+    rights: [
+      'Listen'
+      'Send'
+      'Manage'
+    ]
   }
 }

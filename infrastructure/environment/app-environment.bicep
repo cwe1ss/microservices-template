@@ -19,6 +19,7 @@ param networkVnetName string
 param networkSubnetAppsName string
 param serviceBusGroupName string
 param serviceBusNamespaceName string
+param serviceBusDaprPubSubKeyName string
 param monitoringGroupName string
 param monitoringAppInsightsName string
 param appEnvName string
@@ -102,7 +103,7 @@ resource pubsubComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-
     secrets: [
       {
         name: 'pubsub-connection-string'
-        value: listKeys('${serviceBusNamespace.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBusNamespace.apiVersion).primaryConnectionString
+        value: listKeys('${serviceBusNamespace.id}/AuthorizationRules/${serviceBusDaprPubSubKeyName}', serviceBusNamespace.apiVersion).primaryConnectionString
       }
     ]
     metadata: [
