@@ -294,19 +294,27 @@ The template contains the following service templates, located in `./services` (
 * **internal-http-bus:** An internal HTTP API that subscribes to events from "internal-grpc-sql-bus" and exposes information about them in a HTTP endpoint
 * **public-razor:** A public ASP.NET Core Razor Pages website that communicates with the internal services.
 
-To add a new service you can either copy one of the built-in service templates in `./services` or you can start from scratch.
+To add a new service based on these service templates, you can use the script `./add-service.ps1`:
 
-* Copy and paste the desired service template in `./services`.
-* Rename the service folder to your desired service name (remove the underscore, use only lowercase characters)
-* Rename files and folders in the service directory (solution file, project folder, project files)
-* Update paths in solution files (in service folder and in the global solution file)
-* Update namespaces in the C# files
+```ps
+.\add-service.ps1 -Template "public-razor" -ServiceName "website" -NamespaceName "Website"
+```
+This script will:
+
+* Copy the desired service template in `./services` and paste it with the given `ServiceName`.
+* Rename the files and folders in the service directory (solution file, project folder, project files)
+* Copy the `./protos/*.proto` file, if one exists for the template
+* Update paths in the project file and in the solution file
+* Update namespaces in the C#-files and Razor-files
+* Add the project to the global solution
+* Create a GitHub workflow file `./.github/workflows/service-{your-service-name}.yml` based on the template.
+* Update all paths in that workflow file.
+* Compile the service directory to see if everything works.
+
+Once the new service has been created, you must still perform a few manual tasks:
+
 * Modify the code to fit your requirements
-* Ensure that the service `*.sln` and the global `*.sln` compile.
 * Update `./infrastructure/config.json` and add the service to the global `services`-section and to each environment in the `environments`-section.
-* Copy and paste the corresponding GitHub workflow file in `./.github/workflows`
-* Rename it to match `service-{your-service-name}.yml`
-* Update the workflow-file and replace the name and each occurence of a service name or path
 * Push the code to GitHub
 * Run the environments workflow `./github/workflows/environments.yml` (displayed as `2. Environments`) to update any shared dependencies (Dashboard, PubSub-component)
 * Run the service workflow and deploy the service to the desired environments.
