@@ -14,9 +14,10 @@
     //
     // Possible settings for each service:
     // * appType: "grpc" | "http" | "public"  (required)
-    // * serviceBusEnabled: Whether the service needs to access Azure Service Bus.    (optional, defaults to false)
-    //   - The Dapr pubsub-component in the app environment will be scoped th these services.
-    // * sqlDatabaseEnabled: Whether the service needs its own Azure SQL Database     (optional, defaults to false)
+    // * serviceBusEnabled: Whether the service needs to access Azure Service Bus.                        (optional, defaults to false)
+    // * serviceBusTopics: A list of "topics" that this service will *send* messages to.                  (optional)
+    // * serviceBusSubscriptions: A list of "topics" that this service wants to *receive* messages from.  (optional)
+    // * sqlDatabaseEnabled: Whether the service needs its own Azure SQL Database.                        (optional, defaults to false)
 
     "internal-grpc": {
       "appType": "grpc"
@@ -24,11 +25,17 @@
     "internal-grpc-sql-bus": {
       "appType": "grpc",
       "serviceBusEnabled": true,
+      "serviceBusTopics": [
+        "customer-created"
+      ],
       "sqlDatabaseEnabled": true
     },
     "internal-http-bus": {
       "appType": "http",
-      "serviceBusEnabled": true
+      "serviceBusEnabled": true,
+      "serviceBusSubscriptions": [
+        "customer-created"
+      ]
     },
     "public-razor": {
       "appType": "public"

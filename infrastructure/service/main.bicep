@@ -16,6 +16,9 @@ var config = loadJsonContent('./../config.json')
 var envConfig = config.environments[environment]
 var serviceDefaults = config.services[serviceName]
 
+var sqlDatabaseEnabled = contains(serviceDefaults, 'sqlDatabaseEnabled') ? serviceDefaults.sqlDatabaseEnabled : false
+var serviceBusEnabled = contains(serviceDefaults, 'serviceBusEnabled') ? serviceDefaults.serviceBusEnabled : false
+
 var tags = {
   product: config.platformAbbreviation
   environment: envConfig.environmentAbbreviation
@@ -47,8 +50,8 @@ var sqlServerAdminUserName = replace(names.sqlServerAdminName, '{environment}', 
 var sqlServerName = replace(names.sqlServerName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Service Bus
-//var serviceBusGroupName = replace(names.serviceBusGroupName, '{environment}', envConfig.environmentAbbreviation)
-//var serviceBusNamespaceName = replace(names.serviceBusNamespaceName, '{environment}', envConfig.environmentAbbreviation)
+var serviceBusGroupName = replace(names.serviceBusGroupName, '{environment}', envConfig.environmentAbbreviation)
+var serviceBusNamespaceName = replace(names.serviceBusNamespaceName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Container Apps Environment
 var appEnvironmentGroupName = replace(names.appEnvironmentGroupName, '{environment}', envConfig.environmentAbbreviation)
@@ -70,6 +73,9 @@ var sqlDatabaseName = replace(replace(names.svcSqlDatabaseName, '{environment}',
 var sqlDeployUserScriptName = replace(replace(names.svcSqlDeployUserScriptName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
 var sqlDeployMigrationScriptName = replace(replace(names.svcSqlDeployMigrationScriptName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
 
+// Service: Dapr
+var svcDaprPubSubName = replace(names.svcDaprPubSubName, '{service}', serviceName)
+
 // Service: Build artifacts
 var svcArtifactContainerImageWithTag = '${replace(replace(names.svcArtifactContainerImageName, '{platform}', config.platformAbbreviation), '{service}', serviceName)}:${buildNumber}'
 var svcArtifactSqlMigrationFile = replace(replace(replace(names.svcArtifactSqlMigrationFile, '{platform}', config.platformAbbreviation), '{service}', serviceName), '{buildNumber}', buildNumber)
@@ -79,8 +85,9 @@ var svcArtifactSqlMigrationFile = replace(replace(replace(names.svcArtifactSqlMi
 // Existing resources
 
 var platformGroup = resourceGroup(platformGroupName)
+var appEnvironmentGroup = resourceGroup(appEnvironmentGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
-//var serviceBusGroup = resourceGroup(serviceBusGroupName)
+var serviceBusGroup = resourceGroup(serviceBusGroupName)
 
 
 ///////////////////////////////////
@@ -166,8 +173,6 @@ module svcVault 'keyvault.bicep' = {
   }
 }
 
-var sqlDatabaseEnabled = contains(serviceDefaults, 'sqlDatabaseEnabled') ? serviceDefaults.sqlDatabaseEnabled : false
-
 module svcSql 'sql.bicep' = if (sqlDatabaseEnabled) {
   name: 'svc-sql-${now}'
   scope: sqlGroup
@@ -193,19 +198,37 @@ module svcSql 'sql.bicep' = if (sqlDatabaseEnabled) {
   }
 }
 
-// module svcServiceBus 'servicebus.bicep' = if (serviceDefaults.serviceBus.enabled) {
-//   name: 'svc-bus-${now}'
-//   scope: serviceBusGroup
-//   params: {
-//     location: config.location
-//     environment: environment
-//     serviceName: serviceName
+module svcServiceBus 'servicebus.bicep' = if (serviceBusEnabled) {
+  name: 'svc-bus-${now}'
+  scope: serviceBusGroup
+  params: {
+    serviceName: serviceName
 
-//     // Resource names
-//     serviceBusGroupName: serviceBusGroupName
-//     serviceBusName: serviceBusName
-//   }
-// }
+    // Resource names
+    serviceBusNamespaceName: serviceBusNamespaceName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+  }
+}
+
+module svcAppEnvPubSub 'app-environment-pubsub.bicep' = if (serviceBusEnabled) {
+  name: 'svc-env-${now}'
+  scope: appEnvironmentGroup
+  dependsOn: [
+    svcServiceBus
+  ]
+  params: {
+    serviceName: serviceName
+
+    // Resource names
+    appEnvironmentName: appEnvironmentName
+    serviceBusGroupName: serviceBusGroupName
+    serviceBusNamespaceName: serviceBusNamespaceName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+    svcDaprPubSubName: svcDaprPubSubName
+  }
+}
 
 module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
   name: 'svc-app-grpc-${now}'
@@ -214,6 +237,8 @@ module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
     platform
     svcVault
     svcSql
+    svcServiceBus
+    svcAppEnvPubSub
   ]
   params: {
     location: config.location
@@ -244,6 +269,8 @@ module svcAppHttp 'app-http.bicep' = if (serviceDefaults.appType == 'http') {
     platform
     svcVault
     svcSql
+    svcServiceBus
+    svcAppEnvPubSub
   ]
   params: {
     location: config.location
@@ -274,6 +301,8 @@ module svcAppPublic 'app-public.bicep' = if (serviceDefaults.appType == 'public'
     platform
     svcVault
     svcSql
+    svcServiceBus
+    svcAppEnvPubSub
   ]
   params: {
     location: config.location

@@ -30,8 +30,8 @@ The template uses the following technologies:
   * The service's identity is automatically added to the SQL database with db_datareader/db_datawriter permissions.
   * EF Core Migrations are automatically applied during deployment by an admin identity with elevated privileges.
   * This means you can deploy a SQL-based service and immediately use it without any manual steps.
-* **(Almost) no passwords/secrets**
-  * Wherever possible, authentication is done via Azure AD, managed identities, and [federated credentials](https://docs.microsoft.com/en-us/graph/api/resources/federatedidentitycredentials-overview). This includes GitHub Actions & access to Azure SQL Database.
+* **ZERO passwords or secrets**
+  * Authentication is done entirely via Azure AD, managed identities, and [federated credentials](https://docs.microsoft.com/en-us/graph/api/resources/federatedidentitycredentials-overview). This includes GitHub Actions and access to Azure SQL Database & Azure Service Bus.
 
 # Overview
 
@@ -143,7 +143,8 @@ This template uses Azure Service Bus for asynchronous communication.
 
 A "Service Bus namespace" called `{environment}-bus` is shared by all services and placed in its own `{environment}-bus` resource group.
 
-Topics and subscriptions are managed by the Dapr "pubsub"-component. Services can use this component to automatically create topics and subscriptions.
+Topics and subscriptions are created when the individual services are deployed (as defined in `./infrastructure/config.json`. Each service uses its managed identity
+to access the topics and subscriptions.
 
 ## Azure Application Insights
 

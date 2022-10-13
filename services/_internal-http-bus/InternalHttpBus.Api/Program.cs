@@ -37,7 +37,7 @@ HashSet<string> customerIds = new();
 
 app.MapGet("/received-customers", () => Results.Ok(customerIds.ToArray()));
 
-app.MapPost("/receive-customer-created", [Topic("pubsub", "customer-created", $"event.type == \"{nameof(CustomerCreatedEvent)}\"", 1)] (CustomerCreatedEvent evt, ILogger<Program> logger) =>
+app.MapPost("/receive-customer-created", [Topic("pubsub-internal-http-bus", "customer-created", $"event.type == \"{nameof(CustomerCreatedEvent)}\"", 1)] (CustomerCreatedEvent evt, ILogger<Program> logger) =>
 {
     logger.LogWarning("Customer received: {evt}", evt);
 
@@ -46,12 +46,11 @@ app.MapPost("/receive-customer-created", [Topic("pubsub", "customer-created", $"
     return Results.Ok("Customer received");
 });
 
-app.MapPost("/receive-fallback", [Topic("pubsub", "customer-created")] ([FromBody] CloudEvent evt, ILogger<Program> logger) =>
+app.MapPost("/receive-fallback", [Topic("pubsub-internal-http-bus", "customer-created")] ([FromBody] CloudEvent evt, ILogger<Program> logger) =>
 {
     logger.LogWarning("Fallback event received: {evt}", evt);
 
     throw new NotSupportedException("No handler for " + evt.Type);
 });
-
 
 app.Run();

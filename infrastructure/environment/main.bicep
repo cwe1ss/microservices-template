@@ -47,7 +47,6 @@ var sqlAdminAdGroupName = replace(names.sqlAdminAdGroupName, '{environment}', en
 // Environment: Service Bus
 var serviceBusGroupName = replace(names.serviceBusGroupName, '{environment}', envConfig.environmentAbbreviation)
 var serviceBusNamespaceName = replace(names.serviceBusNamespaceName, '{environment}', envConfig.environmentAbbreviation)
-var serviceBusDaprPubSubKeyName = replace(names.serviceBusDaprPubSubKeyName, '{environment}', envConfig.environmentAbbreviation)
 
 // Environment: Container Apps Environment
 var appEnvironmentGroupName = replace(names.appEnvironmentGroupName, '{environment}', envConfig.environmentAbbreviation)
@@ -154,7 +153,6 @@ module serviceBusResources 'servicebus.bicep' = {
 
     // Resource names
     serviceBusNamespaceName: serviceBusNamespaceName
-    serviceBusDaprPubSubKeyName: serviceBusDaprPubSubKeyName
   }
 }
 
@@ -177,9 +175,6 @@ module appsResources 'app-environment.bicep' = {
     networkGroupName: networkGroupName
     networkVnetName: networkVnetName
     networkSubnetAppsName: networkSubnetAppsName
-    serviceBusGroupName: serviceBusGroupName
-    serviceBusNamespaceName: serviceBusNamespaceName
-    serviceBusDaprPubSubKeyName: serviceBusDaprPubSubKeyName
     monitoringGroupName: monitoringGroupName
     monitoringAppInsightsName: monitoringAppInsightsName
     appEnvName: appEnvironmentName

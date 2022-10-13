@@ -28,7 +28,6 @@
 
   "serviceBusGroupName": "{environment}-bus",
   "serviceBusNamespaceName": "{environment}-bus",
-  "serviceBusDaprPubSubKeyName": "dapr-pubsub",
 
   "sqlGroupName": "{environment}-sql",
   "sqlServerName": "{environment}-sql",
@@ -46,6 +45,7 @@
   "svcSqlDatabaseName": "{environment}-{service}-sqldb",
   "svcSqlDeployUserScriptName": "{environment}-{service}-sqldb-user-script",
   "svcSqlDeployMigrationScriptName": "{environment}-{service}-sqldb-migration-script",
+  "svcDaprPubSubName": "pubsub-{service}",
 
   "svcDataProtectionStorageContainerName": "data-protection",
   "svcDataProtectionKeyName": "data-protection",

@@ -84,7 +84,7 @@ public class CustomersService : Customers.CustomersBase
         {
             CustomerId = customer.CustomerId,
         });
-        await _daprClient.PublishEventAsync("pubsub", "customer-created", evt, context.CancellationToken);
+        await _daprClient.PublishEventAsync("pubsub-internal-grpc-sql-bus", "customer-created", evt, context.CancellationToken);
         _logger.LogWarning("CustomerCreatedEvent event published for {CustomerId}", evt.Data.CustomerId);
 
         return ToDto(customer);
