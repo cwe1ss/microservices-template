@@ -18,6 +18,10 @@ var serviceDefaults = config.services[serviceName]
 var serviceBusTopics = contains(serviceDefaults, 'serviceBusTopics') ? serviceDefaults.serviceBusTopics : []
 var serviceBusSubscriptions = contains(serviceDefaults, 'serviceBusSubscriptions') ? serviceDefaults.serviceBusSubscriptions : []
 
+// If the service subscribes to a topic that hasn't been deployed yet, its deployment would fail.
+// We therefore also create the topic when a subscriber-service is deployed.
+var allTopics = union(serviceBusTopics, serviceBusSubscriptions)
+
 
 ///////////////////////////////////
 // Existing resources
@@ -49,7 +53,7 @@ resource dataSenderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-
 ///////////////////////////////////
 // New resources
 
-resource topics 'Microsoft.ServiceBus/namespaces/topics@2022-01-01-preview' = [for item in serviceBusTopics: {
+resource topics 'Microsoft.ServiceBus/namespaces/topics@2022-01-01-preview' = [for item in allTopics: {
   name: item
   parent: serviceBusNamespace
   properties: {
@@ -59,8 +63,7 @@ resource topics 'Microsoft.ServiceBus/namespaces/topics@2022-01-01-preview' = [f
 resource subscriptions 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-01-01-preview' = [for item in serviceBusSubscriptions: {
   name: '${serviceBusNamespaceName}/${item}/${serviceName}'
   dependsOn: [
-    //subscribedTopics
-    topics // In case there's a subscription to one of its own topics
+    topics
   ]
   properties: {
   }
