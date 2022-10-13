@@ -143,8 +143,9 @@ This template uses Azure Service Bus for asynchronous communication.
 
 A "Service Bus namespace" called `{environment}-bus` is shared by all services and placed in its own `{environment}-bus` resource group.
 
-Topics and subscriptions are created when the individual services are deployed (as defined in `./infrastructure/config.json`. Each service uses its managed identity
-to access the topics and subscriptions.
+Topics and subscriptions are created when the individual services are deployed (as defined in `./infrastructure/config.json`).
+
+Each service uses its managed identity to access the topics and subscriptions via a `pubsub.azure.servicebus` Dapr component. Since topics and subscriptions are created during deployment, the Dapr components are configured with `disableEntityManagement=true` and the managed identities only require the [Azure Service Bus Data Sender](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#azure-service-bus-data-sender) (for topics) and [Azure Service Bus Data Receiver](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#azure-service-bus-data-receiver) (for subscriptions) RBAC-roles.
 
 ## Azure Application Insights
 
@@ -349,8 +350,6 @@ If you want to delete all resources that have been created by this project, you 
 
 * Custom domains and certificates are not yet supported for public services. I'm currently waiting for managed certificates which are on the team's roadmap.
   * The custom domains and certificates currently either have to be added manually after deployment, or they have to be incorporated into the Bicep files by yourself.
-* The Dapr pubsub-component currently uses a SAS-based connection string since the Dapr sidecar can't yet use the managed identity.
-* The pubsub-component currently requires `Manage` permissions to automatically create topics and subscriptions. It might be better to use `disableEntityManagement` and create/update topics & subscriptions during deployment. This would make config.json more complex though, since developers would have to enter topics and subscriptions there and keep them current with the actual code.
 * There is no good local development story yet.
   * You can try [Project Type](https://github.com/dotnet/tye) but I've had issues with the Dapr integration
 * It might be important to support referencing existing platform resources (Azure Container Registry, Log Analytics) for better integration with existing Azure infrastructure.
