@@ -74,8 +74,6 @@ The repository is also integrated with [automatic dependency updates via GitHub 
 
 GitHub Actions uses a user-assigned managed identity called `{platform}-github-id` to authenticate with Azure. The authentication leverages [federated credentials](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure) which means that there are no secrets stored in your GitHub repository!
 
-Note that this is the newest way to integrate GitHub with Azure and "federated credentials" for managed identities are currently not even displayed in the Azure Portal. You have to use "Export template" to see them.
-
 The alternative would have been to use a custom Azure AD application and service principal, but this would have moved more logic into Azure AD which can not be deployed via ARM/Bicep and they wouldn't be deleted if you delete the Azure resource groups. Creating applications also requires different permissions than creating managed identities.
 
 ## Azure Log Analytics Workspace
