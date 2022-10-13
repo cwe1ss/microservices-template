@@ -14,6 +14,7 @@ param tags object
 
 param platformGroupName string
 param platformLogsName string
+param diagnosticSettingsName string
 param networkGroupName string
 param networkVnetName string
 param networkSubnetAppsName string
@@ -77,11 +78,7 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
   tags: tags
   properties: {
     appLogsConfiguration: {
-      destination: 'log-analytics'
-      logAnalyticsConfiguration: {
-        customerId: platformLogs.properties.customerId
-        sharedKey: platformLogs.listKeys().primarySharedKey
-      }
+      destination: 'azure-monitor'
     }
     daprAIConnectionString: monitoringAppInsights.properties.ConnectionString
     daprAIInstrumentationKey: monitoringAppInsights.properties.InstrumentationKey
@@ -89,6 +86,24 @@ resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
       internal: false
       infrastructureSubnetId: networkSubnetApps.id
     }
+  }
+}
+
+resource appEnvDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: diagnosticSettingsName
+  scope: appEnv
+  properties: {
+    workspaceId: platformLogs.id
+    logs: [
+      {
+        category: 'ContainerAppConsoleLogs'
+        enabled: true
+      }
+      {
+        category: 'ContainerAppSystemLogs'
+        enabled: true
+      }
+    ]
   }
 }
 

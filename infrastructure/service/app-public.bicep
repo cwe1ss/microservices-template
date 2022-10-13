@@ -172,14 +172,12 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
               name: 'ASPNETCORE_CONNECTIONSTRINGS__SQL'
               value: sqlConnectionString
             }
-            // TODO: This creates separate fields for each JSON property in the "ContainerAppConsoleLogs_CL" table, so we keep the regular output for now.
-            // https://github.com/microsoft/azure-container-apps/issues/393
-            // {
-            //   // Console logs are sent to Azure Monitor. The default console logger outputs statements to multiple lines, so we use JSON instead.
-            //   // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter#json
-            //   name: 'Logging__Console__FormatterName'
-            //   value: 'json'
-            // }
+            {
+              // Console logs are sent to Azure Monitor. The default console logger outputs statements to multiple lines, so we use JSON instead.
+              // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter#json
+              name: 'Logging__Console__FormatterName'
+              value: 'json'
+            }
             {
               // Apps use the Application Insights SDK to log requests and exceptions, so we don't need to output anything to the console.
               name: 'Logging__Console__LogLevel__Default'
