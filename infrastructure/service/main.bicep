@@ -176,6 +176,9 @@ module svcVault 'keyvault.bicep' = {
 module svcSql 'sql.bicep' = if (sqlDatabaseEnabled) {
   name: 'svc-sql-${now}'
   scope: sqlGroup
+  dependsOn: [
+    svcIdentity
+  ]
   params: {
     location: config.location
     environment: environment
@@ -201,6 +204,9 @@ module svcSql 'sql.bicep' = if (sqlDatabaseEnabled) {
 module svcServiceBus 'servicebus.bicep' = if (serviceBusEnabled) {
   name: 'svc-bus-${now}'
   scope: serviceBusGroup
+  dependsOn: [
+    svcIdentity
+  ]
   params: {
     serviceName: serviceName
 
