@@ -11,7 +11,7 @@ The template focuses on the **solution architecture** and **infrastructure autom
 The template is meant to be a "production-ready starting point" that is easy to extend with your own services. For the most part, it does *not* force any specific software architecture or folder structure within the services.
 
 The template uses the following technologies:
-* Microsoft .NET for the microservices
+* Microsoft .NET 7 for the microservices
 * Azure Container Apps & Dapr for hosting
 * Azure PowerShell & Azure Bicep for infrastructure as code
 * GitHub for code hosting and GitHub Actions for CI/CD
@@ -119,7 +119,7 @@ To minimize the operations efforts, we use Azure Container Apps for hosting the 
 
 The Azure Container Apps environment is called `{environment}-env` and is created in a `{environment}-env`-resource group. The environment is connected to the previously mentioned VNET.
 
-The environment contains a Dapr "pubsub" component that allows services to use Azure Service Bus.
+Each service will add its Dapr components to this environment.
 
 ## Azure SQL Server
 
