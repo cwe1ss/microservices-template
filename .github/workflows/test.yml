@@ -28,10 +28,12 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
+          "Calling Get-AzVm"
           Get-AzVm
           "Sleep start"
-          Start-Sleep -Seconds 300
+          Start-Sleep -Seconds 660
           "Sleep stop"
+          "Calling Get-AzVm"
           Get-AzVm
           "Done"
         azPSVersion: "8.2.0"
