@@ -9,11 +9,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.7.0" />
     <PackageReference Include="Dapr.Client" Version="1.9.0" />
     <PackageReference Include="Google.Api.CommonProtos" Version="2.6.0" />
     <PackageReference Include="Google.Protobuf" Version="3.21.8" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="5.3.0-preview" />
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.0.0-preview" />
   </ItemGroup>
 
   <ItemGroup>

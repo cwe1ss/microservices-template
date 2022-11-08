@@ -58,6 +58,8 @@
       // The IP range for the container Apps environment. Must be part of the 'vnetAddressPrefix'.
       "appsSubnetAddressPrefix": "10.130.0.0/21",
 
+      "appConfigSku": "free", // or "standard"
+
       // The list of services that should be deployed into this environment.
       // (You do not have to deploy every service into every environment)
       "services": {

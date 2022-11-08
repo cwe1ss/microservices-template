@@ -18,6 +18,8 @@ param sqlServerName string
 param sqlDatabaseName string
 param monitoringGroupName string
 param monitoringAppInsightsName string
+param appConfigGroupName string
+param appConfigStoreName string
 param svcUserName string
 param svcAppName string
 param svcArtifactContainerImageWithTag string
@@ -39,6 +41,7 @@ var platformGroup = resourceGroup(platformGroupName)
 var envGroup = resourceGroup(appEnvGroupName)
 var monitoringGroup = resourceGroup(monitoringGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
+var appConfigGroup = resourceGroup(appConfigGroupName)
 
 resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   name: platformContainerRegistryName
@@ -63,6 +66,11 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' existing = {
   name: sqlDatabaseName
   scope: sqlGroup
+}
+
+resource appConfigStore 'Microsoft.AppConfiguration/configurationStores@2022-05-01' existing = {
+  name: appConfigStoreName
+  scope: appConfigGroup
 }
 
 resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
@@ -162,6 +170,10 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
               // If we don't set this, the authentication fails with the following error: https://github.com/Azure/azure-sdk-for-net/issues/13564
               name: 'AZURE_CLIENT_ID'
               value: svcUser.properties.clientId
+            }
+            {
+              name: 'AZURE_APPCONFIGURATION_ENDPOINT'
+              value: appConfigStore.properties.endpoint
             }
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'

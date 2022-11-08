@@ -52,6 +52,10 @@ var serviceBusNamespaceName = replace(names.serviceBusNamespaceName, '{environme
 var appEnvironmentGroupName = replace(names.appEnvironmentGroupName, '{environment}', envConfig.environmentAbbreviation)
 var appEnvironmentName = replace(names.appEnvironmentName, '{environment}', envConfig.environmentAbbreviation)
 
+// Environment: App Configuration
+var appConfigGroupName = replace(names.appConfigGroupName, '{environment}', envConfig.environmentAbbreviation)
+var appConfigStoreName = replace(names.appConfigStoreName, '{environment}', envConfig.environmentAbbreviation)
+
 
 ///////////////////////////////////
 // New resources
@@ -76,6 +80,12 @@ resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 resource appEnvGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: appEnvironmentGroupName
+  location: config.location
+  tags: tags
+}
+
+resource appConfigGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: appConfigGroupName
   location: config.location
   tags: tags
 }
@@ -178,5 +188,21 @@ module appsResources 'app-environment.bicep' = {
     monitoringGroupName: monitoringGroupName
     monitoringAppInsightsName: monitoringAppInsightsName
     appEnvName: appEnvironmentName
+  }
+}
+
+module appConfig 'appconfig.bicep' = {
+  name: 'appconfig-${now}'
+  scope: appConfigGroup
+  params: {
+    location: config.location
+    environment: environment
+    tags: tags
+
+    // Resource names
+    platformGroupName: platformGroupName
+    platformLogsName: platformLogsName
+    diagnosticSettingsName: names.diagnosticSettingsName
+    appConfigStoreName: appConfigStoreName
   }
 }

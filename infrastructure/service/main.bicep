@@ -57,6 +57,10 @@ var serviceBusNamespaceName = replace(names.serviceBusNamespaceName, '{environme
 var appEnvironmentGroupName = replace(names.appEnvironmentGroupName, '{environment}', envConfig.environmentAbbreviation)
 var appEnvironmentName = replace(names.appEnvironmentName, '{environment}', envConfig.environmentAbbreviation)
 
+// Environment: App Configuration
+var appConfigGroupName = replace(names.appConfigGroupName, '{environment}', envConfig.environmentAbbreviation)
+var appConfigStoreName = replace(names.appConfigStoreName, '{environment}', envConfig.environmentAbbreviation)
+
 // Service
 var svcGroupName = replace(replace(names.svcGroupName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
 var svcUserName = replace(replace(names.svcUserName, '{environment}', envConfig.environmentAbbreviation), '{service}', serviceName)
@@ -88,6 +92,7 @@ var platformGroup = resourceGroup(platformGroupName)
 var appEnvironmentGroup = resourceGroup(appEnvironmentGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 var serviceBusGroup = resourceGroup(serviceBusGroupName)
+var appConfigGroup = resourceGroup(appConfigGroupName)
 
 
 ///////////////////////////////////
@@ -236,6 +241,22 @@ module svcAppEnvPubSub 'app-environment-pubsub.bicep' = if (serviceBusEnabled) {
   }
 }
 
+module svcAppConfig 'appconfig.bicep' = {
+  name: 'svc-appconfig-${now}'
+  scope: appConfigGroup
+  dependsOn: [
+    svcIdentity
+  ]
+  params: {
+    serviceName: serviceName
+
+    // Resource names
+    appConfigStoreName: appConfigStoreName
+    svcGroupName: svcGroupName
+    svcUserName: svcUserName
+  }
+}
+
 module svcAppGrpc 'app-grpc.bicep' = if (serviceDefaults.appType == 'grpc') {
   name: 'svc-app-grpc-${now}'
   scope: svcGroup
@@ -328,6 +349,8 @@ module svcAppPublic 'app-public.bicep' = if (serviceDefaults.appType == 'public'
     sqlDatabaseName: sqlDatabaseName
     monitoringGroupName: monitoringGroupName
     monitoringAppInsightsName: monitoringAppInsightsName
+    appConfigGroupName: appConfigGroupName
+    appConfigStoreName: appConfigStoreName
     svcUserName: svcUserName
     svcAppName: svcAppName
     svcArtifactContainerImageWithTag: svcArtifactContainerImageWithTag

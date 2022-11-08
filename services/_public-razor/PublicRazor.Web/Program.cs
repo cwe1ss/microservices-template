@@ -2,6 +2,7 @@ using Azure.Identity;
 using InternalGrpc.Api;
 using InternalGrpcSqlBus.Api;
 using Microsoft.AspNetCore.DataProtection;
+using PublicRazor.Web;
 using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Azure
 var azureCredential = new DefaultAzureCredential();
+
+// Azure App Configuration
+builder.AddCustomAppConfiguration(azureCredential);
+builder.Services.Configure<TemplateSettings>(builder.Configuration.GetSection("Template"));
 
 // ASP.NET Core
 builder.Services.AddRazorPages();

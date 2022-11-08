@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject IConfiguration Config
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,6 +12,7 @@
     <h1>Public/Razor Pages</h1>
     <p>
         <ul>
+            <li><a asp-page="/AppConfig">Azure App Configuration Integration</a></li>
             <li><a asp-page="/InternalGrpc">internal-grpc</a> (a simple gRPC API that holds data in-memory only)</li>
             <li><a asp-page="/InternalGrpcSqlBus">internal-grpc-sql-bus</a> (a gRPC API that persists data in an Azure SQL database and publishes events to Azure Service Bus)</li>
             <li><a asp-page="/InternalHttpBus">internal-http-bus</a> (a HTTP API that receives events from Azure Service Bus, stores them in-memory and publishes an HTTP endpoint with details about the events)</li>
@@ -22,6 +24,11 @@
 <main>
     @RenderBody()
 </main>
+
+<footer>
+    <hr/>
+    Hostname: @(Config["CONTAINER_APP_HOSTNAME"] ?? Config["COMPUTERNAME"])
+</footer>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

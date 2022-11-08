@@ -37,6 +37,9 @@
   "appEnvironmentGroupName": "{environment}-env",
   "appEnvironmentName": "{environment}-env",
 
+  "appConfigGroupName": "{environment}-config",
+  "appConfigStoreName": "{environment}-config",
+
   "svcGroupName": "{environment}-svc-{service}",
   "svcUserName": "{environment}-{service}-id",
   "svcAppName": "{environment}-{service}",

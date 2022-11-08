@@ -1,0 +1,19 @@
+@page
+@model PublicRazor.Web.Pages.AppConfigModel
+@{
+}
+
+<h2>Azure App Configuration Integration</h2>
+
+<p>Settings:</p>
+<ul>
+    <li>SimpleKey: @Model.Settings.SimpleKey</li>
+    <li>EnvironmentSpecific: @Model.Settings.EnvironmentSpecific</li>
+    <li>JsonKey.SomeField: @Model.Settings.JsonKey?.SomeField</li>
+    <li>Sentinel: @Model.Sentinel</li>
+</ul>
+<p>Flags:</p>
+<ul>
+    <li>SimpleFlag: @Model.SimpleFlagEnabled</li>
+    <li>PercentageFlag: @Model.PercentageFlagEnabled</li>
+</ul>
