@@ -9,6 +9,9 @@ param sqlAdminAdGroupId string
 ///////////////////////////////////
 // Resource names
 
+param platformGroupName string
+param platformLogsName string
+param diagnosticSettingsName string
 param networkGroupName string
 param networkVnetName string
 param networkSubnetAppsName string
@@ -20,7 +23,13 @@ param sqlAdminAdGroupName string
 ///////////////////////////////////
 // Existing resources
 
+var platformGroup = resourceGroup(platformGroupName)
 var networkGroup = resourceGroup(networkGroupName)
+
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: platformLogsName
+  scope: platformGroup
+}
 
 resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   name: networkVnetName
@@ -84,5 +93,51 @@ resource allowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2020-11-01
   properties: {
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
+  }
+}
+
+resource masterDb 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
+  parent: sqlServer
+  location: location
+  name: 'master'
+  properties: {
+  }
+}
+
+resource masterDbDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: diagnosticSettingsName
+  scope: masterDb
+  properties: {
+    workspaceId: platformLogs.id
+    logs:[
+      {
+        category: 'SQLSecurityAuditEvents'
+        enabled: true
+      }
+    ]
+  }
+}
+
+resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2021-08-01-preview'= {
+  name: 'default'
+  parent: sqlServer
+  properties:{
+    auditActionsAndGroups:[
+     'BATCH_COMPLETED_GROUP'
+     'SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP'
+     'FAILED_DATABASE_AUTHENTICATION_GROUP'
+    ]
+    isAzureMonitorTargetEnabled: true
+    state:'Enabled'
+  }
+}
+
+@description('Enables Microsoft Defender for Azure SQL')
+resource sqlSecurity 'Microsoft.Sql/servers/securityAlertPolicies@2022-05-01-preview' = {
+  name: 'Default'
+  parent: sqlServer
+  properties: {
+    state: 'Enabled'
+    emailAccountAdmins: true
   }
 }
