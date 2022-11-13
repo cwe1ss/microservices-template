@@ -48,6 +48,7 @@ resource appsNsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
         properties: {
           priority: 1010
           direction: 'Inbound'
+          description: 'Required for public HTTP->HTTPS redirects'
           sourceAddressPrefix: 'Internet'
           sourcePortRange: '*'
           destinationAddressPrefix: '*'
@@ -61,12 +62,31 @@ resource appsNsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
         properties: {
           priority: 1020
           direction: 'Inbound'
+          description: 'Required for public HTTPS ingress'
           sourceAddressPrefix: 'Internet'
           sourcePortRange: '*'
           destinationAddressPrefix: '*'
           destinationPortRange: '443'
           protocol: 'TCP'
           access: 'Allow'
+        }
+      }
+      // Outbound rules
+      {
+        // https://azure.github.io/PSRule.Rules.Azure/en/rules/Azure.NSG.LateralTraversal/
+        name: 'DenyRemoteAccessOutbound'
+        properties: {
+          priority: 2010
+          direction: 'Outbound'
+          sourceAddressPrefix: 'VirtualNetwork'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+          destinationPortRanges: [
+            '22'
+            '3389'
+          ]
+          protocol: 'TCP'
+          access: 'Deny'
         }
       }
     ]
@@ -102,10 +122,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
         name: networkSubnetAppsName
         properties: {
           addressPrefix: envConfig.appsSubnetAddressPrefix
-          // TODO The NSG doesn't yet work properly. https://github.com/microsoft/azure-container-apps/issues/418
-          // networkSecurityGroup: {
-          //   id: appsNsg.id
-          // }
+          networkSecurityGroup: {
+            id: appsNsg.id
+          }
           serviceEndpoints: [
             // TODO: Add any other service endpoints you require
             {
