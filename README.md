@@ -336,7 +336,8 @@ Once the new service has been created, you must still perform a few manual tasks
 
 If you want to delete all resources that have been created by this project, you must perform the following *manual* steps:
 
-* Delete the subscription role assignments for the GitHub identity (e.g. `dm-px-github-id`)
+* Delete the subscription role assignments for the GitHub identity `{platform}-github-id` (_Azure Portal -> Subscriptions -> Your subscription -> Access control (IAM) -> Role assignments_) 
+  * **IMPORTANT:** Azure does not automatically delete role assignments for deleted users/identities! If you delete the identity first, the role assignments will be displayed with "Identity not found" and any attempt to re-run `init-platform.ps1` will fail with the error code `RoleAssignmentUpdateNotPermitted` (_Tenant ID, application ID, principal ID, and scope are not allowed to be updated._).
 * Delete all Azure resource groups with the tag `product: (config.platformAbbreviation)` (e.g. `product: dm-px`)
   * You should delete all service-groups first, environment-groups second, and platform-groups last.
 * Delete Azure AD groups that start with `(config.platformAbbreviation)-` (e.g. `dm-px-dev-sql-admins`)
