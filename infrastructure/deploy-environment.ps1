@@ -32,6 +32,20 @@ if (!$sqlAdminAdGroup) { throw "AAD group '$sqlAdminAdGroupName' not found. Did 
 
 
 ############################
+"Registering Az providers"
+
+# New subscriptions that never deployed container apps before require to register the container service provider first.
+# Azure Portal and CLI are doing this automatically but Bicep is not. We therefore have to manually register the providers first.
+# https://github.com/microsoft/azure-container-apps/issues/451#issuecomment-1282628180
+# https://github.com/Azure/bicep/issues/3267
+
+"* Microsoft.App"
+Register-AzResourceProvider -ProviderNamespace Microsoft.App | Out-Null
+"* Microsoft.ContainerService"
+Register-AzResourceProvider -ProviderNamespace Microsoft.ContainerService | Out-Null
+
+
+############################
 "Deploying Azure resources"
 
 New-AzSubscriptionDeployment `
