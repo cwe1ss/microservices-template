@@ -9,9 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapr.Client" Version="1.9.0" />
-    <PackageReference Include="Google.Api.CommonProtos" Version="2.7.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.21.12" />
+    <PackageReference Include="Dapr.Client" Version="1.10.0" />
+    <PackageReference Include="Google.Api.CommonProtos" Version="2.8.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.51.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
   </ItemGroup>
