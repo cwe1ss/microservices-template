@@ -34,4 +34,4 @@ jobs:
         inlineScript: |
           Set-Location ./infrastructure
           ./deploy-service.ps1 -Environment ${{ inputs.environment }} -Service ${{ inputs.service }} -BuildNumber ${{ github.run_number }}
-        azPSVersion: "8.2.0"
+        azPSVersion: "9.5.0"
