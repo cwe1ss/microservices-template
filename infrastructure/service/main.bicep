@@ -93,7 +93,7 @@ var serviceBusGroup = resourceGroup(serviceBusGroupName)
 ///////////////////////////////////
 // New resources
 
-resource svcGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource svcGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: svcGroupName
   location: config.location
   tags: tags

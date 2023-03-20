@@ -10,7 +10,7 @@ param sqlServerAdminUserName string
 ///////////////////////////////////
 // New resources
 
-resource sqlIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+resource sqlIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: sqlServerAdminUserName
   location: location
   tags: tags

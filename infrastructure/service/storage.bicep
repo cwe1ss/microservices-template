@@ -20,17 +20,17 @@ param svcStorageDataProtectionContainerName string
 var networkGroup = resourceGroup(networkGroupName)
 var svcGroup = resourceGroup(svcGroupName)
 
-resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-09-01' existing = {
   name: networkVnetName
   scope: networkGroup
 }
 
-resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' existing = {
   name: networkSubnetAppsName
   parent: networkVnet
 }
 
-resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: svcUserName
   scope: svcGroup
 }
@@ -45,7 +45,7 @@ resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleD
 ///////////////////////////////////
 // New resources
 
-resource svcStorageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+resource svcStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: svcStorageAccountName
   location: location
   tags: tags
@@ -82,7 +82,7 @@ resource svcStorageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
 }
 
 @description('A blob container that will be used to store the ASP.NET Core Data Protection keys')
-resource dataProtectionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+resource dataProtectionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   name: '${svcStorageAccount.name}/default/${svcStorageDataProtectionContainerName}'
   properties: {
     publicAccess: 'None'

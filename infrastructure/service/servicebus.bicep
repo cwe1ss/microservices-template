@@ -28,11 +28,11 @@ var allTopics = union(serviceBusTopics, serviceBusSubscriptions)
 
 var svcGroup = resourceGroup(svcGroupName)
 
-resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
+resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
   name: serviceBusNamespaceName
 }
 
-resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: svcUserName
   scope: svcGroup
 }
@@ -53,14 +53,14 @@ resource dataSenderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-
 ///////////////////////////////////
 // New resources
 
-resource topics 'Microsoft.ServiceBus/namespaces/topics@2022-01-01-preview' = [for item in allTopics: {
+resource topics 'Microsoft.ServiceBus/namespaces/topics@2022-10-01-preview' = [for item in allTopics: {
   name: item
   parent: serviceBusNamespace
   properties: {
   }
 }]
 
-resource subscriptions 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-01-01-preview' = [for item in serviceBusSubscriptions: {
+resource subscriptions 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-10-01-preview' = [for item in serviceBusSubscriptions: {
   name: '${serviceBusNamespaceName}/${item}/${serviceName}'
   dependsOn: [
     topics
@@ -69,7 +69,7 @@ resource subscriptions 'Microsoft.ServiceBus/namespaces/topics/subscriptions@202
   }
 }]
 
-resource topicSenderRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for (topic, i) in serviceBusTopics: {
+resource topicSenderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (topic, i) in serviceBusTopics: {
   name: guid(subscription().id, topic, serviceName, 'Sender')
   scope: topics[i]
   properties: {
@@ -79,7 +79,7 @@ resource topicSenderRole 'Microsoft.Authorization/roleAssignments@2020-04-01-pre
   }
 }]
 
-resource subscriptionReceiverRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for (subscription, i) in serviceBusSubscriptions: {
+resource subscriptionReceiverRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (subscription, i) in serviceBusSubscriptions: {
   name: guid(subscription().id, subscription, serviceName, 'Receive')
   scope: subscriptions[i]
   properties: {

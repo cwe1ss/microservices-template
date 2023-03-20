@@ -26,23 +26,23 @@ param sqlAdminAdGroupName string
 var platformGroup = resourceGroup(platformGroupName)
 var networkGroup = resourceGroup(networkGroupName)
 
-resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: platformLogsName
   scope: platformGroup
 }
 
-resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-09-01' existing = {
   name: networkVnetName
   scope: networkGroup
 }
 
-resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' existing = {
   name: networkSubnetAppsName
   parent: networkVnet
 }
 
 @description('The SQL identity must have been created beforehand via the init script.')
-resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: sqlServerAdminUserName
 }
 
@@ -50,7 +50,7 @@ resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@20
 ///////////////////////////////////
 // New resources
 
-resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2022-08-01-preview' = {
   name: sqlServerName
   location: location
   tags: tags
@@ -76,7 +76,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
 }
 
 @description('Allows apps from the Container Apps-subnet to access the SQL server')
-resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-preview' = {
+resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-08-01-preview' = {
   name: networkSubnetAppsName
   parent: sqlServer
   properties: {
@@ -87,7 +87,7 @@ resource appsVnetRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-02-01-prev
 
 // TODO We currently need this because the container instances created by the deploymentScripts can not yet be joined to a VNET.
 @description('Allows all Azure services to access the SQL server')
-resource allowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2020-11-01-preview' = {
+resource allowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2022-08-01-preview' = {
   name: 'AllowAllWindowsAzureIps'
   parent: sqlServer
   properties: {
@@ -96,7 +96,7 @@ resource allowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2020-11-01
   }
 }
 
-resource masterDb 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
+resource masterDb 'Microsoft.Sql/servers/databases@2022-08-01-preview' = {
   parent: sqlServer
   location: location
   name: 'master'
@@ -118,7 +118,7 @@ resource masterDbDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-
   }
 }
 
-resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2021-08-01-preview'= {
+resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2022-08-01-preview'= {
   name: 'default'
   parent: sqlServer
   properties:{
@@ -133,7 +133,7 @@ resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2021-08-01-preview'= {
 }
 
 @description('Enables Microsoft Defender for Azure SQL')
-resource sqlSecurity 'Microsoft.Sql/servers/securityAlertPolicies@2022-05-01-preview' = {
+resource sqlSecurity 'Microsoft.Sql/servers/securityAlertPolicies@2022-08-01-preview' = {
   name: 'Default'
   parent: sqlServer
   properties: {

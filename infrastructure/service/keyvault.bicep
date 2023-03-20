@@ -24,22 +24,22 @@ var platformGroup = resourceGroup(platformGroupName)
 var networkGroup = resourceGroup(networkGroupName)
 var svcGroup = resourceGroup(svcGroupName)
 
-resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: platformLogsName
   scope: platformGroup
 }
 
-resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-09-01' existing = {
   name: networkVnetName
   scope: networkGroup
 }
 
-resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' existing = {
   name: networkSubnetAppsName
   parent: networkVnet
 }
 
-resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: svcUserName
   scope: svcGroup
 }
@@ -60,7 +60,7 @@ resource keyVaultSecretsUserRole 'Microsoft.Authorization/roleDefinitions@2022-0
 ///////////////////////////////////
 // New resources
 
-resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+resource vault 'Microsoft.KeyVault/vaults@2022-11-01' = {
   name: svcVaultName
   location: location
   tags: tags
@@ -105,7 +105,7 @@ resource vaultDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-
   }
 }
 
-resource dataProtectionKey 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
+resource dataProtectionKey 'Microsoft.KeyVault/vaults/keys@2022-11-01' = {
   name: svcVaultDataProtectionKeyName
   parent: vault
   tags: tags

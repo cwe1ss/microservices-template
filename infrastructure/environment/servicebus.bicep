@@ -14,7 +14,7 @@ param serviceBusNamespaceName string
 ///////////////////////////////////
 // New resources
 
-resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' = {
+resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
   name: serviceBusNamespaceName
   location: location
   tags: tags

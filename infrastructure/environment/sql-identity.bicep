@@ -28,7 +28,7 @@ var sqlServerAdminUserName = replace(names.sqlServerAdminName, '{environment}', 
 // New resources
 
 @description('The SQL group contains the SQL server, its identity and its databases')
-resource sqlGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource sqlGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: sqlGroupName
   location: config.location
   tags: tags

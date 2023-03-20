@@ -34,7 +34,7 @@ var githubCredentials = concat(ghBranchCredentials, ghPlatformCredentials, ghEnv
 ///////////////////////////////////
 // New resources
 
-resource githubIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+resource githubIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: githubIdentityName
   location: location
   tags: tags
@@ -45,7 +45,7 @@ resource githubIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-0
 // ErrorCode: "ConcurrentFederatedIdentityCredentialsWritesForSingleManagedIdentity"
 @batchSize(1)
 @description('Allows GitHub Actions to deploy from any of the configured environments')
-resource federatedCredentials 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2022-01-31-preview' = [for item in githubCredentials: {
+resource federatedCredentials 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2023-01-31' = [for item in githubCredentials: {
   name: item.name
   parent: githubIdentity
   properties: {

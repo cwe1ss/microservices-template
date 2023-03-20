@@ -56,31 +56,31 @@ var appEnvironmentName = replace(names.appEnvironmentName, '{environment}', envC
 ///////////////////////////////////
 // New resources
 
-resource networkGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource networkGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: networkGroupName
   location: config.location
   tags: tags
 }
 
-resource monitoringGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource monitoringGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: monitoringGroupName
   location: config.location
   tags: tags
 }
 
-resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource serviceBusGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: serviceBusGroupName
   location: config.location
   tags: tags
 }
 
-resource appEnvGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource appEnvGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: appEnvironmentGroupName
   location: config.location
   tags: tags
 }
 
-resource sqlGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource sqlGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: sqlGroupName
   location: config.location
   tags: tags

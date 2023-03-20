@@ -27,7 +27,7 @@ var envConfig = config.environments[environment]
 
 var platformGroup = resourceGroup(platformGroupName)
 
-resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: platformLogsName
   scope: platformGroup
 }

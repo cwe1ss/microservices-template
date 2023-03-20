@@ -30,7 +30,7 @@ var platformStorageAccountName = toLower(replace(replace(names.platformStorageAc
 ///////////////////////////////////
 // New resources
 
-resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource platformGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: platformGroupName
   location: config.location
   tags: tags

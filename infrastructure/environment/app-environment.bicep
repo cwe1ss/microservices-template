@@ -29,17 +29,17 @@ var platformGroup = resourceGroup(platformGroupName)
 var networkGroup = resourceGroup(networkGroupName)
 var monitoringGroup = resourceGroup(monitoringGroupName)
 
-resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: platformLogsName
   scope: platformGroup
 }
 
-resource networkVnet 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
+resource networkVnet 'Microsoft.Network/virtualNetworks@2022-09-01' existing = {
   name: networkVnetName
   scope: networkGroup
 }
 
-resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existing = {
+resource networkSubnetApps 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' existing = {
   name: networkSubnetAppsName
   parent: networkVnet
 }
@@ -53,7 +53,7 @@ resource monitoringAppInsights 'Microsoft.Insights/components@2020-02-02' existi
 ///////////////////////////////////
 // New resources
 
-resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
+resource appEnv 'Microsoft.App/managedEnvironments@2022-10-01' = {
   name: appEnvName
   location: location
   tags: tags

@@ -25,7 +25,7 @@ resource userAccessAdministratorRoleDefinition 'Microsoft.Authorization/roleDefi
   name: '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
 }
 
-resource platformGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource platformGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
   name: platformGroupName
 }
 
@@ -49,7 +49,7 @@ module githubIdentity 'github-identity-resources.bicep' = {
 }
 
 @description('The managed identity must be able to create & modify Azure resources in the subscription')
-resource githubIdentityContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource githubIdentityContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(subscription().id, 'github', 'Contributor')
   properties: {
     roleDefinitionId: contributorRoleDefinition.id
@@ -59,7 +59,7 @@ resource githubIdentityContributor 'Microsoft.Authorization/roleAssignments@2020
 }
 
 @description('The managed identity must be able to assign roles to other managed identities')
-resource githubIdentityUserAccessAdministrator 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource githubIdentityUserAccessAdministrator 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(subscription().id, 'github', 'UserAccessAdministrator')
   properties: {
     roleDefinitionId: userAccessAdministratorRoleDefinition.id

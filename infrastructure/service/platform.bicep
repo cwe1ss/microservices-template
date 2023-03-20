@@ -11,11 +11,11 @@ param svcUserName string
 
 var svcGroup = resourceGroup(svcGroupName)
 
-resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
+resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: platformContainerRegistryName
 }
 
-resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: svcUserName
   scope: svcGroup
 }

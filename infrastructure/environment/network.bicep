@@ -26,7 +26,7 @@ var envConfig = config.environments[environment]
 
 var platformGroup = resourceGroup(platformGroupName)
 
-resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: platformLogsName
   scope: platformGroup
 }
@@ -36,7 +36,7 @@ resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' exis
 // New resources
 
 // https://learn.microsoft.com/en-us/azure/container-apps/firewall-integration#nsg-allow-rules
-resource appsNsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+resource appsNsg 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
   name: networkNsgAppsName
   location: location
   tags: tags
@@ -107,7 +107,7 @@ resource appsNsgDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-0
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' = {
   name: networkVnetName
   location: location
   tags: tags

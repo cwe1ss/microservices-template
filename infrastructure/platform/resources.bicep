@@ -15,7 +15,7 @@ param sqlMigrationContainerName string
 ///////////////////////////////////
 // Existing resources
 
-resource githubIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource githubIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: githubIdentityName
 }
 
@@ -29,7 +29,7 @@ resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleD
 ///////////////////////////////////
 // New resources
 
-resource platformStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource platformStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: platformStorageAccountName
   location: location
   tags: tags
@@ -57,7 +57,7 @@ resource platformStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' =
 }
 
 @description('A blob container that will be used to store any SQL migration scripts for all services')
-resource sqlMigrationContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+resource sqlMigrationContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   name: '${platformStorageAccount.name}/default/${sqlMigrationContainerName}'
 }
 
@@ -73,7 +73,7 @@ resource saAccessForGitHub 'Microsoft.Authorization/roleAssignments@2022-04-01' 
 }
 
 @description('The container registry will store all container images for all services')
-resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
+resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
   name: platformContainerRegistryName
   location: location
   tags: tags
@@ -86,7 +86,7 @@ resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-
 }
 
 @description('One global log analytics workspace is used to simplify the operations and querying')
-resource platformLogs 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
+resource platformLogs 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: platformLogsName
   location: location
   tags: tags

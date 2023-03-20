@@ -40,12 +40,12 @@ var envGroup = resourceGroup(appEnvGroupName)
 var monitoringGroup = resourceGroup(monitoringGroupName)
 var sqlGroup = resourceGroup(sqlGroupName)
 
-resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
+resource platformContainerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: platformContainerRegistryName
   scope: platformGroup
 }
 
-resource appEnv 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
+resource appEnv 'Microsoft.App/managedEnvironments@2022-10-01' existing = {
   name: appEnvName
   scope: envGroup
 }
@@ -55,17 +55,17 @@ resource monitoringAppInsights 'Microsoft.Insights/components@2020-02-02' existi
   scope: monitoringGroup
 }
 
-resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
+resource sqlServer 'Microsoft.Sql/servers@2022-08-01-preview' existing = {
   name: sqlServerName
   scope: sqlGroup
 }
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' existing = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-08-01-preview' existing = {
   name: sqlDatabaseName
   scope: sqlGroup
 }
 
-resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: svcUserName
 }
 
@@ -83,7 +83,7 @@ var sqlConnectionString = sqlDatabaseEnabled ? 'Server=${sqlServer.properties.fu
 // TODO: It's not currently possible to dynamically create the environment variables array.
 // https://github.com/microsoft/azure-container-apps/issues/391
 
-resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
+resource containerApp 'Microsoft.App/containerApps@2022-10-01' = {
   name: svcAppName
   location: location
   tags: tags

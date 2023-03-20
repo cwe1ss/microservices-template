@@ -36,20 +36,20 @@ var serviceConfig = envConfig.services[serviceName]
 var platformGroup = resourceGroup(platformGroupName)
 var svcGroup = resourceGroup(svcGroupName)
 
-resource platformStorage 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
+resource platformStorage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: platformStorageAccountName
   scope: platformGroup
 }
 
-resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' existing = {
+resource sqlServer 'Microsoft.Sql/servers@2022-08-01-preview' existing = {
   name: sqlServerName
 }
 
-resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource sqlServerAdminUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: sqlServerAdminUserName
 }
 
-resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' existing = {
+resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: svcUserName
   scope: svcGroup
 }
@@ -58,7 +58,7 @@ resource svcUser 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-pr
 ///////////////////////////////////
 // New resources
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-08-01-preview' = {
   name: sqlDatabaseName
   parent: sqlServer
   location: location
