@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapr.Client" Version="1.10.0" />
-    <PackageReference Include="Google.Api.CommonProtos" Version="2.9.0" />
+    <PackageReference Include="Google.Api.CommonProtos" Version="2.10.0" />
     <PackageReference Include="Google.Protobuf" Version="3.23.3" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
