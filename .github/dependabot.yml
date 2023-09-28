@@ -2,13 +2,25 @@
 
 version: 2
 updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
 
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: "weekly"
-
-- package-ecosystem: nuget
-  directory: "/"
-  schedule:
-    interval: daily
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: daily
+    groups:
+      azure-sdk:
+        patterns:
+          - "Azure.*"
+      dotnet:
+        patterns:
+          - "Microsoft.Extensions.*"
+          - "Microsoft.AspNetCore.*"
+          - "Microsoft.Data.*"
+          - "Microsoft.EntityFrameworkCore*"
+      grpc:
+        patterns:
+          - "Grpc.*"
