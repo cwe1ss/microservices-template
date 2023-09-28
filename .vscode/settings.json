@@ -1,19 +1,22 @@
 {
-    "files.associations": {
-        // Bicep can handle comments when loading JSON files.
-        "config.json": "jsonc",
-        "names.json": "jsonc",
-        // ASP.NET Core files that can also handle comments
-        "appsettings.json": "jsonc",
-        "appsettings.Development.json": "jsonc",
-        "launchSettings.json": "jsonc"
-    },
-
-    // OmniSharp settings
-    // https://github.com/OmniSharp/omnisharp-vscode/blob/master/src/omnisharp/options.ts
-    // https://www.strathweb.com/2020/02/hidden-features-of-omnisharp-and-c-extension-for-vs-code/
-    "omnisharp.enableEditorConfigSupport": true,
-    "omnisharp.enableRoslynAnalyzers": true,
-    "omnisharp.enableImportCompletion": true,
-    "omnisharp.organizeImportsOnFormat": true
+  "files.associations": {
+    // Bicep can handle comments when loading JSON files.
+    "config.json": "jsonc",
+    "names.json": "jsonc",
+    // ASP.NET Core files that can also handle comments
+    "appsettings.json": "jsonc",
+    "appsettings.Development.json": "jsonc",
+    "launchSettings.json": "jsonc"
+  },
+  "files.insertFinalNewline": true,
+  // OmniSharp settings
+  // https://github.com/OmniSharp/omnisharp-vscode/blob/master/src/omnisharp/options.ts
+  // https://www.strathweb.com/2020/02/hidden-features-of-omnisharp-and-c-extension-for-vs-code/
+  "omnisharp.enableEditorConfigSupport": true,
+  "omnisharp.organizeImportsOnFormat": true,
+  "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+  "dotnet.defaultSolution": "MSA-Template.sln",
+  "cSpell.words": [
+    "Dapr"
+  ]
 }
