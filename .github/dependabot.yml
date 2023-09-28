@@ -21,6 +21,7 @@ updates:
           - "Microsoft.AspNetCore.*"
           - "Microsoft.Data.*"
           - "Microsoft.EntityFrameworkCore*"
+          - "dotnet-*"
       grpc:
         patterns:
           - "Grpc.*"
