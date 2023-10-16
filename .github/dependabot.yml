@@ -15,6 +15,9 @@ updates:
       azure-sdk:
         patterns:
           - "Azure.*"
+      dapr:
+        patterns:
+          - "Dapr.*"
       dotnet:
         patterns:
           - "Microsoft.Extensions.*"
