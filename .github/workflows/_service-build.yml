@@ -43,7 +43,7 @@ jobs:
         refresh_token=$(curl https://${{ secrets.REGISTRY_SERVER }}/oauth2/exchange -v -d "grant_type=access_token&service=${{ secrets.REGISTRY_SERVER }}&access_token=$access_token" | jq -r .refresh_token)
         docker login -u 00000000-0000-0000-0000-000000000000 --password-stdin ${{ secrets.REGISTRY_SERVER }} <<< "$refresh_token"
 
-    - uses: actions/setup-dotnet@v3
+    - uses: actions/setup-dotnet@v4
 
     - run: dotnet --version
 
